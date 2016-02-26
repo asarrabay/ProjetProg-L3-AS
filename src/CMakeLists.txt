@@ -1,0 +1,6 @@
+flex_target(LEXER analyse.l ${CMAKE_CURRENT_BINARY_DIR}/analyse.l.c)
+bison_target(PARSER analyse.y ${CMAKE_CURRENT_BINARY_DIR}/analyse.y.c)
+add_flex_bison_dependency(LEXER PARSER)
+add_executable(main main.c ${BISON_PARSER_OUTPUTS} ${FLEX_LEXER_OUTPUTS})
+target_link_librairies(main fl y)
+install(PROGRAMS main DESTINATION ${AS_BINARY_DIR}/bin)

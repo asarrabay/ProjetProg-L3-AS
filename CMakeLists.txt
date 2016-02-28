@@ -1,10 +1,17 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
 project(AS)
-find_package(FLEX)
-find_package(BISON)
-add_definitions(-std=c99 -g -pedantic -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes)
-set(CMAKE_INSTALL_PREFIX ${AS_SOURCE_DIR})
-include_directories(${AS_SOURCE_DIR}/include)
-configure_file(${AS_SOURCE_DIR}/Doxyfile ${AS_BINARY_DIR}/Doxyfile.cmake @ONLY)
-add_custom_target(doc COMMAND doxygen ${AS_BINARY_DIR}/Doxyfile.cmake)
+find_package(FLEX REQUIRED)
+find_package(BISON REQUIRED)
+
+add_definitions(-std=gnu99 -g -pedantic -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes)
+
+if(WIN32)
+# TODO
+endif(WIN32)
+
+set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/include ${PROJECT_BINARY_DIR}/src)
+enable_testing()
+configure_file(${PROJECT_SOURCE_DIR}/Doxyfile ${PROJECT_BINARY_DIR}/Doxyfile.cmake @ONLY)
+add_custom_target(doc COMMAND doxygen ${PROJECT_BINARY_DIR}/Doxyfile.cmake)
 add_subdirectory(src)

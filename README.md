@@ -3,11 +3,16 @@
 ## Todo list
 
 ### Analyseur lexical
-Voir le sujet pour les modalités de parsing
+Voir le sujet pour les modalités de parsing [04/03/2016]
+Mise en place d'un jeu de test pour tester les REGEX ecrites [04/03/2016]
+
+REVUE DE PROJET : Validation du lexer, ecriture du rapport [04/03/2016]
 
 ### Analyseur syntaxique
-* Lire un fichier utilisant la notation convenue pour les arbres, et le représenter dans la structure de données décrite dans le sujet
-* Ecrire une fonction qui permette de transcrire cette structure de données dans un fichier au format XML
+* Lire un fichier utilisant la notation convenue pour les arbres, et le représenter dans la structure de données décrite dans le sujet [11/03/2016]
+* Ecrire une fonction qui permette de transcrire cette structure de données dans un fichier au format XML [11/03/2016]
+
+REVUE DE PROJET : Validation du parser, ecriture du rapport [04/03/2016]
 
 ### Structures de contrôle et fonctions
 * Déclarations et définitions

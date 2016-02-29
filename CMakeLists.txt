@@ -3,7 +3,7 @@ project(AS)
 find_package(FLEX REQUIRED)
 find_package(BISON REQUIRED)
 
-add_definitions(-std=gnu99 -g -pedantic -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes)
+add_definitions(-std=gnu99 -pedantic -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes)
 
 if(WIN32)
 # TODO

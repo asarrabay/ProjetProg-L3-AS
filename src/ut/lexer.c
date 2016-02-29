@@ -7,9 +7,9 @@ extern void yy_delete_buffer(YY_BUFFER_STATE);
 
 ut_status_t ut_run (ut_t ut) {
     YY_BUFFER_STATE input = yy_scan_string(ut->s_input);
-    tokens_t t = (tokens_t)0;
     int i = -1;
-    while ((i++ < ut->size) && (t = (tokens_t)yylex()) && (t == ut->sa_output[i]));
+    while ((++i < ut->size) && ((tokens_t)yylex() == ut->sa_output[i]));
+    ut_status_t status = ((i == ut->size) && (yylex() == 0)) ? UT_PASSED : UT_FAILED ;
     yy_delete_buffer(input);
-    return ((i == ut->size) && (t == (tokens_t)0)) ? UT_PASSED : UT_FAILED;
+    return status;
 }

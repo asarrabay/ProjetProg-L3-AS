@@ -1,3 +1,10 @@
+/**
+ * \file label.c
+ * \brief Test unitaire du lexer concernant la reconnaissance d'etiquettes.
+ * \author LAHAYE Valentin
+ * \date 28 Fevrier 2016
+ */
+
 #include <stdlib.h>
 #include <ut/lexer.h>
 

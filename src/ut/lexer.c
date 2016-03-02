@@ -1,3 +1,10 @@
+/**
+ * \file lexer.c
+ * \brief Fichier contenant l'implementation de l'interface lexer.h
+ * \author LAHAYE Valentin
+ * \date 28 Fevrier 2016
+ */
+
 #include <ut/lexer.h>
 
 typedef struct yy_buffer_state *YY_BUFFER_STATE;

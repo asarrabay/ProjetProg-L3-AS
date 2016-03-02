@@ -1,3 +1,10 @@
+/**
+ * \file lexer.l
+ * \brief Fichier contenant les regles constituant l'analyseur lexical du projet.
+ * \author LAHAYE Valentin
+ * \date 26 Fevier 2016
+ */
+
 %{
 #include <tokens.h>
 

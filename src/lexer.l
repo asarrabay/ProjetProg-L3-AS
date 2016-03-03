@@ -6,10 +6,10 @@
  */
 
 %{
-#include <tokens.h>
+//#include <tokens.h>
 
 #ifndef UT_LEXER
-#include <parser.y.h>
+//#include <parser.y.h>
 #endif
 %}
 
@@ -17,23 +17,36 @@
 %option noinput
 %option noyywrap
 
-LABELSET ([[:alnum:]'\._])
+LABELSET    ([[:alnum:]'\._])
+LABEL       [[:alpha:]]{LABELSET}*|_{LABELSET}+
+
+%x ATTR
 
 %%
 
-"{" { return OB;  }
-"}" { return CB;  }
-"[" { return OSB; }
-"]" { return CSB; }
-"/" { return EOL; }
+\[                      {   printf("catch : %c\n", yytext[0]);
+                            BEGIN ATTR;}
+<ATTR>{LABEL}           {   printf("label attr : %s\n", yytext);}
+<ATTR>=                 {   printf("=\n");}
+<ATTR>\"[^"]*\"         {   printf("val = %s\n", yytext);}
+<ATTR>[[:space:]]*      {}
+<ATTR>\][[:space:]]+\/  {   printf("La YAPAboN\n");}
+<ATTR>\][[:space:]]*    {   printf("catch : %c\n", yytext[0]);
+                            BEGIN INITIAL;}
+
+
+[{}/]   {printf("catch : %c\n", yytext[0]);}
 
 (?i:xml){LABELSET}*                 { 
                                       #ifdef UT_LEXER
-                                          return LABELXML;
+                                          printf("return LABELXML;");
                                       #else
                                           /* YYABORT : Force le retour de la fonction yyparse. Cette derniere retourne alors 1 */
                                       #endif
                                     }
-[[:alpha:]]{LABELSET}*|_{LABELSET}+ { return LABEL; }
+
+{LABEL} { printf("return LABEL;\n");  }
+
+.   {printf("NON VALIDE\n");}
 
 %%

@@ -22,6 +22,8 @@ LABEL       [[:alpha:]]{LABELSET}*|_{LABELSET}+
 
 %x ATTR
 
+%x TEXT
+
 %%
 
 \[                      {   printf("catch : %c\n", yytext[0]);
@@ -35,6 +37,12 @@ LABEL       [[:alpha:]]{LABELSET}*|_{LABELSET}+
                             BEGIN INITIAL;}
 
 
+\"              {BEGIN TEXT;}
+<TEXT>[^"]      {printf("%c", yytext[0]);}
+<TEXT>\\\"      {printf("\"");}
+<TEXT>\"        {BEGIN INITIAL;}
+
+
 [{}/]   {printf("catch : %c\n", yytext[0]);}
 
 (?i:xml){LABELSET}*                 { 
@@ -45,7 +53,7 @@ LABEL       [[:alpha:]]{LABELSET}*|_{LABELSET}+
                                       #endif
                                     }
 
-{LABEL} { printf("return LABEL;\n");  }
+{LABEL} { printf("return LABEL; %s\n", yytext);  }
 
 .   {printf("NON VALIDE\n");}
 

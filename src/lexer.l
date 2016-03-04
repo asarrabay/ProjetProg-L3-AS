@@ -6,10 +6,10 @@
  */
 
 %{
-//#include <tokens.h>
+#include <tokens.h>
 
 #ifndef UT_LEXER
-//#include <parser.y.h>
+#include <parser.y.h>
 #endif
 %}
 
@@ -20,41 +20,22 @@
 LABELSET    ([[:alnum:]'\._])
 LABEL       [[:alpha:]]{LABELSET}*|_{LABELSET}+
 
-%x ATTR
-
-%x TEXT
+%x STRING
 
 %%
 
-\[                      {   printf("catch : %c\n", yytext[0]);
-                            BEGIN ATTR;}
-<ATTR>{LABEL}           {   printf("label attr : %s\n", yytext);}
-<ATTR>=                 {   printf("=\n");}
-<ATTR>\"[^"]*\"         {   printf("val = %s\n", yytext);}
-<ATTR>[[:space:]]*      {}
-<ATTR>\][[:space:]]+\/  {   printf("La YAPAboN\n");}
-<ATTR>\][[:space:]]*    {   printf("catch : %c\n", yytext[0]);
-                            BEGIN INITIAL;}
-
-
-\"              {BEGIN TEXT;}
-<TEXT>[^"]      {printf("%c", yytext[0]);}
-<TEXT>\\\"      {printf("\"");}
-<TEXT>\"        {BEGIN INITIAL;}
-
-
-[{}/]   {printf("catch : %c\n", yytext[0]);}
+\"             { BEGIN STRING; return QUOTE; }
+<STRING>[^\"]  { return CHARACTER; }
+<STRING>"\\\"" { return CHARACTER; }
+<STRING>\"     { BEGIN INITIAL; return CHARACTER; }
 
 (?i:xml){LABELSET}*                 { 
                                       #ifdef UT_LEXER
-                                          printf("return LABELXML;");
+                                          return LABELXML;
                                       #else
                                           /* YYABORT : Force le retour de la fonction yyparse. Cette derniere retourne alors 1 */
                                       #endif
                                     }
-
-{LABEL} { printf("return LABEL; %s\n", yytext);  }
-
-.   {printf("NON VALIDE\n");}
+{LABEL} { return LABEL; }
 
 %%

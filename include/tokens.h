@@ -16,13 +16,8 @@
  * d'existence de la constante UT_LEXER n'existeront que dans le contexte d'un test unitaire
  * du lexer.
  */
-typedef enum { OB = 256, /**< { */
-	       CB, /**< } */
-	       OSB, /**< [ */ 
-	       CSB, /**< ] */
-	       LABEL, 
-	       EQL, /**< = */
-	       EOL, /**< / */
+typedef enum { LABEL = 256,
+	       QUOTE,
 	       CHARACTER
 	       #ifdef UT_LEXER
 	       , LABELXML

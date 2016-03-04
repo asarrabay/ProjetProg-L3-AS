@@ -13,9 +13,7 @@
 #endif
 %}
 
-%option nounput
-%option noinput
-%option noyywrap
+%option nounput noinput noyywrap
 
 LABELSET    ([[:alnum:]'\._])
 LABEL       [[:alpha:]]{LABELSET}*|_{LABELSET}+
@@ -24,10 +22,11 @@ LABEL       [[:alpha:]]{LABELSET}*|_{LABELSET}+
 
 %%
 
-\"             { BEGIN STRING; return QUOTE; }
+[[:space:]]+   { return SPACES; }
+\"             { BEGIN STRING; return '"'; }
 <STRING>[^\"]  { return CHARACTER; }
-<STRING>"\\\"" { return CHARACTER; }
-<STRING>\"     { BEGIN INITIAL; return CHARACTER; }
+<STRING>\\\" { return CHARACTER; }
+<STRING>\"     { BEGIN INITIAL; return '"'; }
 
 (?i:xml){LABELSET}*                 { 
                                       #ifdef UT_LEXER

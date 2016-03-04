@@ -13,3 +13,4 @@ macro(ADD_UT CATEGORY NAME SOURCES LIBRARIES)
 endmacro()
 
 add_ut(lexer label ${FLEX_LEXER_OUTPUTS} ${FLEX_LIBRARIES})
+add_ut(lexer string ${FLEX_LEXER_OUTPUTS} ${FLEX_LIBRARIES})

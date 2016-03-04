@@ -17,8 +17,8 @@
  * du lexer.
  */
 typedef enum { LABEL = 256,
-	       QUOTE,
-	       CHARACTER
+	       CHARACTER,
+               SPACES
 	       #ifdef UT_LEXER
 	       , LABELXML
                #endif

@@ -1,7 +1,10 @@
 /**
  * \file lexer.l
  * \brief Fichier contenant les regles constituant l'analyseur lexical du projet.
- * \author LAHAYE Valentin
+ * \author LABBE Emeric <br>
+ * LAHAYE Valentin <br>
+ * PARPAITE Thibault <br>
+ * SARRABAYROUSE Alexis
  * \date 26 Fevier 2016
  */
 
@@ -15,26 +18,27 @@
 
 %option nounput noinput noyywrap
 
-LABELSET    ([[:alnum:]'\._])
-LABEL       [[:alpha:]]{LABELSET}*|_{LABELSET}+
+LABELSET ([[:alnum:]'\._])
 
 %x STRING
 
 %%
 
-[[:space:]]+   { return SPACES; }
-\"             { BEGIN STRING; return '"'; }
-<STRING>[^\"]  { return CHARACTER; }
-<STRING>\\\" { return CHARACTER; }
-<STRING>\"     { BEGIN INITIAL; return '"'; }
+[[:space:]]+                        { return SPACES; }
+
+\"                                  { BEGIN STRING; return '"'; }
+<STRING>\\\\                        { return CHARACTER; }
+<STRING>\\\"                        { return CHARACTER; }
+<STRING>[^\"]                       { return CHARACTER; }
+<STRING>\"                          { BEGIN INITIAL; return '"'; }
 
 (?i:xml){LABELSET}*                 { 
-                                      #ifdef UT_LEXER
-                                          return LABELXML;
-                                      #else
-                                          /* YYABORT : Force le retour de la fonction yyparse. Cette derniere retourne alors 1 */
-                                      #endif
+                                        #ifdef UT_LEXER
+                                            return LABELXML;
+                                        #else
+                                            /* YYABORT : Force le retour de la fonction yyparse. Cette derniere retourne alors 1 */
+                                        #endif
                                     }
-{LABEL} { return LABEL; }
+[[:alpha:]]{LABELSET}*|_{LABELSET}+ { return LABEL; }
 
 %%

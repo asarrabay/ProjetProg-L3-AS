@@ -24,23 +24,38 @@ LABELSET ([[:alnum:]'\._])
 
 %%
 
-[[:space:]]+    {   return SPACES;    }
+[[:space:]]+  {   return SPACES;   }
 
-\"              {   BEGIN STRING; return '"';   }
-<STRING>\\\\    {   return CHARACTER;   }
-<STRING>\\\"    {   return CHARACTER;   }
-<STRING>[^\"]   {   return CHARACTER;   }
-<STRING>\"      {   BEGIN INITIAL; return '"';  }
+\"            {   BEGIN STRING; return '"';   }
+<STRING>\\\\  {
+                  #ifndef UT_LEXER
+                      yylval.c = '\\';
+                  #endif
+                  return CHARACTER;
+              }
+<STRING>\\\"  {
+                  #ifndef UT_LEXER
+                      yylval.c = '"';
+                  #endif
+                  return CHARACTER;
+              }
+<STRING>[^\"] {
+                  #ifndef UT_LEXER
+                      yylval.c = yytext[0];
+                  #endif
+                  return CHARACTER;
+              }
+<STRING>\"    {   BEGIN INITIAL; return '"';   }
 
-(?i:xml){LABELSET}*                 { 
-                                        #ifdef UT_LEXER
-                                            return LABELXML;
-                                        #else
-                                            /* YYABORT : Force le retour de la fonction yyparse. Cette derniere retourne alors 1 */
+(?i:xml){LABELSET}*                 {   return LABEL_XML;   }
+[[:alpha:]]{LABELSET}*|_{LABELSET}+ {
+                                        #ifndef UT_LEXER
+                                            yylval.label.s_label = strdup(yytext);
+                                            yylval.label.length = yyleng;
                                         #endif
-                                    }                                  
-[[:alpha:]]{LABELSET}*|_{LABELSET}+ {   return LABEL;   }
+                                        return LABEL;
+                                    }
 
-.   {   return yytext[0];   }
+. {   return yytext[0];   }
 
 %%

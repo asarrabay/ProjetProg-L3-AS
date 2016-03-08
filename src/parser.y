@@ -9,8 +9,8 @@
 %union {
     char c;
     struct {
-	char *s_label;
-	int length;
+		char *s_label;
+		int length;
     } label;
 }
 
@@ -19,43 +19,44 @@
 
 %%
 
-root : set root
-| %empty
-;
+root : 		set root
+		| 	%empty
+		;
 
-set : '{' body '}'
-| label
-;
+set : 		'{' body '}'
+		| 	label
+		;
 
-label : LABEL attributes '{' body '}'
-| LABEL attributes '{' body '}' '/'
-| LABEL '{' body '}'
-| LABEL '{' body '}' '/'
-| LABEL attributes '/'
-| LABEL '/'
-;
+label : 	LABEL attributes space '{' body '}'
+		| 	LABEL '{' body '}'
+		| 	LABEL attributes '/'
+		| 	LABEL '/'
+		;
 
-attributes : '[' attribute_list ']'
-;
+attributes : 	'[' attribute_list ']'
+				;
 
-attribute_list : attribute SPACES attribute_list
-| attribute
-| %empty
-;
+attribute_list : 	attribute space attribute_list
+				|	%empty
+				;
 
-attribute : LABEL '=' string
-;
+attribute : LABEL space '=' space string
+			;
 
-body : set body
-| string body
-| %empty
-;
+body : 		set body
+		| 	string body
+		| 	%empty
+		;
 
 string : '"' characters '"'
 ;
 
-characters : CHARACTER characters
-| %empty
-;
+characters :	CHARACTER characters
+			| 	%empty
+			;
+
+space :		SPACES
+		|	%empty
+		;
 
 %%

@@ -1,16 +1,18 @@
 %{
-#include <tokens.h>
+#include <stdio.h>
+void yyerror (char const *);
+extern int yylex (void);
 %}
 
-%token LABEL
+%token LABEL LABEL_XML
 %token SPACES
 %token CHARACTER
 
 %union {
     char c;
     struct {
-		char *s_label;
-		int length;
+	char *s_label;
+	int length;
     } label;
 }
 
@@ -19,44 +21,48 @@
 
 %%
 
-root : 		set root
-		| 	%empty
-		;
+root : set root
+     | %empty
+     ;
 
-set : 		'{' body '}'
-		| 	label
-		;
+set : '{' body '}'
+    | label
+    ;
 
-label : 	LABEL attributes space '{' body '}'
-		| 	LABEL '{' body '}'
-		| 	LABEL attributes '/'
-		| 	LABEL '/'
-		;
+label : LABEL attributes spaces '{' body '}'
+      | LABEL '{' body '}'
+      | LABEL attributes '/'
+      | LABEL '/'
+      ;
 
-attributes : 	'[' attribute_list ']'
-				;
+attributes : '[' attribute_list ']'
+           ;
 
-attribute_list : 	attribute space attribute_list
-				|	%empty
-				;
+attribute_list : attribute spaces attribute_list
+               | %empty
+               ;
 
-attribute : LABEL space '=' space string
-			;
+attribute : LABEL spaces '=' spaces string
+          ;
 
-body : 		set body
-		| 	string body
-		| 	%empty
-		;
+body : set body
+     | string body
+     | %empty
+     ;
 
 string : '"' characters '"'
-;
+       ;
 
-characters :	CHARACTER characters
-			| 	%empty
-			;
+characters : CHARACTER characters
+           | %empty
+           ;
 
-space :		SPACES
-		|	%empty
-		;
+spaces : SPACES
+       | %empty
+       ;
 
 %%
+
+void yyerror (char const *s) {
+    fprintf (stderr, "%s\n", s);
+}

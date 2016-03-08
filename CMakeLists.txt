@@ -4,9 +4,11 @@ find_package(FLEX REQUIRED)
 find_package(BISON REQUIRED)
 find_package(Doxygen)
 
-add_definitions(-std=gnu99 -pedantic -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes)
+add_definitions(-std=gnu99 -pedantic -Wall -Werror -Wextra -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes)
 set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR})
-include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(
+  ${PROJECT_SOURCE_DIR}/include
+  ${PROJECT_BINARY_DIR}/src)
 enable_testing()
 if(${DOXYGEN_FOUND})
   configure_file(${PROJECT_SOURCE_DIR}/Doxyfile ${PROJECT_BINARY_DIR}/Doxyfile.cmake @ONLY)

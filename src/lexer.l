@@ -9,10 +9,10 @@
  */
 
 %{
-#include <tokens.h>
-
 #ifndef UT_LEXER
-#include "parser.h"
+#include <parser.h>
+#else
+#include <tokens.h>
 #endif
 %}
 

@@ -24,13 +24,13 @@ LABELSET ([[:alnum:]'\._])
 
 %%
 
-[[:space:]]+                        { return SPACES; }
+[[:space:]]+    {   return SPACES;    }
 
-\"                                  { BEGIN STRING; return '"'; }
-<STRING>\\\\                        { return CHARACTER; }
-<STRING>\\\"                        { return CHARACTER; }
-<STRING>[^\"]                       { return CHARACTER; }
-<STRING>\"                          { BEGIN INITIAL; return '"'; }
+\"              {   BEGIN STRING; return '"';   }
+<STRING>\\\\    {   return CHARACTER;   }
+<STRING>\\\"    {   return CHARACTER;   }
+<STRING>[^\"]   {   return CHARACTER;   }
+<STRING>\"      {   BEGIN INITIAL; return '"';  }
 
 (?i:xml){LABELSET}*                 { 
                                         #ifdef UT_LEXER
@@ -38,7 +38,9 @@ LABELSET ([[:alnum:]'\._])
                                         #else
                                             /* YYABORT : Force le retour de la fonction yyparse. Cette derniere retourne alors 1 */
                                         #endif
-                                    }
-[[:alpha:]]{LABELSET}*|_{LABELSET}+ { return LABEL; }
+                                    }                                  
+[[:alpha:]]{LABELSET}*|_{LABELSET}+ {   return LABEL;   }
+
+.   {   return yytext[0];   }
 
 %%

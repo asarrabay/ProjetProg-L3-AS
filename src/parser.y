@@ -6,6 +6,17 @@
 %token SPACES
 %token CHARACTER
 
+%union {
+    char c;
+    struct {
+	char *s_label;
+	int length;
+    } label;
+}
+
+%type <c> CHARACTER
+%type <label> LABEL
+
 %%
 
 root : set root

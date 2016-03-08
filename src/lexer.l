@@ -12,7 +12,7 @@
 #include <tokens.h>
 
 #ifndef UT_LEXER
-#include <parser.y.h>
+#include "parser.h"
 #endif
 %}
 

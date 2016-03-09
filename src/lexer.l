@@ -5,11 +5,12 @@
  * LAHAYE Valentin <br>
  * PARPAITE Thibault <br>
  * SARRABAYROUSE Alexis
- * \date 26 Fevier 2016
+ * \date 26 Fevrier 2016
  */
 
 %{
 #ifndef UT_LEXER
+#include <string.h>
 #include <parser.h>
 #else
 #include <tokens.h>

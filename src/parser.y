@@ -4,7 +4,8 @@ extern int yylex (void);
 void yyerror (char const *);
 %}
 
-%token LABEL LABEL_XML
+%token LABEL
+%token LABEL_XML
 %token SPACES
 %token CHARACTER
 
@@ -19,9 +20,11 @@ void yyerror (char const *);
 %type <c> CHARACTER
 %type <label> LABEL
 
+%start root
+
 %%
 
-root : set root
+root : root set
      | %empty
      ;
 
@@ -54,7 +57,7 @@ body : spaces set spaces body
 string : '"' characters '"'
        ;
 
-characters : CHARACTER characters
+characters : characters CHARACTER
            | %empty
            ;
 
@@ -65,5 +68,5 @@ spaces : SPACES
 %%
 
 void yyerror (char const *s) {
-    fprintf (stderr, "%s\n", s);
+    fprintf(stderr, "%s\n", s);
 }

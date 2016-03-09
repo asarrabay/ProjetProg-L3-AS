@@ -39,6 +39,7 @@ attributes : '[' spaces attribute_list spaces ']'
            ;
 
 attribute_list : attribute SPACES attribute_list
+               | attribute
                | %empty
                ;
 

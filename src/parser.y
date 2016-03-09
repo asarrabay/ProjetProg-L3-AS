@@ -46,15 +46,15 @@ attribute_list : attribute SPACES attribute_list
                | %empty
                ;
 
-attribute : LABEL spaces '=' spaces string
+attribute : LABEL spaces '=' string
           ;
 
-body : spaces set spaces body
-     | spaces string spaces body
+body : set body
+     | string body
      | %empty
      ;
 
-string : '"' characters '"'
+string : spaces '"' characters '"' spaces
        ;
 
 characters : characters CHARACTER

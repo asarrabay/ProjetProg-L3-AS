@@ -1,4 +1,4 @@
-flex_target(LEXER ${CMAKE_CURRENT_SOURCE_DIR}/lexer.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.c)
+flex_target(LEXER ${CMAKE_CURRENT_SOURCE_DIR}/lexer.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.c COMPILE_FLAGS "--header-file=${CMAKE_CURRENT_BINARY_DIR}/lexer.h")
 if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
   bison_target(PARSER ${CMAKE_CURRENT_SOURCE_DIR}/parser.y ${CMAKE_CURRENT_BINARY_DIR}/parser.c COMPILE_FLAGS "-v")
   set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES parser.output)

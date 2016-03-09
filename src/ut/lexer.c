@@ -6,11 +6,7 @@
  */
 
 #include <ut/lexer.h>
-
-typedef struct yy_buffer_state *YY_BUFFER_STATE;
-extern YY_BUFFER_STATE yy_scan_string(char *);
-extern int yylex(void);
-extern void yy_delete_buffer(YY_BUFFER_STATE);
+#include <lexer.h>
 
 ut_status_t ut_run (ut_t ut) {
     YY_BUFFER_STATE input = yy_scan_string(ut->s_input);

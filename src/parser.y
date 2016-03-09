@@ -1,6 +1,6 @@
 %{
 #include <stdio.h>
-extern int yylex (void);
+#include <lexer.h>
 void yyerror (char const *);
 %}
 

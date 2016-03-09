@@ -1,7 +1,7 @@
 %{
 #include <stdio.h>
-void yyerror (char const *);
 extern int yylex (void);
+void yyerror (char const *);
 %}
 
 %token LABEL LABEL_XML
@@ -25,8 +25,8 @@ root : set root
      | %empty
      ;
 
-set : '{' body '}'
-    | label
+set : spaces '{' body '}' spaces
+    | spaces label spaces
     ;
 
 label : LABEL attributes spaces '{' body '}'
@@ -35,18 +35,18 @@ label : LABEL attributes spaces '{' body '}'
       | LABEL '/'
       ;
 
-attributes : '[' attribute_list ']'
+attributes : '[' spaces attribute_list spaces ']'
            ;
 
-attribute_list : attribute spaces attribute_list
+attribute_list : attribute SPACES attribute_list
                | %empty
                ;
 
 attribute : LABEL spaces '=' spaces string
           ;
 
-body : set body
-     | string body
+body : spaces set spaces body
+     | spaces string spaces body
      | %empty
      ;
 

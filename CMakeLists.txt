@@ -4,7 +4,7 @@ find_package(FLEX REQUIRED)
 find_package(BISON REQUIRED)
 find_package(Doxygen)
 
-add_definitions(-std=gnu99 -pedantic -Wall -Werror -Wextra -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes)
+add_definitions(-std=gnu99 -pedantic -Wall -Werror -Wextra -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wno-sign-compare)
 set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR})
 include_directories(
   ${PROJECT_SOURCE_DIR}/include

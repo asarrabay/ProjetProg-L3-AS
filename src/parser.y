@@ -28,8 +28,8 @@ root : root set
      | %empty
      ;
 
-set : spaces '{' body '}' spaces
-    | spaces label spaces
+set : spaces '{' body '}'
+    | spaces label
     ;
 
 label : LABEL attributes spaces '{' body '}'
@@ -38,12 +38,12 @@ label : LABEL attributes spaces '{' body '}'
       | LABEL '/'
       ;
 
-attributes : '[' spaces attribute_list spaces ']'
+attributes : '[' attribute_list ']'
            ;
 
 attribute_list : attribute SPACES attribute_list
                | attribute
-               | %empty
+               | spaces
                ;
 
 attribute : LABEL spaces '=' string
@@ -51,10 +51,10 @@ attribute : LABEL spaces '=' string
 
 body : set body
      | string body
-     | %empty
+     | spaces
      ;
 
-string : spaces '"' characters '"' spaces
+string : spaces '"' characters '"'
        ;
 
 characters : characters CHARACTER

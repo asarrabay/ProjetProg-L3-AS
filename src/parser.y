@@ -1,3 +1,13 @@
+/**
+ * \file parser.y
+ * \brief Fichier contenant les regles constituant l'analyseur syntaxique du projet.
+ * \author LABBE Emeric <br>
+ * LAHAYE Valentin <br>
+ * PARPAITE Thibault <br>
+ * SARRABAYROUSE Alexis
+ * \date 26 Fevrier 2016
+ */
+
 %{
 #include <stdio.h>
 #include <lexer.h>

@@ -1,3 +1,13 @@
+/**
+ * \file grammar.c
+ * \brief Programme permettant la réalisation de tests
+ * unitaires sur le parser.
+ * \details Le point d'entrée du programme prend en parametre
+ * le fichier contenant la grammaire a tester.
+ * \author LAHAYE Valentin
+ * \date 14 Mars 2016
+ */
+
 #include <stdlib.h>
 #include <string.h>
 #include <ut/parser.h>

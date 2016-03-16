@@ -26,21 +26,10 @@ LABELSET ([[:alnum:]'\._])
 
 %%
 
-\] {    BEGIN RETSPACES; return ']';    } 
+<INITIAL,RETSPACES>\" {   BEGIN STRING; 
+                          return '"';  
+                      }
 
-<RETSPACES>[[:space:]]+ {   BEGIN INITIAL; 
-                            return SPACES;       
-                        }
-<RETSPACES>\]           {   return ']'; }
-<RETSPACES>.            {   BEGIN INITIAL; 
-                            return yytext[0];    
-                        }
-
-
-\"            {   BEGIN STRING; 
-                  return '"';  
-              }
-              
 <STRING>\\\\  {
                   #ifndef UT_LEXER
                       yylval.c = '\\';
@@ -77,7 +66,18 @@ LABELSET ([[:alnum:]'\._])
                                         #endif
                                         return LABEL;
                                     }
-[[:space:]]+  {}
-. {   return yytext[0];   }
+
+\] {   BEGIN RETSPACES; return ']';   }
+
+<RETSPACES>[[:space:]]+ {   BEGIN INITIAL; 
+                            return SPACES;       
+                        }
+<RETSPACES>\]           {   return ']';   }
+<RETSPACES>.            {   BEGIN INITIAL; 
+                            return yytext[0];    
+                        }
+
+[[:space:]]+  { }
+.             {   return yytext[0];   }
 
 %%

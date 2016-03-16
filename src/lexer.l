@@ -31,7 +31,8 @@ LABELSET ([[:alnum:]'\._])
 <RETSPACES>[[:space:]]+ {   BEGIN INITIAL; 
                             return SPACES;       
                         }
-<RETSPACES>[^\]]        {   BEGIN INITIAL; 
+<RETSPACES>\]           {   return ']'; }
+<RETSPACES>.            {   BEGIN INITIAL; 
                             return yytext[0];    
                         }
 

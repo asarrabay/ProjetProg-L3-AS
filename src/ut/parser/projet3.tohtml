@@ -1,0 +1,14 @@
+div{
+"contenu..."
+}
+div[att1="v1"
+    att2="v2"]
+    {
+    "contenu..."
+    }
+
+br[att1="v1"
+   att2="v2"]/
+
+{"contenu ... " div[class="nb"]{ "contenu" }
+ "suite ..."}

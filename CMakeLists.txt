@@ -8,6 +8,15 @@ add_definitions(-std=gnu99 -pedantic -Wall -Werror -Wextra -Wshadow -Wpointer-ar
 set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR})
 include_directories(${PROJECT_SOURCE_DIR}/include/ ${PROJECT_BINARY_DIR}/src/)
 enable_testing()
+
+if("${CMAKE_BUILD_TYPE}" STREQUAL "")
+  set(CMAKE_BUILD_TYPE "RELEASE")
+else("${CMAKE_BUILD_TYPE}" STREQUAL "")
+  string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE)
+endif("${CMAKE_BUILD_TYPE}" STREQUAL "")
+
+message(STATUS "Mode : ${CMAKE_BUILD_TYPE}")
+
 if(${DOXYGEN_FOUND})
   configure_file(${PROJECT_SOURCE_DIR}/Doxyfile ${PROJECT_BINARY_DIR}/Doxyfile.cmake @ONLY)
   add_custom_target(
@@ -15,4 +24,5 @@ if(${DOXYGEN_FOUND})
     COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile.cmake
     COMMENT "Generating documentation using Doxygen ${DOXYGEN_VERSION} ...")
 endif(${DOXYGEN_FOUND})
+
 add_subdirectory(src)

@@ -32,4 +32,4 @@ endmacro()
 
 add_ut(lexer label "${PROJECT_BINARY_DIR}/src/lexer.c" IGNORE DEFAULT)
 add_ut(lexer string "${PROJECT_BINARY_DIR}/src/lexer.c" IGNORE DEFAULT)
-add_ut(parser grammar "${PROJECT_BINARY_DIR}/src/parser.c ${PROJECT_BINARY_DIR}/src/lexer.c" IGNORE "EXAMPLE_1 [example_1.tohtml] | EXAMPLE_2 [example_2.tohtml]")
+add_ut(parser grammar "${PROJECT_BINARY_DIR}/src/parser.c ${PROJECT_BINARY_DIR}/src/lexer.c" IGNORE "empty [${CMAKE_CURRENT_SOURCE_DIR}/parser/empty.tohtml] | spaces [${CMAKE_CURRENT_SOURCE_DIR}/parser/spaces.tohtml] | set [${CMAKE_CURRENT_SOURCE_DIR}/parser/set.tohtml]")

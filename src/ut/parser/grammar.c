@@ -20,7 +20,7 @@ static void usage (const char const *s_program) {
 }
 
 int main (int argc, char *argv[]) {
-    if (argc < 2 || strcmp(argv[1], "--help") == 0) {
+    if (argc < 2 || (strcmp(argv[1], "--help") == 0)) {
 	usage(argv[0]);
     }
     FILE *p_input = fopen(argv[1], "r");

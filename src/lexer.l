@@ -22,10 +22,14 @@
 LABELSET ([[:alnum:]'\._])
 
 %x STRING
+%x RETSPACES
 
 %%
 
-[[:space:]]+  {   return SPACES;   }
+\] {    BEGIN RETSPACES; return ']';    } 
+
+<RETSPACES>[[:space:]]+ {   BEGIN INITIAL; return SPACES;       }
+<RETSPACES>[\[{\/=]     {   BEGIN INITIAL; return yytext[0];    }
 
 \"            {   BEGIN STRING; return '"';   }
 <STRING>\\\\  {
@@ -46,11 +50,19 @@ LABELSET ([[:alnum:]'\._])
                   #endif
                   return CHARACTER;
               }
-<STRING>\"    {   BEGIN INITIAL; return '"';   }
+<STRING>\"    {
+                  #ifdef UT_LEXER
+                      BEGIN INITIAL;
+                  #else
+                      BEGIN RETSPACES;
+                  #endif
+                  return '"';
+              }
 
 (?i:xml){LABELSET}*                 {   return LABEL_XML;   }
 [[:alpha:]]{LABELSET}*|_{LABELSET}+ {
                                         #ifndef UT_LEXER
+                                            BEGIN RETSPACES;
                                             yylval.label.s_label = strdup(yytext);
                                             yylval.label.length = yyleng;
                                         #endif

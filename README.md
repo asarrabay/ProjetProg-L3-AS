@@ -3,10 +3,10 @@
 ## [Todo list sur Trello](https://trello.com/b/ndvofH96 "Trello")
 
 ### Analyseur syntaxique
-* Lire un fichier utilisant la notation convenue pour les arbres, et le représenter dans la structure de données décrite dans le sujet [11/03/2016]
-* Ecrire une fonction qui permette de transcrire cette structure de données dans un fichier au format XML [11/03/2016]
+* Représenter un fichier reconnu par la grammaire dans la structure de données décrite dans le sujet [22/03/2016]
+* Ecrire une fonction qui permette de transcrire cette structure de données dans un fichier au format XML [22/03/2016]
 
-* REVUE DE PROJET : Validation du parser, écriture du rapport [11/03/2016]
+* REVUE DE PROJET : Validation du parser, écriture du rapport [22/03/2016]
 
 ### Structures de contrôle et fonctions
 * Déclarations et définitions
@@ -30,5 +30,8 @@
 * Mise en place d'un jeu de test pour tester les REGEX ecrites [04/03/2016]
 
 * REVUE DE PROJET : Validation du lexer, écriture du rapport [04/03/2016]
+
+### Analyseur syntaxique
+* Ecrire une grammaire reconnaissant un fichier syntaxiquement correct [11/03/2016]
 
 Deadline : 15/04/2016 (29/04/2016)

@@ -1,7 +1,5 @@
 #include <main.h>
 
-
-
 struct attributes_t {
     char *key;                /* nom de l'attribut */
     char *value;              /* valeur de l'attribut */
@@ -50,12 +48,18 @@ attributes attributes_create (char *key, char *value) {
 
 
 void attributes_add_tolist (attributes att, attributes att_list) {
+    if (att_list == NULL)
+        return;
+    
     att->next = att_list;
 }
 
 
 
 void tree_add_brother (tree t, tree brother) {
+    if (brother == NULL)
+        return;
+    
     t->right = brother;
 }
 

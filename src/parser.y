@@ -10,6 +10,7 @@
 
 %{
 #include <stdio.h>
+#include <main.h>
 #include <lexer.h>
 void yyerror (char const *);
 %}
@@ -25,14 +26,16 @@ void yyerror (char const *);
 	char *s_label;
 	int length;
     } label;
+    char *s;
     tree t;
     attributes att;
 }
 
 %type <c> CHARACTER
 %type <label> LABEL
-%type <t> set label
-%type <att> attribute attribute_list attributes          
+%type <t> set label body
+%type <att> attribute attribute_list attributes
+%type <s> string characters
 
 %start root
 
@@ -58,15 +61,17 @@ attributes : '[' attribute_list ']'     { $$ = $2; }
 attribute_list : attribute SPACES attribute_list     { attributes_add_tolist($1, $3);
                                                        $$ = $1; }
                | attribute     { $$ = $1; }
-               | %empty
+               | %empty        { $$ = NULL; }
                ;
 
 attribute : LABEL spaces '=' string     { $$ = attributes_create(yyval.label.s_label, $4); }
           ;
 
- body : set body     { tree_add_brother($1, $2); $$ = $1; }
-     | string spaces body     { tree_add_brother($1, $3); $$ = $1; }
-     | %empty
+body : set body               { tree_add_brother($1, $2);
+                                $$ = $1; }
+     | string spaces body     { tree_add_brother($1, $3);
+                                $$ = $1; }
+     | %empty                 { $$ = NULL; }
      ;
 
 string : '"' characters '"'     { $$ = $2; }

@@ -33,13 +33,4 @@ endmacro()
 add_ut(lexer label "${PROJECT_BINARY_DIR}/src/lexer.c" IGNORE DEFAULT)
 add_ut(lexer string "${PROJECT_BINARY_DIR}/src/lexer.c" IGNORE DEFAULT)
 
-add_ut(parser grammar "${PROJECT_BINARY_DIR}/src/parser.c ${PROJECT_BINARY_DIR}/src/lexer.c" IGNORE "empty [${CMAKE_CURRENT_SOURCE_DIR}/parser/empty.tohtml] | \
-spaces [${CMAKE_CURRENT_SOURCE_DIR}/parser/spaces.tohtml] | \
-set [${CMAKE_CURRENT_SOURCE_DIR}/parser/set.tohtml] | \
-projet1 [${CMAKE_CURRENT_SOURCE_DIR}/parser/projet1.tohtml] | \
-projet2 [${CMAKE_CURRENT_SOURCE_DIR}/parser/projet2.tohtml] | \
-projet3 [${CMAKE_CURRENT_SOURCE_DIR}/parser/projet3.tohtml] | \
-quote_in_string [${CMAKE_CURRENT_SOURCE_DIR}/parser/quote_in_string.tohtml] | \
-double_string [${CMAKE_CURRENT_SOURCE_DIR}/parser/double_string.tohtml] | \
-empty_attributes [${CMAKE_CURRENT_SOURCE_DIR}/parser/empty_attributes.tohtml] | \
-many_attributes [${CMAKE_CURRENT_SOURCE_DIR}/parser/many_attributes.tohtml]")
+add_ut(parser grammar "${PROJECT_BINARY_DIR}/src/parser.c ${PROJECT_BINARY_DIR}/src/lexer.c" IGNORE "empty [${CMAKE_CURRENT_SOURCE_DIR}/parser/empty.tohtml] | spaces [${CMAKE_CURRENT_SOURCE_DIR}/parser/spaces.tohtml] | set [${CMAKE_CURRENT_SOURCE_DIR}/parser/set.tohtml] | projet1 [${CMAKE_CURRENT_SOURCE_DIR}/parser/projet1.tohtml] | projet2 [${CMAKE_CURRENT_SOURCE_DIR}/parser/projet2.tohtml] | projet3 [${CMAKE_CURRENT_SOURCE_DIR}/parser/projet3.tohtml] | quote_in_string [${CMAKE_CURRENT_SOURCE_DIR}/parser/quote_in_string.tohtml] | double_string [${CMAKE_CURRENT_SOURCE_DIR}/parser/double_string.tohtml] | empty_attributes [${CMAKE_CURRENT_SOURCE_DIR}/parser/empty_attributes.tohtml] | many_attributes [${CMAKE_CURRENT_SOURCE_DIR}/parser/many_attributes.tohtml]")

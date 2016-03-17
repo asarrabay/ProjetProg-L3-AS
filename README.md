@@ -1,18 +1,12 @@
 # ProjetProg-L3-AS
 
-## [Todo list](https://trello.com/b/ndvofH96 "Trello")
-
-### Analyseur lexical
-* Voir le sujet pour les modalités de parsing [04/03/2016]
-* Mise en place d'un jeu de test pour tester les REGEX ecrites [04/03/2016]
-
-* REVUE DE PROJET : Validation du lexer, ecriture du rapport [04/03/2016]
+## [Todo list sur Trello](https://trello.com/b/ndvofH96 "Trello")
 
 ### Analyseur syntaxique
 * Lire un fichier utilisant la notation convenue pour les arbres, et le représenter dans la structure de données décrite dans le sujet [11/03/2016]
 * Ecrire une fonction qui permette de transcrire cette structure de données dans un fichier au format XML [11/03/2016]
 
-* REVUE DE PROJET : Validation du parser, ecriture du rapport [11/03/2016]
+* REVUE DE PROJET : Validation du parser, écriture du rapport [11/03/2016]
 
 ### Structures de contrôle et fonctions
 * Déclarations et définitions
@@ -31,5 +25,10 @@
 
 ## Done
 
+### Analyseur lexical
+* Voir le sujet pour les modalités d'analyse [04/03/2016]
+* Mise en place d'un jeu de test pour tester les REGEX ecrites [04/03/2016]
+
+* REVUE DE PROJET : Validation du lexer, écriture du rapport [04/03/2016]
 
 Deadline : 15/04/2016 (29/04/2016)

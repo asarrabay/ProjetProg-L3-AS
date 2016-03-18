@@ -1,5 +1,5 @@
-#include <tree.h>
-struct attributes_t {
+#include <tree_t.h>
+struct attributes_s {
     char *key;                /* nom de l'attribut */
     char *value;              /* valeur de l'attribut */
     attributes next;          /* attribut suivant */
@@ -7,20 +7,20 @@ struct attributes_t {
 
 
 
-struct tree_t {
+struct tree_s {
     char *label;              /* étiquette du nœud */
     bool nullary;             /* nœud vide, par exemple <br/> */
     bool space;               /* nœud suivi d'un espace */
     enum type tp;             /* type du nœud. nullary doit être true s tp vaut word */
     attributes attr;          /* attributs du nœud */
-    tree daughters;           /* fils gauche, qui doit être NULL si nullary est true */
-    tree right;               /* frère droit */
+    tree_t daughters;           /* fils gauche, qui doit être NULL si nullary est true */
+    tree_t right;               /* frère droit */
 };
 
 
 
-tree tree_create (char *label, bool nullary, bool space, enum type tp, attributes attr, tree daughters, tree right) {
-    tree t = malloc(sizeof (struct tree_t));
+tree_t tree_create (char *label, bool nullary, bool space, enum type tp, attributes attr, tree_t daughters, tree_t right) {
+    tree_t t = malloc(sizeof (struct tree_t));
 
     t->label     = label;
     t->nullary   = nullary;
@@ -56,7 +56,7 @@ void attributes_add_tolist (attributes att, attributes att_list) {
 
 
 
-void tree_add_brother (tree t, tree brother) {
+void tree_add_brother (tree_t t, tree_t brother) {
     if (brother == NULL)
         return;
     

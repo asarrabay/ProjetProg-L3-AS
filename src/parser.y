@@ -28,8 +28,8 @@ void yyerror (char const *);
       int length;
     } label;
     char *s;
-    tree t;
-    attributes att;
+    tree_t t;
+    attributes_t att;
 }
 
 %type <c> CHARACTER

@@ -11,6 +11,7 @@
 %{
 #include <stdio.h>
 #include <main.h>
+#include <tree.h>
 #include <lexer.h>
 void yyerror (char const *);
 %}
@@ -23,8 +24,8 @@ void yyerror (char const *);
 %union {
     char c;
     struct {
-	char *s_label;
-	int length;
+      char *s_label;
+      int length;
     } label;
     char *s;
     tree t;
@@ -49,10 +50,10 @@ set : '{' body '}'     { $$ = $2; }
     | label     { $$ = $1; }
     ;
 
-label : LABEL attributes spaces '{' body '}'     { $$ = tree_create(yyval.label.s_labal, false, false, tree, $2, $5, NULL); }
-        |       LABEL '{' body '}'     { $$ = tree_create(yyval.label.s_labal, false, false, tree, NULL, $3, NULL); }
-        |       LABEL attributes '/'     { $$ = tree_create(yyval.label.s_label, false, false, tree, $2, NULL, NULL; }
-        |       LABEL '/'     { $$ = tree_create(yyval.label.s_label, true, false, word, NULL, NULL, NULL); }
+label : LABEL attributes spaces '{' body '}'      { $$ = tree_create(yyval.label.s_labal, false, false, tree, $2, $5, NULL); }
+        |       LABEL '{' body '}'                { $$ = tree_create(yyval.label.s_labal, false, false, tree, NULL, $3, NULL); }
+        |       LABEL attributes '/'              { $$ = tree_create(yyval.label.s_label, false, false, tree, $2, NULL, NULL; }
+        |       LABEL '/'                         { $$ = tree_create(yyval.label.s_label, true, false, word, NULL, NULL, NULL); }
       ;
 
 attributes : '[' attribute_list ']'     { $$ = $2; }

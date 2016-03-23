@@ -13,6 +13,6 @@ tree_t tree_create (char *label, bool nullary, bool space, enum type tp,
 tree_t tree_add_brother (tree_t t, tree_t brother);
 
 attributes_t attributes_create (char *key, tree_t text);
-attributes_t attributes_add_tolist (attributes_t attr, attributes_t attr_list);
+attributes_t attributes_add_tolist (attributes_t attr_list, attributes_t attr);
 
 #endif

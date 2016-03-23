@@ -57,7 +57,7 @@ label : LABEL attributes spaces '{' body '}'   { $$ = tree_create($1, false, fal
 attributes : '[' attribute_list ']'     { $$ = $2; }
            ;
 
-attribute_list : attribute SPACES attribute_list     { $$ = attributes_add_tolist($3, $1); }
+attribute_list : attribute SPACES attribute_list     { $$ = attributes_add_ahead($3, $1); }
                | attribute     { $$ = $1; }
                | %empty        { $$ = NULL; }
                ;

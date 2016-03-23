@@ -54,12 +54,9 @@ attributes_t attributes_create (char *key, tree_t text) {
 
 
 
-attributes_t attributes_add_tolist (attributes_t attr_list, attributes_t attr) {
-    if (attr_list == NULL)
-        return attr;
-    
-    attr_list->next = attributes_add_tolist(attr, attr_list->next);
-    return attr_list;
+attributes_t attributes_add_ahead (attributes_t attr_list, attributes_t attr) {
+    attr->next = attr_list;
+    return attr;
 }
 
 

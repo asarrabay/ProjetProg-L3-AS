@@ -12,26 +12,8 @@
 #include <stdio.h>
 #include <main.h>
 #include <lexer.h>
-  /*
-   * Pourquoi on inclu pas tree.h ici?
-   */
-   struct attributes_s {
-    char *key;                /* nom de l'attribut */
-    char *value;              /* valeur de l'attribut */
-    attributes_t next;          /* attribut suivant */
-};
-
-
-
-struct tree_s {
-    char *label;              /* étiquette du nœud */
-    bool nullary;             /* nœud vide, par exemple <br/> */
-    bool space;               /* nœud suivi d'un espace */
-    enum type tp;             /* type du nœud. nullary doit être true s tp vaut word */
-    attributes_t attr;          /* attributs du nœud */
-    tree_t daughters;           /* fils gauche, qui doit être NULL si nullary est true */
-    tree_t right;               /* frère droit */
-};
+#include <tree.h>
+  
 void yyerror (char const *);
 %}
 

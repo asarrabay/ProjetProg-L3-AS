@@ -11,7 +11,6 @@
 %{
 #include <stdio.h>
 #include <main.h>
-#include <tree.h>
 #include <lexer.h>
 void yyerror (char const *);
 %}
@@ -20,15 +19,17 @@ void yyerror (char const *);
 %token LABEL_XML
 %token SPACES
 %token WORD
+%token CHARACTER
                         
 %union {
+    char c;
     char *str;
     tree_t t;
     attributes_t att;
 }
 
-%type <str> LABEL string
-%type <t> WORD words root set label body
+%type <str> LABEL
+%type <t> WORD words content root set label body
 %type <att> attribute attribute_list attributes
 
 %start root
@@ -45,7 +46,7 @@ set : '{' body '}'     { $$ = $2; }
 
 label : LABEL attributes spaces '{' body '}'      { $$ = tree_create(yyval.str, false, false, tree, $2, $5, NULL); }
         |       LABEL '{' body '}'                { $$ = tree_create(yyval.str, false, false, tree, NULL, $3, NULL); }
-        |       LABEL attributes '/'              { $$ = tree_create(yyval.str, false, false, tree, $2, NULL, NULL; }
+        |       LABEL attributes '/'              { $$ = tree_create(yyval.str, false, false, tree, $2, NULL, NULL); }
         |       LABEL '/'                         { $$ = tree_create(yyval.str, true, false, word, NULL, NULL, NULL); }
       ;
 
@@ -57,15 +58,15 @@ attribute_list : attribute SPACES attribute_list     { $$ = attributes_add_tolis
                | %empty        { $$ = NULL; }
                ;
 
-attribute : LABEL spaces '=' string     { $$ = attributes_create(yyval.str, $4); }
+attribute : LABEL spaces '=' content     { $$ = attributes_create(yyval.str, $4); }
           ;
 
 body : set body               { $$ = tree_add_brother($1, $2); }
-     | string spaces body     { $$ = tree_add_brother($1, $3); }
+     | content spaces body     { $$ = tree_add_brother($1, $3); }
      | %empty                 { $$ = NULL; }
      ;
 
-string : '"' words '"'     { $$ = $2; }
+content : '"' words '"'     { $$ = $2; }
        ;
 
 words : words WORD     { $$ = tree_add_brother($1, yyval.t); }

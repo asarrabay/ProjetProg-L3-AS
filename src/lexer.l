@@ -11,6 +11,7 @@
 %{
 #ifndef UT_LEXER
 #include <string.h>
+#include <tree.h>
 #include <parser.h>
 #else
 #include <tokens.h>

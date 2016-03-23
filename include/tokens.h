@@ -19,7 +19,8 @@
 typedef enum { LABEL = 256,
 	       LABEL_XML,
 	       CHARACTER,
-               SPACES
+               SPACES,
+               WORD
              } tokens_t;
 
 #endif

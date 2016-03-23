@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <tree.h>
 
 
@@ -25,7 +26,7 @@ struct tree_s {
 tree_t tree_create (char *label, bool nullary, bool space, enum type tp,
                     attributes_t attr, tree_t daughters, tree_t right) {
     
-    tree_t t = malloc(sizeof (struct tree_t));
+    tree_t t = malloc(sizeof (struct tree_s));
 
     t->label     = label;
     t->nullary   = nullary;
@@ -40,11 +41,11 @@ tree_t tree_create (char *label, bool nullary, bool space, enum type tp,
 
     
 
-attributes_t attributes_create (char *key, char *value) {
+attributes_t attributes_create (char *key, tree_t w) {
     attributes_t attr = malloc(sizeof (struct attributes_s));
 
     attr->key   = key;
-    attr->value = value;
+    attr->value = w->label;
     attr->next  = NULL;
 
     return attr;

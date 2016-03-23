@@ -7,6 +7,7 @@
 
 #include <ut/parser.h>
 #include <lexer.h>
+#include <tree.h>
 #include <parser.h>
 
 ut_status_t ut_run (ut_t ut) {

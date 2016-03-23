@@ -41,11 +41,11 @@ tree_t tree_create (char *label, bool nullary, bool space, enum type tp,
 
     
 
-attributes_t attributes_create (char *key, tree_t w) {
+attributes_t attributes_create (char *key, tree_t text) {
     attributes_t attr = malloc(sizeof (struct attributes_s));
 
     attr->key   = key;
-    attr->value = w->label;
+    attr->value = text->label;
     attr->next  = NULL;
 
     return attr;
@@ -53,9 +53,9 @@ attributes_t attributes_create (char *key, tree_t w) {
 
 
 
-attributes_t attributes_add_tolist (attributes_t att, attributes_t att_list) {
-    att->next = att_list;
-    return att;
+attributes_t attributes_add_tolist (attributes_t attr, attributes_t attr_list) {
+    attr->next = attr_list;
+    return attr;
 }
 
 

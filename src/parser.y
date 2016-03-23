@@ -20,7 +20,7 @@ void yyerror (char const *);
 %token SPACES
 %token WORD
 %token CHARACTER
-                        
+                    
 %union {
     char c;
     char *str;
@@ -44,10 +44,10 @@ set : '{' body '}'     { $$ = $2; }
     | label     { $$ = $1; }
     ;
 
-label : LABEL attributes spaces '{' body '}'      { $$ = tree_create(yyval.str, false, false, tree, $2, $5, NULL); }
-        |       LABEL '{' body '}'                { $$ = tree_create(yyval.str, false, false, tree, NULL, $3, NULL); }
-        |       LABEL attributes '/'              { $$ = tree_create(yyval.str, false, false, tree, $2, NULL, NULL); }
-        |       LABEL '/'                         { $$ = tree_create(yyval.str, true, false, word, NULL, NULL, NULL); }
+label : LABEL attributes spaces '{' body '}'   { $$ = tree_create(yyval.str, false, false, tree, $2, $5, NULL); }
+        |       LABEL '{' body '}'             { $$ = tree_create(yyval.str, false, false, tree, NULL, $3, NULL); }
+        |       LABEL attributes '/'           { $$ = tree_create(yyval.str, false, false, tree, $2, NULL, NULL); }
+        |       LABEL '/'                      { $$ = tree_create(yyval.str, true, false, tree, NULL, NULL, NULL); }
       ;
 
 attributes : '[' attribute_list ']'     { $$ = $2; }

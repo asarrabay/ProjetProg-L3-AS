@@ -36,18 +36,30 @@ LABELSET ([[:alnum:]'\._])
                   #endif
                   return CHARACTER;
               }
+
 <STRING>\\\"  {
                   #ifndef UT_LEXER
                       yylval.c = '"';
                   #endif
                   return CHARACTER;
               }
-<STRING>[^\"] {
-                  #ifndef UT_LEXER
-                      yylval.c = yytext[0];
+
+<STRING>[:space:]+ { ; }
+
+<STRING>[^\"[:space:]]+/[:space:]\" {
+                  #ifndef UT_LEXER                 
+                      yylval.t = tree_create(strdup(yytext), false, true, word, NULL, NULL, NULL);
                   #endif
-                  return CHARACTER;
+                  return WORD;
               }
+
+<STRING>[^\"[:space:]]+ {
+                  #ifndef UT_LEXER                  
+                      yylval.t = tree_create(strdup(yytext), false, false, word, NULL, NULL, NULL);
+                  #endif
+                  return WORD;
+              }
+
 <STRING>\"    {
                   #ifndef UT_LEXER
                       BEGIN RETSPACES;
@@ -61,8 +73,7 @@ LABELSET ([[:alnum:]'\._])
 [[:alpha:]]{LABELSET}*|_{LABELSET}+ {
                                         #ifndef UT_LEXER
                                             BEGIN RETSPACES;
-                                            yylval.label.s_label = strdup(yytext);
-                                            yylval.label.length = yyleng;
+                                            yylval.str = strdup(yytext);
                                         #endif
                                         return LABEL;
                                     }

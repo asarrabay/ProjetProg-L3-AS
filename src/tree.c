@@ -1,8 +1,11 @@
-#include <tree_t.h>
+#include <tree.h>
+
+
+
 struct attributes_s {
     char *key;                /* nom de l'attribut */
     char *value;              /* valeur de l'attribut */
-    attributes next;          /* attribut suivant */
+    attributes_t next;          /* attribut suivant */
 };
 
 
@@ -12,14 +15,16 @@ struct tree_s {
     bool nullary;             /* nœud vide, par exemple <br/> */
     bool space;               /* nœud suivi d'un espace */
     enum type tp;             /* type du nœud. nullary doit être true s tp vaut word */
-    attributes attr;          /* attributs du nœud */
+    attributes_t attr;          /* attributs du nœud */
     tree_t daughters;           /* fils gauche, qui doit être NULL si nullary est true */
     tree_t right;               /* frère droit */
 };
 
 
 
-tree_t tree_create (char *label, bool nullary, bool space, enum type tp, attributes attr, tree_t daughters, tree_t right) {
+tree_t tree_create (char *label, bool nullary, bool space, enum type tp,
+                    attributes_t attr, tree_t daughters, tree_t right) {
+    
     tree_t t = malloc(sizeof (struct tree_t));
 
     t->label     = label;
@@ -35,8 +40,8 @@ tree_t tree_create (char *label, bool nullary, bool space, enum type tp, attribu
 
     
 
-attributes attributes_create (char *key, char *value) {
-    attributes attr = malloc(sizeof (struct attributes_t));
+attributes_t attributes_create (char *key, char *value) {
+    attributes_t attr = malloc(sizeof (struct attributes_s));
 
     attr->key   = key;
     attr->value = value;
@@ -47,18 +52,17 @@ attributes attributes_create (char *key, char *value) {
 
 
 
-void attributes_add_tolist (attributes att, attributes att_list) {
-    if (att_list == NULL)
-        return;
-    
+attributes_t attributes_add_tolist (attributes_t att, attributes_t att_list) {
     att->next = att_list;
+    return att;
 }
 
 
 
-void tree_add_brother (tree_t t, tree_t brother) {
-    if (brother == NULL)
-        return;
+tree_t tree_add_brother (tree_t t, tree_t brother) {
+    if (t == NULL)
+        return brother;        
     
     t->right = brother;
+    return t;
 }

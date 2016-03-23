@@ -2,5 +2,6 @@
 
 int main (void) {
     yyparse();
+    
     return EXIT_SUCCESS;
 }

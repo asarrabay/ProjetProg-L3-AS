@@ -12,6 +12,26 @@
 #include <stdio.h>
 #include <main.h>
 #include <lexer.h>
+  /*
+   * Pourquoi on inclu pas tree.h ici?
+   */
+   struct attributes_s {
+    char *key;                /* nom de l'attribut */
+    char *value;              /* valeur de l'attribut */
+    attributes_t next;          /* attribut suivant */
+};
+
+
+
+struct tree_s {
+    char *label;              /* étiquette du nœud */
+    bool nullary;             /* nœud vide, par exemple <br/> */
+    bool space;               /* nœud suivi d'un espace */
+    enum type tp;             /* type du nœud. nullary doit être true s tp vaut word */
+    attributes_t attr;          /* attributs du nœud */
+    tree_t daughters;           /* fils gauche, qui doit être NULL si nullary est true */
+    tree_t right;               /* frère droit */
+};
 void yyerror (char const *);
 %}
 
@@ -44,10 +64,12 @@ set : '{' body '}'     { $$ = $2; }
     | label     { $$ = $1; }
     ;
 
-label : LABEL attributes spaces '{' body '}'   { $$ = tree_create(yyval.str, false, false, tree, $2, $5, NULL); }
-        |       LABEL '{' body '}'             { $$ = tree_create(yyval.str, false, false, tree, NULL, $3, NULL); }
-        |       LABEL attributes '/'           { $$ = tree_create(yyval.str, false, false, tree, $2, NULL, NULL); }
-        |       LABEL '/'                      { $$ = tree_create(yyval.str, true, false, tree, NULL, NULL, NULL); }
+label : LABEL attributes spaces '{' body '}'   { $$ = tree_create($1, false, false, tree, $2, $5, NULL);
+                                                    printf("68 : %s\n", tree_to_xml($$)); }
+        |       LABEL '{' body '}'             { $$ = tree_create($1, false, false, tree, NULL, $3, NULL); }
+        |       LABEL attributes '/'           { $$ = tree_create($1, false, false, tree, $2, NULL, NULL); 
+                                                    printf("%s\n", tree_to_xml($$));}
+        |       LABEL '/'                      { $$ = tree_create($1, true, false, tree, NULL, NULL, NULL); }
       ;
 
 attributes : '[' attribute_list ']'     { $$ = $2; }
@@ -58,7 +80,7 @@ attribute_list : attribute SPACES attribute_list     { $$ = attributes_add_tolis
                | %empty        { $$ = NULL; }
                ;
 
-attribute : LABEL spaces '=' content     { $$ = attributes_create(yyval.str, $4); }
+attribute : LABEL spaces '=' content     { $$ = attributes_create($1, $4); }
           ;
 
 body : set body               { $$ = tree_add_brother($1, $2); }
@@ -69,7 +91,7 @@ body : set body               { $$ = tree_add_brother($1, $2); }
 content : '"' words '"'     { $$ = $2; }
        ;
 
-words : words WORD     { $$ = tree_add_brother($1, yyval.t); }
+words : words WORD     { $$ = tree_add_brother($1, $2);}
            | %empty    { $$ = NULL; }
            ;
 

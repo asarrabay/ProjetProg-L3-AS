@@ -38,7 +38,7 @@ void yyerror (char const *);
 
 %%
 
-root : root set     { $$ = tree_add_brother($1, $2); }
+root : root set     { $$ = tree_add_brother($1, $2); printf("LA");}
      | %empty     { $$ = NULL; }
      ;
 
@@ -46,11 +46,9 @@ set : '{' body '}'     { $$ = $2; }
     | label     { $$ = $1; }
     ;
 
-label : LABEL attributes spaces '{' body '}'   { $$ = tree_create($1, false, false, tree, $2, $5, NULL);
-                                                    printf("68 : %s\n", tree_to_xml($$)); }
+label : LABEL attributes spaces '{' body '}'   { $$ = tree_create($1, false, false, tree, $2, $5, NULL); }
         |       LABEL '{' body '}'             { $$ = tree_create($1, false, false, tree, NULL, $3, NULL); }
-        |       LABEL attributes '/'           { $$ = tree_create($1, false, false, tree, $2, NULL, NULL); 
-                                                    printf("%s\n", tree_to_xml($$));}
+        |       LABEL attributes '/'           { $$ = tree_create($1, true, false, tree, $2, NULL, NULL); }
         |       LABEL '/'                      { $$ = tree_create($1, true, false, tree, NULL, NULL, NULL); }
       ;
 

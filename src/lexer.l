@@ -47,16 +47,16 @@ LABELSET ([[:alnum:]'\._])
 
 <STRING>[:space:]+ { ; }
 
-<STRING>[^\"[:space:]]+/[:space:]\" {
-                  #ifndef UT_LEXER           
-                      yylval.t = tree_create(strdup(yytext), true, true, word, NULL, NULL, NULL);
+<STRING>[^\"[:space:]]+/\" {
+                  #ifndef UT_LEXER         
+                      yylval.t = tree_create(strdup(yytext), true, false, word, NULL, NULL, NULL);
                   #endif
                   return WORD;
               }
 
 <STRING>[^\"[:space:]]+ {
                   #ifndef UT_LEXER
-                      yylval.t = tree_create(strdup(yytext), true, false, word, NULL, NULL, NULL);
+                      yylval.t = tree_create(strdup(yytext), true, true, word, NULL, NULL, NULL);
                   #endif
                   return WORD;
               }

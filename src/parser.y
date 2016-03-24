@@ -38,7 +38,7 @@ void yyerror (char const *);
 
 %%
 
-root : root set     { $$ = tree_add_brother($1, $2); printf("LA");}
+root : root set     { G_main_root = tree_add_brother(G_main_root, $2); }
      | %empty     { $$ = NULL; }
      ;
 

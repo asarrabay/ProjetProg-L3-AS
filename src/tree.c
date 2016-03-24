@@ -152,9 +152,15 @@ char* tree_to_xml(tree_t t){
             // xml += > xml_son </label>
             xml = str_concat(xml, ">\n\t");
             xml = str_concat(xml, xml_son);
-
-            char *tmp = malloc(sizeof(char) * (size_label + 5)); // +5 pour : '\n', '<', '/', '>', '\0'
-            strcpy(tmp, "\n</");
+            int size = strlen(xml);
+            char *tmp;
+            if (xml[size - 1] == '\n') {
+                tmp = malloc(sizeof(char) * (size_label + 4)); // +4 pour : '<', '/', '>', '\0'   
+                strcpy(tmp, "</");
+            } else {
+                tmp = malloc(sizeof(char) * (size_label + 4)); // +5 pour : '\n', '<', '/', '>', '\0'   
+                strcpy(tmp, "\n</");
+            }
             strcat(tmp, t->label);
             strcat(tmp, ">");
             xml = str_concat(xml, tmp);
@@ -166,6 +172,6 @@ char* tree_to_xml(tree_t t){
     // xml += xml_right
     char *xml_right = tree_to_xml(t->right);
     xml = str_concat(xml, xml_right);
-    xml = str_concat(xml, "\n");
+    //xml = str_concat(xml, "\n");
     return xml;
 }

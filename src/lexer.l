@@ -69,6 +69,7 @@ LABELSET ([[:alnum:]'\._])
                   #endif
                   return '"';
               }
+<STRING>[[:space:]]+  { }
 
 (?i:xml){LABELSET}*                 {   return LABEL_XML;   }
 [[:alpha:]]{LABELSET}*|_{LABELSET}+ {

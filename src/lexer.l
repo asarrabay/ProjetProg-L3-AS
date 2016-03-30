@@ -18,7 +18,7 @@
 #endif
 %}
 
-%option nounput noinput noyywrap
+%option nounput noinput
 
 LABELSET ([[:alnum:]'\._])
 
@@ -31,45 +31,37 @@ LABELSET ([[:alnum:]'\._])
                           return '"';  
                       }
 
-<STRING>\\\\  {
-                  #ifndef UT_LEXER
-                      yylval.c = '\\';
-                  #endif
-                  return CHARACTER;
-              }
+<STRING>\\\\          {
+                          #ifndef UT_LEXER
+                              yylval.c = '\\';
+                          #endif
+                          return CHARACTER;
+                      }
 
-<STRING>\\\"  {
-                  #ifndef UT_LEXER
-                      yylval.c = '"';
-                  #endif
-                  return CHARACTER;
-              }
+<STRING>\\\"          {
+                          #ifndef UT_LEXER
+                              yylval.c = '"';
+                          #endif
+                          return CHARACTER;
+                      }
 
-<STRING>[:space:]+ { ; }
+<STRING>[[:spaces:]]+ {   return SPACES;   }
 
-<STRING>[^\"[:space:]]+/\" {
-                  #ifndef UT_LEXER         
-                      yylval.t = tree_create(strdup(yytext), true, false, word, NULL, NULL, NULL);
-                  #endif
-                  return WORD;
-              }
+<STRING>[^\"]         {
+                          #ifndef UT_LEXER
+                              yylval.c = yytext[0];
+                          #endif
+                          return CHARACTER;
+                      }
 
-<STRING>[^\"[:space:]]+ {
-                  #ifndef UT_LEXER
-                      yylval.t = tree_create(strdup(yytext), true, true, word, NULL, NULL, NULL);
-                  #endif
-                  return WORD;
-              }
-
-<STRING>\"    {
-                  #ifndef UT_LEXER
-                      BEGIN RETSPACES;
-                  #else
-                      BEGIN INITIAL;
-                  #endif
-                  return '"';
-              }
-<STRING>[[:space:]]+  { }
+<STRING>\"            {
+                          #ifndef UT_LEXER
+                              BEGIN RETSPACES;
+                          #else
+                              BEGIN INITIAL;
+                          #endif
+                          return '"';
+                      }
 
 (?i:xml){LABELSET}*                 {   return LABEL_XML;   }
 [[:alpha:]]{LABELSET}*|_{LABELSET}+ {

@@ -1,20 +1,21 @@
-#ifndef _TREE_H
-#define _TREE_H
+#ifndef TREE_H
+#define TREE_H
 
 #include <stdbool.h>
 
 typedef struct tree_s *tree_t;
 typedef struct attributes_s *attributes_t;
-enum type {tree, word};        /* typage des nœuds: permet de savoir si un nœud construit un arbre 
-                                  ou s'il s'agit simplement de texte */
 
-tree_t tree_create (char *label, bool nullary, bool space, enum type tp,
-                    attributes_t attr, tree_t daughters, tree_t right);
-tree_t tree_add_brother (tree_t t, tree_t brother);
+enum tree_type_e { TREE, WORD };
 
-attributes_t attributes_create (char *key, tree_t text);
-attributes_t attributes_add_ahead (attributes_t attr_list, attributes_t attr);
+extern tree_t  tree_create      (char *, bool, bool, enum tree_type_e, attributes_t, tree_t, tree_t);
+extern void    tree_destroy     (tree_t);
+extern tree_t  tree_add_brother (tree_t, tree_t);
+extern void    tree_to_xml      (tree_t, FILE *);
 
-char* tree_to_xml(tree_t t);
+extern attributes_t attributes_create    (char *, tree_t);
+extern void         attributes_destroy   (attributes_t);
+extern attributes_t attributes_add_ahead (attributes_t, attributes_t);
+extern void         attributes_to_xml    (attributes_t, FILE *);
 
 #endif

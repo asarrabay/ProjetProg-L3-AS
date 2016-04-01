@@ -31,48 +31,50 @@ LABELSET ([[:alnum:]'\._])
                           return '"';  
                       }
 
-<STRING>\\\\          {
-                          #ifndef UT_LEXER
-                              yylval.c = '\\';
-                          #endif
-                          return CHARACTER;
-                      }
+<STRING>\\\\         {
+                         #ifndef UT_LEXER
+                             yylval.c = '\\';
+                         #endif
+                         return CHARACTER;
+                     }
 
-<STRING>\\\"          {
-                          #ifndef UT_LEXER
-                              yylval.c = '"';
-                          #endif
-                          return CHARACTER;
-                      }
+<STRING>\\\"         {
+                         #ifndef UT_LEXER
+                             yylval.c = '"';
+                         #endif
+                         return CHARACTER;
+                     }
 
-<STRING>[[:spaces:]]+ {   return SPACES;   }
+<STRING>[[:space:]]+ {   return SPACES;   }
 
-<STRING>[^\"]         {
-                          #ifndef UT_LEXER
-                              yylval.c = yytext[0];
-                          #endif
-                          return CHARACTER;
-                      }
+<STRING>[^\"]        {
+                         #ifndef UT_LEXER
+                             yylval.c = yytext[0];
+                         #endif
+                         return CHARACTER;
+                     }
 
-<STRING>\"            {
-                          #ifndef UT_LEXER
-                              BEGIN RETSPACES;
-                          #else
-                              BEGIN INITIAL;
-                          #endif
-                          return '"';
-                      }
+<STRING>\"           {
+                         #ifndef UT_LEXER
+                             BEGIN RETSPACES;
+                         #else
+                             BEGIN INITIAL;
+                         #endif
+                         return '"';
+                     }
+
+\] {   BEGIN RETSPACES;
+       return ']';
+   }
 
 (?i:xml){LABELSET}*                 {   return LABEL_XML;   }
 [[:alpha:]]{LABELSET}*|_{LABELSET}+ {
                                         #ifndef UT_LEXER
                                             BEGIN RETSPACES;
-                                            yylval.str = strdup(yytext);
+                                            yylval.s = strdup(yytext);
                                         #endif
                                         return LABEL;
                                     }
-
-\] {   BEGIN RETSPACES; return ']';   }
 
 <RETSPACES>[[:space:]]+ {   BEGIN INITIAL; 
                             return SPACES;       

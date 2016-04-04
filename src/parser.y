@@ -104,8 +104,9 @@ spaces : SPACES
 %%
 
 void yyerror (tree_t *t, char const *s) {
-    if (!(t == NULL)) { 
+    if (!(t == NULL) && !(*t == NULL)) { 
 	tree_destroy(*t);
+	*t = NULL;
     }
     fprintf(stderr, "%s\n", s);
 }

@@ -10,6 +10,11 @@
 #include <parser.h>
 
 ut_status_t ut_run (ut_t ut) {
+    tree_t document = NULL;
     yyin = ut->p_input;
-    return (yyparse(NULL) == 0) ? UT_PASSED : UT_FAILED ;
+    int status = yyparse(&document);
+    if (!(document == NULL)) {
+	tree_destroy(document);
+    }
+    return (status == 0) ? UT_PASSED : UT_FAILED ;
 }

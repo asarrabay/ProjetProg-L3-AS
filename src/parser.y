@@ -16,19 +16,30 @@
 %code requires {
 #include <word.h>
 #include <tree.h>
+#include <symbol.h>
+
+#define PARSER_CONTEXT_GET_TREE(context) (context->t)
+
+typedef struct parser_context_s {
+    tree_t t;
+    symbol_table_t st;
+} *parser_context_t;
 }
 
 %code {
-void yyerror (tree_t *, char const *);
+void yyerror (parser_context_t, char const *);
 }
 
-%parse-param {tree_t *root}
+%parse-param {parser_context_t context}
 
 %token LABEL
 %token LABEL_XML
 %token SPACES
 %token CHARACTER
-                 
+%token LET
+%token IN
+%token WHERE
+
 %union {
     char c;
     char *s;
@@ -38,33 +49,51 @@ void yyerror (tree_t *, char const *);
 }
 
 %type <c> CHARACTER
-%type <s> LABEL
+%type <s> LABEL LABEL_XML symbol
 %type <w> characters
-%type <t> root set label body content words word
-%type <a> attributes attribute_list attribute
+%type <t> root set-let set block label body content words word
+%type <a> attributes attribute-list attribute
+
+%right WHERE
 
 %start root
 
 %%
 
-root : root set { *root = tree_add_brother(*root, $2); }
-     | %empty { $$ = NULL; }
+root : root set-let { context->t = tree_add_brother(context->t, $2); }
+     | %empty       { $$ = NULL; }
      ;
 
-set : '{' body '}' { $$ = $2; }
-    | label        { $$ = $1; }
+set-let : set { $$ = $1; }
+        | let { $$ = NULL; }
+        ;
+
+set : block { $$ = $1; }
+    | label { $$ = $1; }
     ;
 
-label : LABEL attributes spaces '{' body '}' { $$ = tree_create($1, false, false, TREE, $2, $5, NULL);    }
-      | LABEL '{' body '}'                   { $$ = tree_create($1, false, false, TREE, NULL, $3, NULL);  }
-      | LABEL attributes '/'                 { $$ = tree_create($1, true, false, TREE, $2, NULL, NULL);   }
-      | LABEL '/'                            { $$ = tree_create($1, true, false, TREE, NULL, NULL, NULL); }
+block : '{' { symbol_table_increase_level(context->st); } body '}' { $$ = $3; symbol_table_decrease_level(context->st); }
       ;
 
-attributes : '[' attribute_list ']' { $$ = $2; }
+let : LET symbol '=' set ';' { symbol_table_add(context->st, symbol_create($2, VARIABLE, $4)); }
+    | LET symbol '=' set IN { symbol_table_increase_level(context->st); symbol_table_add(context->st, symbol_create($2, VARIABLE, $4)); } set { symbol_table_decrease_level(context->st); }
+    | set { symbol_table_decrease_level(context->st); } WHERE symbol '=' set { symbol_table_increase_level(context->st); symbol_table_add(context->st, symbol_create($4, VARIABLE, $6)); }
+    ;
+
+symbol : LABEL     { $$ = $1; }
+       | LABEL_XML { $$ = $1; }
+       ;
+
+label : LABEL attributes spaces block { $$ = tree_create($1, false, false, TREE, $2, $4, NULL);    }
+      | LABEL block                   { $$ = tree_create($1, false, false, TREE, NULL, $2, NULL);  }
+      | LABEL attributes '/'          { $$ = tree_create($1, true, false, TREE, $2, NULL, NULL);   }
+      | LABEL '/'                     { $$ = tree_create($1, true, false, TREE, NULL, NULL, NULL); }
+      ;
+
+attributes : '[' attribute-list ']' { $$ = $2; }
            ;
 
-attribute_list : attribute SPACES attribute_list { $$ = attributes_add_ahead($1, $3); }
+attribute-list : attribute SPACES attribute-list { $$ = attributes_add_ahead($1, $3); }
                | attribute                       { $$ = $1; }
                | %empty                          { $$ = NULL; }
                ;
@@ -72,7 +101,7 @@ attribute_list : attribute SPACES attribute_list { $$ = attributes_add_ahead($1,
 attribute : LABEL spaces '=' content { $$ = attributes_create($1, $4); }
           ;
 
-body : set body            { $$ = tree_add_brother($1, $2); }
+body : set-let body        { $$ = tree_add_brother($1, $2); }
      | content spaces body { $$ = tree_add_brother($1, $3); }
      | %empty              { $$ = NULL; }
      ;
@@ -85,12 +114,8 @@ words : words word { $$ = tree_add_brother($1, $2); }
       | %empty     { $$ = NULL; }
       ;
 
-word : characters SPACES { $$ = tree_create(word_to_string($1), true, true, WORD, NULL, NULL, NULL);
-                           word_destroy($1);
-                         }
-     | characters        { $$ = tree_create(word_to_string($1), true, false, WORD, NULL, NULL, NULL);
-                           word_destroy($1);
-                         }
+word : characters SPACES { $$ = tree_create(word_to_string($1), true, true, WORD, NULL, NULL, NULL);  word_destroy($1); }
+     | characters        { $$ = tree_create(word_to_string($1), true, false, WORD, NULL, NULL, NULL); word_destroy($1); }
      ;
 
 characters : characters CHARACTER { $$ = word_cat($1, $2); }
@@ -103,10 +128,10 @@ spaces : SPACES
 
 %%
 
-void yyerror (tree_t *t, char const *s) {
-    if (!(t == NULL) && !(*t == NULL)) { 
-	tree_destroy(*t);
-	*t = NULL;
+void yyerror (parser_context_t context, char const *s) {
+    if (!(context->t == NULL)) {
+        tree_destroy(context->t);
     }
+    symbol_table_destroy(context->st);
     fprintf(stderr, "%s\n", s);
 }

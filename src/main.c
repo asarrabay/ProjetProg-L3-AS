@@ -51,11 +51,12 @@ int main (int argc, char *argv[]) {
 	default : break ;
 	}
     }
-    tree_t document = NULL;
+    parser_context_t context = &(struct parser_context_s){ .t = NULL, .st = NULL };
     yyin = fdin;
-    int status = yyparse(&document);
-    tree_to_xml(document, fdout);
+    int status = yyparse(context);
+    tree_to_xml(PARSER_CONTEXT_GET_TREE(context), fdout);
     fclose(fdin);
     fclose(fdout);
+
     return (status == 0) ? EXIT_SUCCESS : EXIT_FAILURE ;
 }

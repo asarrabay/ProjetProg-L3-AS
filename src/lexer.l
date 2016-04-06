@@ -11,7 +11,6 @@
 %{
 #ifndef UT_LEXER
 #include <string.h>
-#include <tree.h>
 #include <parser.h>
 #else
 #include <tokens.h>
@@ -27,9 +26,23 @@ LABELSET ([[:alnum:]'\._])
 
 %%
 
-<INITIAL,RETSPACES>\" {   BEGIN STRING; 
-                          return '"';  
-                      }
+\"             {   BEGIN STRING; return '"';      }
+\]             {   BEGIN RETSPACES; return ']';   }
+where          {   return WHERE;                  }
+let            {   return LET;                    }
+in             {   return IN;                     }
+[[:space:]\n]+ { }
+
+(?i:xml){LABELSET}*                 {   return LABEL_XML;   }
+[[:alpha:]]{LABELSET}*|_{LABELSET}+ {
+                                        #ifndef UT_LEXER
+                                            BEGIN RETSPACES;
+                                            yylval.s = strdup(yytext);
+                                        #endif
+                                        return LABEL;
+                                    }
+
+. {   return yytext[0];   }
 
 <STRING>\\\\         {
                          #ifndef UT_LEXER
@@ -63,28 +76,7 @@ LABELSET ([[:alnum:]'\._])
                          return '"';
                      }
 
-\] {   BEGIN RETSPACES;
-       return ']';
-   }
-
-(?i:xml){LABELSET}*                 {   return LABEL_XML;   }
-[[:alpha:]]{LABELSET}*|_{LABELSET}+ {
-                                        #ifndef UT_LEXER
-                                            BEGIN RETSPACES;
-                                            yylval.s = strdup(yytext);
-                                        #endif
-                                        return LABEL;
-                                    }
-
-<RETSPACES>[[:space:]]+ {   BEGIN INITIAL; 
-                            return SPACES;       
-                        }
-<RETSPACES>\]           {   return ']';   }
-<RETSPACES>.            {   BEGIN INITIAL; 
-                            return yytext[0];    
-                        }
-
-[[:space:]]+  { }
-.             {   return yytext[0];   }
+<RETSPACES>[[:space:]]+ {   BEGIN INITIAL; return SPACES;   }
+<RETSPACES>.            {   BEGIN INITIAL; yyless(0);       }
 
 %%

@@ -22,7 +22,7 @@
 
 typedef struct parser_context_s {
     tree_t t;
-    symbol_table_t st;
+    symbol_environment_t se;
 } *parser_context_t;
 }
 
@@ -54,8 +54,6 @@ void yyerror (parser_context_t, char const *);
 %type <t> root set-let set block label body content words word
 %type <a> attributes attribute-list attribute
 
-%right WHERE
-
 %start root
 
 %%
@@ -72,12 +70,12 @@ set : block { $$ = $1; }
     | label { $$ = $1; }
     ;
 
-block : '{' { symbol_table_increase_level(context->st); } body '}' { $$ = $3; symbol_table_decrease_level(context->st); }
+block : '{' { symbol_environment_increase_level(context->se); } body '}' { $$ = $3; symbol_environment_decrease_level(context->se); }
       ;
 
-let : LET symbol '=' set ';' { symbol_table_add(context->st, symbol_create($2, VARIABLE, $4)); }
-    | LET symbol '=' set IN { symbol_table_increase_level(context->st); symbol_table_add(context->st, symbol_create($2, VARIABLE, $4)); } set { symbol_table_decrease_level(context->st); }
-    | set { symbol_table_decrease_level(context->st); } WHERE symbol '=' set { symbol_table_increase_level(context->st); symbol_table_add(context->st, symbol_create($4, VARIABLE, $6)); }
+let : LET symbol '=' set ';' { symbol_environment_add(context->se, symbol_create($2, VARIABLE, $4)); }
+    | LET symbol '=' set IN { symbol_environment_increase_level(context->se); symbol_environment_add(context->se, symbol_create($2, VARIABLE, $4)); } set { symbol_environment_decrease_level(context->se); }
+    | set { symbol_environment_decrease_level(conttaext->se); } WHERE symbol '=' set { symbol_environment_increase_level(context->se); symbol_environment_add(context->se, symbol_create($4, VARIABLE, $6)); }
     ;
 
 symbol : LABEL     { $$ = $1; }
@@ -132,6 +130,7 @@ void yyerror (parser_context_t context, char const *s) {
     if (!(context->t == NULL)) {
         tree_destroy(context->t);
     }
-    symbol_table_destroy(context->st);
+    
+    symbol_environment_destroy(context->se);
     fprintf(stderr, "%s\n", s);
 }

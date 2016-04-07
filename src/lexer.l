@@ -31,9 +31,10 @@ LABELSET ([[:alnum:]'\._])
 where          {   return WHERE;                  }
 let            {   return LET;                    }
 in             {   return IN;                     }
-[[:space:]\n]+ { }
+[[:space:]]+   { }
 
 (?i:xml){LABELSET}*                 {   return LABEL_XML;   }
+
 [[:alpha:]]{LABELSET}*|_{LABELSET}+ {
                                         #ifndef UT_LEXER
                                             BEGIN RETSPACES;

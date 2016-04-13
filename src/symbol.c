@@ -3,10 +3,10 @@
 #include <stack.h>
 
 
-/* Un environnement de symbole est représenté par une pile
- * Chaque élement de la pile est un niveau d'environnement
+/* Un environnement de symboles est représenté par une pile
+ * Chaque élément de la pile correspond à un niveau d'environnement
  * Chaque niveau d'environnement est représenté par une liste chaînée
- * Les variables les plus locales se trouvent au sommet de la pile */
+ * Les symboles les plus locaux se situent au sommet de la pile */
 struct symbol_environment_s {
     stack_t stack_level;
 };
@@ -124,7 +124,7 @@ void symbol_environment_add (symbol_environment_t se, symbol_t s) {
 /* On parcourt chaque niveau de la pile à la recherche du symbole 
  * On parcourtt du plus local au moins local
  * La pile annexe sert à transférer temporairement les élements pendant qu'on parcourt la première */
-const symbol_t symbol_environment_get (symbol_environment_t se, const char *s_name) {
+symbol_t symbol_environment_get (symbol_environment_t se, const char *s_name) {
     symbol_level_t key;
     symbol_t result = NULL;
     stack_t tmp_stack = stack_create();

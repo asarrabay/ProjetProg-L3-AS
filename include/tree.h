@@ -7,7 +7,7 @@
 typedef struct tree_s *tree_t;
 typedef struct attributes_s *attributes_t;
 
-enum tree_type_e { TREE, WORD };
+enum tree_type_e { tree, word };
 
 extern tree_t  tree_create      (char *, bool, bool, enum tree_type_e, attributes_t, tree_t, tree_t);
 extern void    tree_destroy     (tree_t);

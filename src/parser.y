@@ -14,7 +14,6 @@
 }
 
 %code requires {
-#include <word.h>
 #include <tree.h>
 #include <symbol.h>
 
@@ -35,23 +34,19 @@ void yyerror (parser_context_t, char const *);
 %token LABEL
 %token LABEL_XML
 %token SPACES
-%token CHARACTER
+%token WORD
 %token LET
 %token IN
 %token WHERE
 
 %union {
-    char c;
     char *s;
-    word_t w;
     tree_t t;
     attributes_t a;
 }
 
-%type <c> CHARACTER
 %type <s> LABEL LABEL_XML symbol
-%type <w> characters
-%type <t> root set-let set block label body content words word
+%type <t> root set-let set block label body content words WORD 
 %type <a> attributes attribute-list attribute
 
 %start root
@@ -82,10 +77,10 @@ symbol : LABEL     { $$ = $1; }
        | LABEL_XML { $$ = $1; }
        ;
 
-label : LABEL attributes spaces block { $$ = tree_create($1, false, false, TREE, $2, $4, NULL);    }
-      | LABEL block                   { $$ = tree_create($1, false, false, TREE, NULL, $2, NULL);  }
-      | LABEL attributes '/'          { $$ = tree_create($1, true, false, TREE, $2, NULL, NULL);   }
-      | LABEL '/'                     { $$ = tree_create($1, true, false, TREE, NULL, NULL, NULL); }
+label : LABEL attributes spaces block { $$ = tree_create($1, false, false, tree, $2, $4, NULL);    }
+      | LABEL block                   { $$ = tree_create($1, false, false, tree, NULL, $2, NULL);  }
+      | LABEL attributes '/'          { $$ = tree_create($1, true, false, tree, $2, NULL, NULL);   }
+      | LABEL '/'                     { $$ = tree_create($1, true, false, tree, NULL, NULL, NULL); }
       ;
 
 attributes : '[' attribute-list ']' { $$ = $2; }
@@ -107,18 +102,9 @@ body : set-let body        { $$ = tree_add_brother($1, $2); }
 content : '"' words '"' { $$ = $2; }
         ;
 
-words : words word { $$ = tree_add_brother($1, $2); }
-      | SPACES     { $$ = NULL; }
+words : words WORD { $$ = tree_add_brother($1, $2); }
       | %empty     { $$ = NULL; }
       ;
-
-word : characters SPACES { $$ = tree_create(word_to_string($1), true, true, WORD, NULL, NULL, NULL);  word_destroy($1); }
-     | characters        { $$ = tree_create(word_to_string($1), true, false, WORD, NULL, NULL, NULL); word_destroy($1); }
-     ;
-
-characters : characters CHARACTER { $$ = word_cat($1, $2); }
-           | CHARACTER { $$ = word_cat(word_create(), $1); }
-           ;
 
 spaces : SPACES
        | %empty

@@ -54,7 +54,7 @@ tree_t tree_add_brother (tree_t t, tree_t brother) {
 
 void tree_to_xml (tree_t t, FILE *fdout) {
     switch (t->type) {
-    case TREE :
+    case tree :
 	fprintf(fdout, "<%s", t->s_label);
 	if (!(t->a == NULL)) {
 	    attributes_to_xml(t->a, fdout);
@@ -70,7 +70,7 @@ void tree_to_xml (tree_t t, FILE *fdout) {
 	fprintf(fdout, "</%s>", t->s_label);
 	break ;
 
-    case WORD :
+    case word :
 	fprintf(fdout, "%s", t->s_label);
 	if (t->space) {
 	    fprintf(fdout, " ");
@@ -84,10 +84,10 @@ void tree_to_xml (tree_t t, FILE *fdout) {
     }
 }
 
-attributes_t attributes_create (char *s_key, tree_t word) {
+attributes_t attributes_create (char *s_key, tree_t text) {
     attributes_t a = malloc(sizeof (struct attributes_s));
     a->s_key   = s_key;
-    a->s_value = word->s_label;
+    a->s_value = text->s_label;
     a->next  = NULL;
     return a;
 }

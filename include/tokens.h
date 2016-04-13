@@ -18,7 +18,6 @@
  */
 typedef enum { LABEL = 256,
 	       LABEL_XML,
-	       CHARACTER,
                SPACES,
                WORD,
                WHERE,

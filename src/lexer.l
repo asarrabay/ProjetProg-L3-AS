@@ -45,37 +45,30 @@ in             {   return IN;                     }
 
 . {   return yytext[0];   }
 
-<STRING>\\\\         {
-                         #ifndef UT_LEXER
-                             yylval.c = '\\';
-                         #endif
-                         return CHARACTER;
-                     }
+<STRING>[[:space:]]+ { }
 
-<STRING>\\\"         {
-                         #ifndef UT_LEXER
-                             yylval.c = '"';
-                         #endif
-                         return CHARACTER;
-                     }
+<STRING>[^\"[[:space:]]]+/\"   {
+                                    #ifndef UT_LEXER
+                                       yylval.t = tree_create(strdup(yytext), true, false, word, NULL, NULL, NULL);
+                                    #endif
+                                    return WORD;
+                               }
 
-<STRING>[[:space:]]+ {   return SPACES;   }
+<STRING>[^\"[[:space:]]]+      {
+                                    #ifndef UT_LEXER
+                                       yylval.t = tree_create(strdup(yytext), true, true, word, NULL, NULL, NULL);
+                                    #endif
+                                    return WORD;
+                                }
 
-<STRING>[^\"]        {
-                         #ifndef UT_LEXER
-                             yylval.c = yytext[0];
-                         #endif
-                         return CHARACTER;
-                     }
-
-<STRING>\"           {
-                         #ifndef UT_LEXER
-                             BEGIN RETSPACES;
-                         #else
-                             BEGIN INITIAL;
-                         #endif
-                         return '"';
-                     }
+<STRING>\"                      {
+                                    #ifndef UT_LEXER
+                                       BEGIN RETSPACES;
+                                    #else
+                                    BEGIN INITIAL;
+                                    #endif
+                                    return '"';
+                                 }
 
 <RETSPACES>[[:space:]]+ {   BEGIN INITIAL; return SPACES;   }
 <RETSPACES>.            {   BEGIN INITIAL; yyless(0);       }

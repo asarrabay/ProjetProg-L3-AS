@@ -75,7 +75,7 @@ block : '{' { symbol_environment_increase_level(context->se); } body '}' { $$ = 
 
 let : LET symbol '=' set ';' { symbol_environment_add(context->se, symbol_create($2, VARIABLE, $4)); }
     | LET symbol '=' set IN { symbol_environment_increase_level(context->se); symbol_environment_add(context->se, symbol_create($2, VARIABLE, $4)); } set { symbol_environment_decrease_level(context->se); }
-    | set { symbol_environment_decrease_level(conttaext->se); } WHERE symbol '=' set { symbol_environment_increase_level(context->se); symbol_environment_add(context->se, symbol_create($4, VARIABLE, $6)); }
+    | set { symbol_environment_decrease_level(context->se); } WHERE symbol '=' set { symbol_environment_increase_level(context->se); symbol_environment_add(context->se, symbol_create($4, VARIABLE, $6)); }
     ;
 
 symbol : LABEL     { $$ = $1; }

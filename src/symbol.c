@@ -124,7 +124,7 @@ void symbol_environment_add (symbol_environment_t se, symbol_t s) {
 /* On parcourt chaque niveau de la pile à la recherche du symbole 
  * On parcourtt du plus local au moins local
  * La pile annexe sert à transférer temporairement les élements pendant qu'on parcourt la première */
-const symbol_t symbol_environment_get (symbol_environment_t se, const char *s_name) {
+symbol_t symbol_environment_get (symbol_environment_t se, const char *s_name) {
     symbol_level_t key;
     symbol_t result = NULL;
     stack_t tmp_stack = stack_create();

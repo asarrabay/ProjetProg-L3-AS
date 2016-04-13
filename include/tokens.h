@@ -20,7 +20,10 @@ typedef enum { LABEL = 256,
 	       LABEL_XML,
 	       CHARACTER,
                SPACES,
-               WORD
+               WORD,
+               WHERE,
+               IN,
+               LET
              } tokens_t;
 
 #endif

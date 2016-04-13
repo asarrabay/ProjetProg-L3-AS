@@ -9,13 +9,13 @@ typedef struct chaine_s *chaine_t;
 
 
 struct stack_s {
-    chaine p_top;
+    chaine_t p_top;
 };
     
 
 struct chaine_s {
     void *data;
-    chaine p_next;
+    chaine_t p_next;
 };
     
     

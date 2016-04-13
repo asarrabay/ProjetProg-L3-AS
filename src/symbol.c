@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include <symbol.h>
 #include <stack.h>
 
@@ -15,16 +16,16 @@ struct symbol_environment_s {
 
 /* Un symbole est associé à un niveau d'environnement
  * Il est stocké dans une liste correspondant à ce niveau */
-typedef struct symbol_level_s {
+struct symbol_level_s {
     symbol_t first;
     symbol_t last;
-} *symbol_level_t;
+};
 
 
 
 /* Un symbole a un nom, un type, une valeur et un pointeur vers le symbole suivant (chainon de file) */
 struct symbol_s {
-    const char *s_name;
+    char *s_name;
     symbol_type_t type;
     tree_t value;
     symbol_t next;
@@ -33,9 +34,9 @@ struct symbol_s {
 
 /* SYMBOL_T */
 
-symbol_t symbol_create (const char *s_name, symbol_type_t type, tree_t value, symbol_level_t level) {
+symbol_t symbol_create (char *s_name, symbol_type_t type, tree_t value) {
     symbol_t s = malloc(sizeof (struct symbol_s));
-    s->s_name = strdup(name);
+    s->s_name = strdup(s_name);
     s->type = type;
     s->value = value;
     s->next = NULL;
@@ -46,20 +47,20 @@ symbol_t symbol_create (const char *s_name, symbol_type_t type, tree_t value, sy
 
 
 void symbol_destroy (symbol_t s) {
-    free(s->name);
+    free(s->s_name);
     tree_destroy(s->value);
     free(s);
 }
 
 
 
-const symbol_type_t symbol_get_type (const symbol_t s) {
+symbol_type_t symbol_get_type (const symbol_t s) {
 	return s->type;
 }
 
 
 
-const tree_t symbol_get_value (const symbol_t symbol) {
+tree_t symbol_get_value (const symbol_t s) {
 	return s->value;
 }
 
@@ -76,7 +77,7 @@ symbol_environment_t symbol_environment_create (void) {
     symbol_environment_t se = malloc(sizeof (struct symbol_environment_s));
     se->stack_level = stack_create();
     
-    return st;
+    return se;
 }
 
 
@@ -98,7 +99,7 @@ void symbol_environment_destroy (symbol_environment_t se) {
 
 void symbol_environment_increase_level (symbol_environment_t se) {
     symbol_level_t sl = symbol_level_create();
-    stack_push(se>stack_level, (void *) sl);
+    stack_push(se->stack_level, (void *) sl);
 }
 
 
@@ -124,7 +125,7 @@ void symbol_environment_add (symbol_environment_t se, symbol_t s) {
 /* On parcourt chaque niveau de la pile à la recherche du symbole 
  * On parcourtt du plus local au moins local
  * La pile annexe sert à transférer temporairement les élements pendant qu'on parcourt la première */
-symbol_t symbol_environment_get (symbol_environment_t se, const char *s_name) {
+symbol_t symbol_environment_get (symbol_environment_t se, char *s_name) {
     symbol_level_t key;
     symbol_t result = NULL;
     stack_t tmp_stack = stack_create();
@@ -148,7 +149,7 @@ symbol_t symbol_environment_get (symbol_environment_t se, const char *s_name) {
     }
 
     stack_destroy(tmp_stack);
-    return res;
+    return result;
 }
 
 

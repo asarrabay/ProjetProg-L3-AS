@@ -4,10 +4,10 @@
 #include <stack.h>
 
 
-/* Un environnement de symbole est représenté par une pile
- * Chaque élement de la pile est un niveau d'environnement
+/* Un environnement de symboles est représenté par une pile
+ * Chaque élément de la pile correspond à un niveau d'environnement
  * Chaque niveau d'environnement est représenté par une liste chaînée
- * Les variables les plus locales se trouvent au sommet de la pile */
+ * Les symboles les plus locaux se situent au sommet de la pile */
 struct symbol_environment_s {
     stack_t stack_level;
 };

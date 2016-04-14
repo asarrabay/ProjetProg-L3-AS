@@ -12,23 +12,22 @@
 /**
  * \brief Enumeration decrivant les tokens retournes par le lexer.
  * \details La valeur de chaque membre de l'enumeration est superieur a 255 pour ne pas
- * etre confondu avec la valeur d'un caractere ASCII [0-255]. Les tokens definis apres le test
- * d'existence de la constante UT_LEXER n'existeront que dans le contexte d'un test unitaire
- * du lexer.
+ * etre confondu avec la valeur d'un caractere ASCII [0-255].
  */
 typedef enum { LABEL = 256,
 	       LABEL_XML,
                SPACES,
                CHARACTER,
-               WHERE,
+               LET,
                IN,
-               OP,
-               REC,
+               WHERE,
+               RECURSIVE,
+               FUNCTION,
+               ASSOC,
                IF,
                THEN,
                ELSE,
-               ASSOC,
-               FUNC
+               OPERATOR
              } tokens_t;
 
 #endif

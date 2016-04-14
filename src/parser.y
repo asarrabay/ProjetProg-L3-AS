@@ -31,13 +31,13 @@ void yyerror (struct ast **, char const *);
 %token LET
 %token IN
 %token WHERE
-%token OP
-%token REC
+%token RECURSIVE
+%token FUNCTION
+%token ASSOC
 %token IF
 %token THEN
 %token ELSE
-%token ASSOC
-%token FUNC
+%token OPERATOR
 
 %union {
     char c;
@@ -51,7 +51,7 @@ void yyerror (struct ast **, char const *);
 %type <s> LABEL LABEL_XML symbol
 %type <w> word
 %type <a> attributes attribute-list attribute
-%type <ast> root set-let set block label body value word-list empt-list
+%type <ast> root set-let let-global let-var let-fun expression set block label body value word-list empt-list
 
 %start start
 
@@ -66,9 +66,10 @@ root : root set-let { $$ = mk_forest(true, $1, $2); }
      ;
 
 
-set-let : set { $$ = $1; }
-        | let-var { $$ = NULL; }
-        | let-fun { $$ = NULL; }
+set-let : set        { $$ = $1; }
+        | let-global { $$ = NULL; }
+        | let-var    { $$ = NULL; }
+        | let-fun    { $$ = NULL; }
         ;
 
 
@@ -81,27 +82,28 @@ block : '{' body '}' { $$ = $2; }
       ;
 
 
-let-global : LET symbol '=' exp ';' let-global { $$ = mk_app(mk_fun($2, $6), $4); }
-           | %empty                            { $$ = *root; }
+let-global : LET symbol '=' expression ';' let-global { $$ = mk_app(mk_fun($2, $6), $4); }
+           | %empty                                   { $$ = *root; }
 	   ;
 
 
-let-var : LET symbol '=' exp IN exp { $$ = mk_app(mk_fun($2, $6), $4); }
-        | exp WHERE symbol '=' exp  { $$ = mk_app(mk_fun($3, $1), $5); }
+let-var : LET symbol '=' expression IN expression { $$ = mk_app(mk_fun($2, $6), $4); }
+        | expression WHERE symbol '=' expression  { $$ = mk_app(mk_fun($3, $1), $5); }
         ;
 
 
 /* A modifier */
-let-fun : LET symbol symbol-list '=' FUNC symbol-list ASSOC exp ';'
-        | LET symbol symbol-list '=' FUNC symbol-list ASSOC exp ';'
-        | LET REC symbol-list '=' FUNC symbol-list ASSOC exp ';'
+let-fun : LET symbol symbol-list '=' FUNCTION symbol-list ASSOC expression ';'    { $$ = NULL; }
+        | LET symbol symbol-list '=' FUNCTION symbol-list ASSOC expression ';'    { $$ = NULL; }
+        | LET RECURSIVE symbol-list '=' FUNCTION symbol-list ASSOC expression ';' { $$ = NULL; }
         ;
 
-exp : '(' exp ')'
-    | IF exp THEN exp ELSE exp
-    | exp OP exp
-    | set
-    ;
+
+expression : '(' expression ')'                            { $$ = NULL; }
+           | IF expression THEN expression ELSE expression { $$ = NULL; }
+           | expression OPERATOR expression                { $$ = NULL; }
+           | set                                           { $$ = NULL; }
+           ;
 
 
 symbol-list : symbol symbol-list
@@ -135,8 +137,8 @@ attribute : LABEL spaces '=' value { $$ = mk_attributes(mk_word($1), $4, NULL); 
           ;
 
 
-value : '"' word-list '"' { $$ = $2; }
-      | '"' empt-list '"' { $$ = $2; }
+value : '"' spaces word-list '"' { $$ = $3; }
+      | '"' empt-list '"'        { $$ = $2; }
       ;
 
 

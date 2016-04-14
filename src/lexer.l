@@ -27,22 +27,15 @@ LABELSET ([[:alnum:]'\._])
 
 %%
 
-\"             {   BEGIN STRING; return '"';      }
-\]             {   BEGIN RETSPACES; return ']';   }
-where          {   return WHERE;                  }
-let            {   return LET;                    }
-in             {   return IN;                     }
-/* TODO : + * - ... */
-op             {   return OP;                     }
-/* END TODO */
-rec            {   return REC;                    }
-if             {   return IF;                     }
-then           {   return THEN;                   }
-else           {   return ELSE;                   }
-->             {   return ASSOC;                  }
-fun            {   return FUNC;                   }
-
-[[:space:]]+   { }
+let          {   return LET;         }
+in           {   return IN;          }
+where        {   return WHERE;       }
+rec          {   return RECURSIVE;   }
+fun          {   return FUNCTION;    }
+->           {   return ASSOC;       }
+if           {   return IF;          }
+then         {   return THEN;        }
+else         {   return ELSE;        }
 
 (?i:xml){LABELSET}*                 {   return LABEL_XML;   }
 [[:alpha:]]{LABELSET}*|_{LABELSET}+ {
@@ -53,7 +46,14 @@ fun            {   return FUNC;                   }
                                         return LABEL;
                                     }
 
+\"           {   BEGIN STRING; return '"';      }
+\]           {   BEGIN RETSPACES; return ']';   }
+
+[[:space:]]+ { }
+
 . {   return yytext[0];   }
+
+<STRING>[[:space:]]+ {   return SPACES;   }
 
 <STRING>\\\\         {
                          #ifndef UT_LEXER
@@ -68,8 +68,6 @@ fun            {   return FUNC;                   }
                          #endif
                          return CHARACTER;
                      }
-
-<STRING>[[:space:]]+ {   return SPACES;   }
 
 <STRING>[^\"]        {
                          #ifndef UT_LEXER

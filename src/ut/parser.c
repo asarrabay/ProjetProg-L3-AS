@@ -8,17 +8,11 @@
 #include <ut/parser.h>
 #include <lexer.h>
 #include <parser.h>
-#include <symbol.h>
 
 ut_status_t ut_run (ut_t ut) {
-    tree_t document = NULL;
-    parser_context_t context = malloc(sizeof(*context));
-    context->t = document;
-    context->se = NULL;
+    struct ast *document;
     yyin = ut->p_input;
-    int status = yyparse(context);
-    if (!(document == NULL)) {
-	tree_destroy(document);
-    }
+    int status = yyparse(&document);
+    free(document);
     return (status == 0) ? UT_PASSED : UT_FAILED ;
 }

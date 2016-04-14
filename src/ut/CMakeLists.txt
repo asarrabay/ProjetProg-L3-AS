@@ -8,7 +8,7 @@ macro(ADD_UT CATEGORY NAME SOURCES LIBRARIES TESTS)
   string(REGEX REPLACE "[ \n]+" ";" LIBRARIES_LIST ${LIBRARIES})
   list(GET LIBRARIES_LIST 0 LIBRARIES_IGNORE)
   set_source_files_properties(${SOURCES_LIST} PROPERTIES GENERATED TRUE)
-  add_executable(${TARGET} ${CATEGORY}/${NAME}.c ${CATEGORY}.c ${SOURCES_LIST} ../symbol.c ../stack.c ../tree.c)
+  add_executable(${TARGET} ${CATEGORY}/${NAME}.c ${CATEGORY}.c ${SOURCES_LIST})
   if(NOT ${LIBRARIES_IGNORE} STREQUAL "IGNORE")
     target_link_libraries(${TARGET} ${LIBRARIES_LIST})
   endif(NOT ${LIBRARIES_IGNORE} STREQUAL "IGNORE")
@@ -34,7 +34,7 @@ endmacro()
 add_ut(lexer label "${PROJECT_BINARY_DIR}/src/lexer.c" "${FLEX_LIBRARIES}" DEFAULT)
 add_ut(lexer string "${PROJECT_BINARY_DIR}/src/lexer.c" "${FLEX_LIBRARIES}" DEFAULT)
 
-add_ut(parser grammar "${PROJECT_SOURCE_DIR}/src/tree.c ${PROJECT_BINARY_DIR}/src/parser.c ${PROJECT_BINARY_DIR}/src/lexer.c ${PROJECT_SOURCE_DIR}/src/word.c" "${FLEX_LIBRARIES}"
+add_ut(parser grammar "${PROJECT_SOURCE_DIR}/src/ast.c ${PROJECT_BINARY_DIR}/src/parser.c ${PROJECT_BINARY_DIR}/src/lexer.c ${PROJECT_SOURCE_DIR}/src/word.c" "${FLEX_LIBRARIES}"
   "none              [${CMAKE_CURRENT_SOURCE_DIR}/parser/none.tohtml]                      |
    spaces            [${CMAKE_CURRENT_SOURCE_DIR}/parser/spaces.tohtml]                    |
    set               [${CMAKE_CURRENT_SOURCE_DIR}/parser/set.tohtml]                       |

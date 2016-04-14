@@ -51,10 +51,9 @@ int main (int argc, char *argv[]) {
 	default : break ;
 	}
     }
-    parser_context_t context = &(struct parser_context_s){ .t = NULL, .se = NULL };
+    struct ast *document;
     yyin = fdin;
-    int status = yyparse(context);
-    tree_to_xml(PARSER_CONTEXT_GET_TREE(context), fdout);
+    int status = yyparse(&document);
     fclose(fdin);
     fclose(fdout);
 

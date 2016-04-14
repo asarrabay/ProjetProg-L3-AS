@@ -14,23 +14,15 @@
 }
 
 %code requires {
+#include <ast.h>
 #include <word.h>
-#include <tree.h>
-#include <symbol.h>
-
-#define PARSER_CONTEXT_GET_TREE(context) (context->t)
-
-typedef struct parser_context_s {
-    tree_t t;
-    symbol_environment_t se;
-} *parser_context_t;
 }
 
 %code {
-void yyerror (parser_context_t, char const *);
+void yyerror (struct ast **, char const *);
 }
 
-%parse-param {parser_context_t context}
+%parse-param {struct ast **root}
 
 %token LABEL
 %token LABEL_XML
@@ -45,28 +37,32 @@ void yyerror (parser_context_t, char const *);
 %token THEN
 %token ELSE
 %token ASSOC
-%token FUN
+%token FUNC
 
 %union {
     char c;
     char *s;
     word_t w;
-    tree_t t;
-    attributes_t a;
+    struct attributes *a;
+    struct ast *ast;
 }
 
 %type <c> CHARACTER
 %type <s> LABEL LABEL_XML symbol
 %type <w> word
-%type <t> root set-let set block label body value word-list empt-list
 %type <a> attributes attribute-list attribute
+%type <ast> root set-let set block label body value word-list empt-list
 
-%start root
+%start start
 
 %%
 
-root : root set-let { context->t = tree_add_brother(context->t, $2); }
-     | %empty       { $$ = NULL; }
+start : root   { *root = $1; }
+      | %empty { *root = NULL; }
+      ;
+
+root : root set-let { $$ = mk_forest(true, $1, $2); }
+     | set-let      { $$ = $1; }
      ;
 
 
@@ -91,8 +87,8 @@ let-var : LET symbol '=' exp ';' { }
         ;
 
 
-let-fun : LET symbol-list '=' FUN symbol-list ASSOC exp ';'
-        | LET REC symbol-list '=' FUN symbol-list ASSOC exp ';'
+let-fun : LET symbol-list '=' FUNC symbol-list ASSOC exp ';'
+        | LET REC symbol-list '=' FUNC symbol-list ASSOC exp ';'
 
 
 exp : '(' exp ')'
@@ -112,24 +108,24 @@ symbol : LABEL     { $$ = $1; }
        ;
 
 
-label : LABEL attributes spaces block { $$ = tree_create($1, false, false, TREE, $2, $4, NULL);    }
-      | LABEL block                   { $$ = tree_create($1, false, false, TREE, NULL, $2, NULL);  }
-      | LABEL attributes '/'          { $$ = tree_create($1, true, false, TREE, $2, NULL, NULL);   }
-      | LABEL '/'                     { $$ = tree_create($1, true, false, TREE, NULL, NULL, NULL); }
+label : LABEL attributes spaces block { $$ = mk_tree($1, true, false, false, $2, $4);    }
+      | LABEL block                   { $$ = mk_tree($1, true, false, false, NULL, $2);  }
+      | LABEL attributes '/'          { $$ = mk_tree($1, true, true, false, $2, NULL);   }
+      | LABEL '/'                     { $$ = mk_tree($1, true, true, false, NULL, NULL); }
       ;
 
 
 attributes : '[' attribute-list ']' { $$ = $2; }
-           | '[' empt-list ']'      { $$ = (attributes_t)$2; }
+           | '[' empt-list ']'      { $$ = (struct attributes *)$2; }
            ;
 
 
-attribute-list : attribute SPACES attribute-list { $$ = attributes_add_ahead($1, $3); }
+attribute-list : attribute SPACES attribute-list { $$ = $1; $1->next = $3; }
                | attribute                       { $$ = $1; }
                ;
 
 
-attribute : LABEL spaces '=' value { $$ = attributes_create($1, $4); }
+attribute : LABEL spaces '=' value { $$ = mk_attributes(mk_word($1), $4, NULL); }
           ;
 
 
@@ -138,11 +134,9 @@ value : '"' word-list '"' { $$ = $2; }
       ;
 
 
-word-list : word SPACES word-list { tree_t t = tree_create(word_to_string($1), true, true, WORD, NULL, NULL, NULL);
-                                    word_destroy($1);
-                                    $$ = tree_add_brother(t, $3); }
-          | word SPACES           { $$ = tree_create(word_to_string($1), true, true, WORD, NULL, NULL, NULL); word_destroy($1); }
-          | word                  { $$ = tree_create(word_to_string($1), true, false, WORD, NULL, NULL, NULL); word_destroy($1); }
+word-list : word SPACES word-list { $$ = mk_forest(true, mk_word(word_to_string($1)), $3); word_destroy($1); }
+          | word SPACES           { $$ = mk_word(word_to_string($1)); word_destroy($1); }
+          | word                  { $$ = mk_word(word_to_string($1)); word_destroy($1); }
           ;
 
 
@@ -156,8 +150,8 @@ empt-list : SPACES { $$ = NULL; }
           ;
 
 
-body : set-let body      { $$ = tree_add_brother($1, $2); }
-     | value spaces body { $$ = tree_add_brother($1, $3); }
+body : set-let body      { $$ = mk_forest(true, $1, $2); }
+     | value spaces body { $$ = mk_forest(true, $1, $3); }
      | %empty            { $$ = NULL; }
      ;
 
@@ -168,11 +162,7 @@ spaces : SPACES
 
 %%
 
-void yyerror (parser_context_t context, char const *s) {
-    if (!(context->t == NULL)) {
-        tree_destroy(context->t);
-    }
-    
-    symbol_environment_destroy(context->se);
+void yyerror (struct ast **root, char const *s) {
+    free(*root);
     fprintf(stderr, "%s\n", s);
 }

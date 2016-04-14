@@ -50,8 +50,8 @@ void yyerror (parser_context_t, char const *);
 
 %type <c> CHARACTER
 %type <s> LABEL LABEL_XML symbol
-%type <w> characters
-%type <t> root set-let set block label body content words word
+%type <w> word
+%type <t> root set-let set block label body value word-list empt-list
 %type <a> attributes attribute-list attribute
 
 %right WHERE
@@ -91,36 +91,37 @@ label : LABEL attributes spaces block { $$ = tree_create($1, false, false, TREE,
       ;
 
 attributes : '[' attribute-list ']' { $$ = $2; }
+           | '[' empt-list ']'      { $$ = $2; }
            ;
 
 attribute-list : attribute SPACES attribute-list { $$ = attributes_add_ahead($1, $3); }
                | attribute                       { $$ = $1; }
-               | %empty                          { $$ = NULL; }
                ;
 
-attribute : LABEL spaces '=' content { $$ = attributes_create($1, $4); }
+attribute : LABEL spaces '=' value { $$ = attributes_create($1, $4); }
           ;
 
-body : set-let body        { $$ = tree_add_brother($1, $2); }
-     | content spaces body { $$ = tree_add_brother($1, $3); }
-     | %empty              { $$ = NULL; }
+empt-list : SPACES { $$ = NULL; }
+          | %empty { $$ = NULL; }
+          ;
+
+body : set-let body      { $$ = tree_add_brother($1, $2); }
+     | value spaces body { $$ = tree_add_brother($1, $3); }
+     | %empty            { $$ = NULL; }
      ;
 
-content : '"' words '"' { $$ = $2; }
-        ;
-
-words : words word { $$ = tree_add_brother($1, $2); }
-      | SPACES     { $$ = NULL; }
-      | %empty     { $$ = NULL; }
+value : '"' word-list '"' { $$ = $2; }
+      | '"' empt-list '"' { $$ = $2; }
       ;
 
-word : characters SPACES { $$ = tree_create(word_to_string($1), true, true, WORD, NULL, NULL, NULL);  word_destroy($1); }
-     | characters        { $$ = tree_create(word_to_string($1), true, false, WORD, NULL, NULL, NULL); word_destroy($1); }
-     ;
+word-list : word SPACES { $<t>$ = tree_create(word_to_string($1), true, true, WORD, NULL, NULL, NULL); word_destroy($1); } word-list { $$ = tree_add_brother($<t>3, $4); }
+          | word SPACES { $$ = tree_create(word_to_string($1), true, true, WORD, NULL, NULL, NULL); word_destroy($1); }
+          | word        { $$ = tree_create(word_to_string($1), true, false, WORD, NULL, NULL, NULL); word_destroy($1); }
+          ;
 
-characters : characters CHARACTER { $$ = word_cat($1, $2); }
-           | CHARACTER { $$ = word_cat(word_create(), $1); }
-           ;
+word : word CHARACTER { $$ = word_cat($1, $2); }
+     | CHARACTER      { $$ = word_cat(word_create(), $1); }
+     ;
 
 spaces : SPACES
        | %empty

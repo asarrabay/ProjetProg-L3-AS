@@ -81,15 +81,21 @@ block : '{' body '}' { $$ = $2; }
       ;
 
 
-let-var : LET symbol '=' exp ';' { }
-        | LET symbol '=' exp IN exp { }
-        | exp WHERE symbol '=' exp { }
+let-global : LET symbol '=' exp ';' let-global { $$ = mk_app(mk_fun($2, $6), $4); }
+           | %empty                            { $$ = *root; }
+	   ;
+
+
+let-var : LET symbol '=' exp IN exp { $$ = mk_app(mk_fun($2, $6), $4); }
+        | exp WHERE symbol '=' exp  { $$ = mk_app(mk_fun($3, $1), $5); }
         ;
 
 
-let-fun : LET symbol-list '=' FUNC symbol-list ASSOC exp ';'
+/* A modifier */
+let-fun : LET symbol symbol-list '=' FUNC symbol-list ASSOC exp ';'
+        | LET symbol symbol-list '=' FUNC symbol-list ASSOC exp ';'
         | LET REC symbol-list '=' FUNC symbol-list ASSOC exp ';'
-
+        ;
 
 exp : '(' exp ')'
     | IF exp THEN exp ELSE exp

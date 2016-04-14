@@ -32,6 +32,16 @@ LABELSET ([[:alnum:]'\._])
 where          {   return WHERE;                  }
 let            {   return LET;                    }
 in             {   return IN;                     }
+/* TODO : + * - ... */
+op             {   return OP;                     }
+/* END TODO */
+rec            {   return REC;                    }
+if             {   return IF;                     }
+then           {   return THEN;                   }
+else           {   return ELSE;                   }
+->             {   return ASSOC;                  }
+fun            {   return FUNC;                   }
+
 [[:space:]]+   { }
 
 (?i:xml){LABELSET}*                 {   return LABEL_XML;   }

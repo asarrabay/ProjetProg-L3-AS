@@ -22,7 +22,13 @@ typedef enum { LABEL = 256,
                CHARACTER,
                WHERE,
                IN,
-               LET
+               OP,
+               REC,
+               IF,
+               THEN,
+               ELSE,
+               ASSOC,
+               FUNC
              } tokens_t;
 
 #endif

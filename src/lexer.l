@@ -1,3 +1,4 @@
+
 /**
  * \file lexer.l
  * \brief Fichier contenant les regles constituant l'analyseur lexical du projet.
@@ -31,7 +32,7 @@ LABELSET ([[:alnum:]'\._])
 where          {   return WHERE;                  }
 let            {   return LET;                    }
 in             {   return IN;                     }
-[[:space:]\n]+ { }
+[[:space:]]+   { }
 
 (?i:xml){LABELSET}*                 {   return LABEL_XML;   }
 [[:alpha:]]{LABELSET}*|_{LABELSET}+ {

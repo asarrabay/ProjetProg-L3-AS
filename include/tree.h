@@ -2,6 +2,7 @@
 #define TREE_H
 
 #include <stdbool.h>
+#include <stdio.h>
 
 typedef struct tree_s *tree_t;
 typedef struct attributes_s *attributes_t;

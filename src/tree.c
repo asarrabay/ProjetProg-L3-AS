@@ -84,10 +84,10 @@ void tree_to_xml (tree_t t, FILE *fdout) {
     }
 }
 
-attributes_t attributes_create (char *s_key, tree_t word) {
+attributes_t attributes_create (char *s_key, tree_t text) {
     attributes_t a = malloc(sizeof (struct attributes_s));
     a->s_key   = s_key;
-    a->s_value = word->s_label;
+    a->s_value = text->s_label;
     a->next  = NULL;
     return a;
 }

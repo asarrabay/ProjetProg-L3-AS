@@ -39,6 +39,13 @@ void yyerror (parser_context_t, char const *);
 %token LET
 %token IN
 %token WHERE
+%token OP
+%token REC
+%token IF
+%token THEN
+%token ELSE
+%token ASSOC
+%token FUN
 
 %union {
     char c;
@@ -62,25 +69,48 @@ root : root set-let { context->t = tree_add_brother(context->t, $2); }
      | %empty       { $$ = NULL; }
      ;
 
+
 set-let : set { $$ = $1; }
-        | let { $$ = NULL; }
+        | let-var { $$ = NULL; }
+        | let-fun { $$ = NULL; }
         ;
+
 
 set : block { $$ = $1; }
     | label { $$ = $1; }
     ;
 
-block : '{' { symbol_environment_increase_level(context->se); } body '}' { $$ = $3; symbol_environment_decrease_level(context->se); }
+
+block : '{' body '}' { $$ = $2; }
       ;
 
-let : LET symbol '=' set ';' { symbol_environment_add(context->se, symbol_create($2, VARIABLE, $4)); }
-    | LET symbol '=' set IN { symbol_environment_increase_level(context->se); symbol_environment_add(context->se, symbol_create($2, VARIABLE, $4)); } set { symbol_environment_decrease_level(context->se); }
-    | set { symbol_environment_decrease_level(context->se); } WHERE symbol '=' set { symbol_environment_increase_level(context->se); symbol_environment_add(context->se, symbol_create($4, VARIABLE, $6)); }
+
+let-var : LET symbol '=' exp ';' { }
+        | LET symbol '=' exp IN exp { }
+        | exp WHERE symbol '=' exp { }
+        ;
+
+
+let-fun : LET symbol-list '=' FUN symbol-list ASSOC exp ';'
+        | LET REC symbol-list '=' FUN symbol-list ASSOC exp ';'
+
+
+exp : '(' exp ')'
+    | IF exp THEN exp ELSE exp
+    | exp OP exp
+    | set
     ;
+
+
+symbol-list : symbol symbol-list
+            | symbol
+            ;
+
 
 symbol : LABEL     { $$ = $1; }
        | LABEL_XML { $$ = $1; }
        ;
+
 
 label : LABEL attributes spaces block { $$ = tree_create($1, false, false, TREE, $2, $4, NULL);    }
       | LABEL block                   { $$ = tree_create($1, false, false, TREE, NULL, $2, NULL);  }
@@ -88,38 +118,49 @@ label : LABEL attributes spaces block { $$ = tree_create($1, false, false, TREE,
       | LABEL '/'                     { $$ = tree_create($1, true, false, TREE, NULL, NULL, NULL); }
       ;
 
+
 attributes : '[' attribute-list ']' { $$ = $2; }
            | '[' empt-list ']'      { $$ = (attributes_t)$2; }
            ;
+
 
 attribute-list : attribute SPACES attribute-list { $$ = attributes_add_ahead($1, $3); }
                | attribute                       { $$ = $1; }
                ;
 
+
 attribute : LABEL spaces '=' value { $$ = attributes_create($1, $4); }
           ;
+
+
+value : '"' word-list '"' { $$ = $2; }
+      | '"' empt-list '"' { $$ = $2; }
+      ;
+
+
+word-list : word SPACES word-list { tree_t t = tree_create(word_to_string($1), true, true, WORD, NULL, NULL, NULL);
+                                    word_destroy($1);
+                                    $$ = tree_add_brother(t, $3); }
+          | word SPACES           { $$ = tree_create(word_to_string($1), true, true, WORD, NULL, NULL, NULL); word_destroy($1); }
+          | word                  { $$ = tree_create(word_to_string($1), true, false, WORD, NULL, NULL, NULL); word_destroy($1); }
+          ;
+
+
+word : word CHARACTER { $$ = word_cat($1, $2); }
+     | CHARACTER      { $$ = word_cat(word_create(), $1); }
+     ;
+
 
 empt-list : SPACES { $$ = NULL; }
           | %empty { $$ = NULL; }
           ;
+
 
 body : set-let body      { $$ = tree_add_brother($1, $2); }
      | value spaces body { $$ = tree_add_brother($1, $3); }
      | %empty            { $$ = NULL; }
      ;
 
-value : '"' word-list '"' { $$ = $2; }
-      | '"' empt-list '"' { $$ = $2; }
-      ;
-
-word-list : word SPACES { $<t>$ = tree_create(word_to_string($1), true, true, WORD, NULL, NULL, NULL); word_destroy($1); } word-list { $$ = tree_add_brother($<t>3, $4); }
-          | word SPACES { $$ = tree_create(word_to_string($1), true, true, WORD, NULL, NULL, NULL); word_destroy($1); }
-          | word        { $$ = tree_create(word_to_string($1), true, false, WORD, NULL, NULL, NULL); word_destroy($1); }
-          ;
-
-word : word CHARACTER { $$ = word_cat($1, $2); }
-     | CHARACTER      { $$ = word_cat(word_create(), $1); }
-     ;
 
 spaces : SPACES
        | %empty

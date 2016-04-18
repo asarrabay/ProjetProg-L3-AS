@@ -87,8 +87,10 @@ let-global : LET symbol '=' expression ';' let-global { $$ = mk_app(mk_fun($2, $
 	   ;
 
 
-let-var : LET symbol '=' expression IN expression { $$ = mk_app(mk_fun($2, $6), $4); }
-        | expression WHERE symbol '=' expression  { $$ = mk_app(mk_fun($3, $1), $5); }
+let-var : LET symbol '=' expression IN expression           { $$ = mk_app(mk_fun($2, $6), $4); }
+        | expression WHERE symbol '=' expression            { $$ = mk_app(mk_fun($3, $1), $5); }
+        | LET RECURSIVE symbol '=' expression IN expression { $$ = mk_app(mk_fun($3, $7), mk_declrec($3, $5); }
+        | expression WHERE RECURSIVE symbol '=' expression  { $$ = mk_app(mk_fun($4, $1), mk_declrec($4, $6); }
         ;
 
 

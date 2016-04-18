@@ -61,20 +61,16 @@ start : root   { *root = $1; }
       | %empty { *root = NULL; }
       ;
 
-root : root set-let { $$ = mk_forest(true, $1, $2); }
-     | set-let      { $$ = $1; }
+
+root : root set   { $$ = mk_forest(true, $1, $2); }
+     | let-global { $$ = $1; }
      ;
 
 
-set-let : set        { $$ = $1; }
-        | let-global { $$ = NULL; }
-        | let-var    { $$ = NULL; }
-        | let-fun    { $$ = NULL; }
-        ;
-
-
-set : block { $$ = $1; }
-    | label { $$ = $1; }
+set : block      { $$ = $1; }
+    | label      { $$ = $1; }
+    | let-var    { $$ = $1; }
+    | let-fun    { $$ = $1; }
     ;
 
 

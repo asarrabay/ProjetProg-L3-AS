@@ -51,7 +51,7 @@ void yyerror (struct ast **, char const *);
 %type <s> LABEL LABEL_XML symbol
 %type <w> word
 %type <a> attributes attribute-list attribute
-%type <ast> root set-let let-global let-var let-fun expression set block label body value word-list empt-list
+%type <ast> root let-global let-var let-fun expression set block label body value word-list empt-list
 
 %start start
 
@@ -85,14 +85,13 @@ let-global : LET symbol '=' expression ';' let-global { $$ = mk_app(mk_fun($2, $
 
 let-var : LET symbol '=' expression IN expression           { $$ = mk_app(mk_fun($2, $6), $4); }
         | expression WHERE symbol '=' expression            { $$ = mk_app(mk_fun($3, $1), $5); }
-        | LET RECURSIVE symbol '=' expression IN expression { $$ = mk_app(mk_fun($3, $7), mk_declrec($3, $5); }
-        | expression WHERE RECURSIVE symbol '=' expression  { $$ = mk_app(mk_fun($4, $1), mk_declrec($4, $6); }
+        | LET RECURSIVE symbol '=' expression IN expression { $$ = mk_app(mk_fun($3, $7), mk_declrec($3, $5)); }
+        | expression WHERE RECURSIVE symbol '=' expression  { $$ = mk_app(mk_fun($4, $1), mk_declrec($4, $6)); }
         ;
 
 
 /* A modifier */
-let-fun : LET symbol symbol-list '=' FUNCTION symbol-list ASSOC expression ';'    { $$ = NULL; }
-        | LET symbol symbol-list '=' FUNCTION symbol-list ASSOC expression ';'    { $$ = NULL; }
+let-fun : LET symbol-list '=' FUNCTION symbol-list ASSOC expression ';'    { $$ = NULL; }
         | LET RECURSIVE symbol-list '=' FUNCTION symbol-list ASSOC expression ';' { $$ = NULL; }
         ;
 
@@ -156,7 +155,7 @@ empt-list : SPACES { $$ = NULL; }
           ;
 
 
-body : set-let body      { $$ = mk_forest(true, $1, $2); }
+body : set body      { $$ = mk_forest(true, $1, $2); }
      | value spaces body { $$ = mk_forest(true, $1, $3); }
      | %empty            { $$ = NULL; }
      ;

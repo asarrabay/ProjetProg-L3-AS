@@ -51,7 +51,8 @@ void yyerror (struct ast **, char const *);
 %type <s> LABEL LABEL_XML symbol
 %type <w> word
 %type <a> attributes attribute-list attribute
-%type <ast> root let-global let-var let-fun expression set block label body value word-list empt-list
+%type <ast> root let-global let-var let-fun set block label body value word-list empt-list
+%type <ast> expression application lambda-function parametres arguments def-function
 
 %start start
 
@@ -78,6 +79,15 @@ block : '{' body '}' { $$ = $2; }
       ;
 
 
+body : set body          { $$ = mk_forest(true, $1, $2); }
+     | value spaces body { $$ = mk_forest(true, $1, $3); }
+     | application body  { $$ = mk_forest(false, $1, $2); }
+     | symbol ',' body   { $$ = mk_forest(false, mk_var($1), $3); }
+     | symbol            { $$ = mk_forest(false, mk_var($1), NULL); }
+     | %empty            { $$ = NULL; }
+     ;
+
+
 let-global : LET symbol '=' expression ';' let-global { $$ = mk_app(mk_fun($2, $6), $4); }
            | %empty                                   { $$ = *root; }
 	   ;
@@ -90,22 +100,42 @@ let-var : LET symbol '=' expression IN expression           { $$ = mk_app(mk_fun
         ;
 
 
-/* A modifier */
-let-fun : LET symbol-list '=' FUNCTION symbol-list ASSOC expression ';'    { $$ = NULL; }
-        | LET RECURSIVE symbol-list '=' FUNCTION symbol-list ASSOC expression ';' { $$ = NULL; }
+/* Les fonctions à revoir */
+let-fun : LET def-function ';'           { $$ = $2; }             
+        | LET RECURSIVE def-function ';' { $$ = $3; }
         ;
 
 
-expression : '(' expression ')'                            { $$ = NULL; }
+lambda-function : FUNCTION parametres ASSOC expression     { $$ = mk_app(mk_fun(NULL, $4), $2); }
+                ;
+
+
+def-function : lambda-function                          { $$ = $1; }
+             | symbol parametres '=' expression         { $$ = mk_app(mk_fun($1, $4), $2); }
+             ;  
+
+     
+application : lambda-function arguments { $$ = mk_app($1, $2); }
+            | symbol arguments          { $$ = mk_app(mk_var($1), $2); }
+            ;
+
+
+arguments : expression arguments { $$ = mk_forest(true, $1, $2); }
+          | %empty               { $$ = NULL; }
+          ;
+
+   
+parametres : symbol parametres     { $$ = mk_forest(true, mk_var($1), $2); }
+           | symbol                { $$ = mk_var($1); }
+           ;
+/* End à revoir*/ 
+
+expression : '(' expression ')'                            { $$ = $2; }
            | IF expression THEN expression ELSE expression { $$ = NULL; }
            | expression OPERATOR expression                { $$ = NULL; }
-           | set                                           { $$ = NULL; }
+           | def-function                                  { $$ = $1; }
+           | set                                           { $$ = $1; }
            ;
-
-
-symbol-list : symbol symbol-list
-            | symbol
-            ;
 
 
 symbol : LABEL     { $$ = $1; }
@@ -153,12 +183,6 @@ word : word CHARACTER { $$ = word_cat($1, $2); }
 empt-list : SPACES { $$ = NULL; }
           | %empty { $$ = NULL; }
           ;
-
-
-body : set body      { $$ = mk_forest(true, $1, $2); }
-     | value spaces body { $$ = mk_forest(true, $1, $3); }
-     | %empty            { $$ = NULL; }
-     ;
 
 
 spaces : SPACES

@@ -45,6 +45,7 @@ struct ast * mk_import(struct path * chemin){
 struct ast * mk_app(struct ast * fun, struct ast * arg){
     struct ast * e = mk_node();
     e->type = APP;
+    e->node->app = malloc(sizeof (struct app));
     e->node->app->fun = fun;
     e->node->app->arg = arg;
     return e;
@@ -61,6 +62,7 @@ struct ast * mk_tree(char * label, bool is_value, bool nullary, bool space,
                      struct attributes * att, struct ast * daughters){
     struct ast * e = mk_node();
     e->type = TREE;
+    e->node->tree = malloc(sizeof (struct tree));
     e->node->tree->label = label;
     e->node->tree->is_value=is_value;
     e->node->tree->nullary=nullary;
@@ -73,6 +75,7 @@ struct ast * mk_tree(char * label, bool is_value, bool nullary, bool space,
 struct ast * mk_forest(bool is_value, struct ast * head, struct ast * tail){
     struct ast * e = mk_node();
     e->type = FOREST;
+    e->node->forest = malloc(sizeof (struct forest));
     e->node->forest->is_value = is_value;
     e->node->forest->head=head;
     e->node->forest->tail=tail;
@@ -82,6 +85,7 @@ struct ast * mk_forest(bool is_value, struct ast * head, struct ast * tail){
 struct ast * mk_fun(char * id, struct ast * body){
     struct ast * e = mk_node();
     e->type = FUN;
+    e->node->fun = malloc(sizeof (struct fun));
     e->node->fun->id = id;
     e->node->fun->body=body;
     return e;
@@ -90,6 +94,7 @@ struct ast * mk_fun(char * id, struct ast * body){
 struct ast * mk_match(struct ast * ast, struct patterns * patterns){
     struct ast * e = mk_node();
     e->type = MATCH;
+    e->node->match = malloc(sizeof (struct match));
     e->node->match->ast = ast;
     e->node->match->patterns=patterns;
     return e;
@@ -98,6 +103,7 @@ struct ast * mk_match(struct ast * ast, struct patterns * patterns){
 struct ast * mk_cond(struct ast * cond, struct ast * then_br, struct ast * else_br){
     struct ast * e = mk_node();
     e->type = COND;
+    e->node->cond = malloc(sizeof (struct cond));
     e->node->cond->cond = cond;
     e->node->cond->then_br=then_br;
     e->node->cond->else_br=else_br;
@@ -107,12 +113,13 @@ struct ast * mk_cond(struct ast * cond, struct ast * then_br, struct ast * else_
 struct ast * mk_declrec(char * id, struct ast * body){
     struct ast * e = mk_node();
     e->type = DECLREC;
+    e->node->fun = malloc(sizeof (struct fun));
     e->node->fun->id = id;
     e->node->fun->body=body;
     return e;
 }
 
-struct attributes *mk_attributes(struct ast *key, struct ast *value, struct attributes *next) {
+struct attributes * mk_attributes(struct ast * key, struct ast * value, struct attributes * next) {
     struct attributes *a = malloc(sizeof (struct attributes));
     a->key = key;
     a->value = value;

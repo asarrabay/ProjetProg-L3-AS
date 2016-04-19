@@ -51,9 +51,9 @@ void yyerror (struct ast **, char const *);
 %type <s> LABEL LABEL_XML symbol
 %type <w> word
 %type <a> attributes attribute-list attribute
-%type <ast> root let-global let-var let-fun set block label body value word-list empt-list
+%type <ast> root let-global let-var set block label body value word-list empt-list
 %type <ast> expression expression-partielle expression-booleenne-e expression-booleenne-t expression-ari-e expression-ari-t
-%type <ast> application lambda-function parametres arguments def-function
+%type <ast> let-fun application lambda-function parametres arguments def-function
 
 %start start
 
@@ -129,9 +129,7 @@ parametres : symbol parametres     { $$ = mk_forest(true, mk_var($1), $2); }
            ;
 /* End à revoir*/ 
 
-expression : expression-partielle     { $$ = $1; }
-           | expression-ari-e         { $$ = $1; }
-           | expression-booleenne-e   { $$ = $1; }
+expression : expression-booleenne-e   { $$ = $1; }
            | let-var                  { $$ = $1; }
            | let-fun                  { $$ = $1; }
            | def-function             { $$ = $1; }
@@ -142,6 +140,7 @@ expression-partielle : '(' expression ')'                                       
                      | IF expression-booleenne-e THEN expression ELSE expression { $$ = mk_cond($2, $4, $6); }
                      | application                                               { $$ = $1; }
                      | set                                                       { $$ = $1; }
+                     | value                                                     { $$ = $1; }
                      ;
 
 
@@ -151,12 +150,12 @@ expression-booleenne-e : expression-booleenne-e OU expression-booleenne-t       
                        ;
 
 
-expression-booleenne-t : expression-booleenne-t INFEQ expression-partielle      { $$ = mk_app(mk_app(mk_binop(LEQ), $1), $3); } 
-                       | expression-booleenne-t INF expression-partielle        { $$ = mk_app(mk_app(mk_binop(LE), $1), $3);  } 
-                       | expression-booleenne-t SUPEQ expression-partielle      { $$ = mk_app(mk_app(mk_binop(GEQ), $1), $3); } 
-                       | expression-booleenne-t SUP expression-partielle        { $$ = mk_app(mk_app(mk_binop(GE), $1), $3);  } 
-                       | expression-booleenne-t EGAL expression-partielle       { $$ = mk_app(mk_app(mk_binop(EQ), $1), $3);  } 
-                       | expression-partielle                                   { $$ = $1; }
+expression-booleenne-t : expression-booleenne-t INFEQ expression-ari-e      { $$ = mk_app(mk_app(mk_binop(LEQ), $1), $3); } 
+                       | expression-booleenne-t INF expression-ari-e        { $$ = mk_app(mk_app(mk_binop(LE), $1), $3);  } 
+                       | expression-booleenne-t SUPEQ expression-ari-e      { $$ = mk_app(mk_app(mk_binop(GEQ), $1), $3); } 
+                       | expression-booleenne-t SUP expression-ari-e        { $$ = mk_app(mk_app(mk_binop(GE), $1), $3);  } 
+                       | expression-booleenne-t EGAL expression-ari-e       { $$ = mk_app(mk_app(mk_binop(EQ), $1), $3);  } 
+                       | expression-ari-e                                   { $$ = $1; }
                        ;
 
 

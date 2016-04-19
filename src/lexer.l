@@ -37,6 +37,14 @@ if           {   return IF;          }
 then         {   return THEN;        }
 else         {   return ELSE;        }
 
+"<="         {   return INFEQ;         }
+"<"          {   return INF;          }
+">="         {   return SUPEQ;         }
+">"          {   return SUP;          }
+"=="         {   return EGAL;          }
+"||"         {   return OU;          }
+"&&"         {   return ET;         }
+
 (?i:xml){LABELSET}*                 {   return LABEL_XML;   }
 [[:alpha:]]{LABELSET}*|_{LABELSET}+ {
                                         #ifndef UT_LEXER

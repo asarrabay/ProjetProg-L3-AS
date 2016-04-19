@@ -52,7 +52,7 @@ void yyerror (struct ast **, char const *);
 %type <w> word
 %type <a> attributes attribute-list attribute
 %type <ast> root let-global let-var let-fun set block label body value word-list empt-list
-%type <ast> expression expression-booleenne expression-ari-e expression-ari-t
+%type <ast> expression expression-partielle expression-booleenne-e expression-booleenne-t expression-ari-e expression-ari-t
 %type <ast> application lambda-function parametres arguments def-function
 
 %start start
@@ -71,8 +71,6 @@ root : root set   { $$ = mk_forest(true, $1, $2); }
 
 set : block      { $$ = $1; }
     | label      { $$ = $1; }
-    | let-var    { $$ = $1; }
-    | let-fun    { $$ = $1; }
     ;
 
 
@@ -131,23 +129,35 @@ parametres : symbol parametres     { $$ = mk_forest(true, mk_var($1), $2); }
            ;
 /* End à revoir*/ 
 
-expression : '(' expression ')'                                      { $$ = $2; }
-           | IF expression-booleenne THEN expression ELSE expression { $$ = mk_cond($2, $4, $6); }
-           | expression-ari-e                                        { $$ = $1; }
-           | expression-booleenne                                    { $$ = $1; }
-           | def-function                                            { $$ = $1; }
-           | set                                                     { $$ = $1; }
+expression : expression-partielle     { $$ = $1; }
+           | expression-ari-e         { $$ = $1; }
+           | expression-booleenne-e   { $$ = $1; }
+           | let-var                  { $$ = $1; }
+           | let-fun                  { $$ = $1; }
+           | def-function             { $$ = $1; }
            ;
 
 
-expression-booleenne : expression INFEQ expression      { $$ = mk_app(mk_app(mk_binop(LEQ), $1), $3); } 
-                     | expression INF expression        { $$ = mk_app(mk_app(mk_binop(LE), $1), $3);  } 
-                     | expression SUPEQ expression      { $$ = mk_app(mk_app(mk_binop(GEQ), $1), $3); } 
-                     | expression SUP expression        { $$ = mk_app(mk_app(mk_binop(GE), $1), $3);  } 
-                     | expression EGAL expression       { $$ = mk_app(mk_app(mk_binop(EQ), $1), $3);  } 
-                     | expression OU expression         { $$ = mk_app(mk_app(mk_binop(OR), $1), $3);  } 
-                     | expression ET expression         { $$ = mk_app(mk_app(mk_binop(AND), $1), $3); } 
+expression-partielle : '(' expression ')'                                        { $$ = $2; }
+                     | IF expression-booleenne-e THEN expression ELSE expression { $$ = mk_cond($2, $4, $6); }
+                     | application                                               { $$ = $1; }
+                     | set                                                       { $$ = $1; }
                      ;
+
+
+expression-booleenne-e : expression-booleenne-e OU expression-booleenne-t         { $$ = mk_app(mk_app(mk_binop(OR), $1), $3);  } 
+                       | expression-booleenne-e ET expression-booleenne-t         { $$ = mk_app(mk_app(mk_binop(AND), $1), $3); } 
+                       | expression-booleenne-t                                   { $$ = $1; }
+                       ;
+
+
+expression-booleenne-t : expression-booleenne-t INFEQ expression-partielle      { $$ = mk_app(mk_app(mk_binop(LEQ), $1), $3); } 
+                       | expression-booleenne-t INF expression-partielle        { $$ = mk_app(mk_app(mk_binop(LE), $1), $3);  } 
+                       | expression-booleenne-t SUPEQ expression-partielle      { $$ = mk_app(mk_app(mk_binop(GEQ), $1), $3); } 
+                       | expression-booleenne-t SUP expression-partielle        { $$ = mk_app(mk_app(mk_binop(GE), $1), $3);  } 
+                       | expression-booleenne-t EGAL expression-partielle       { $$ = mk_app(mk_app(mk_binop(EQ), $1), $3);  } 
+                       | expression-partielle                                   { $$ = $1; }
+                       ;
 
 
 expression-ari-e : expression-ari-e '+' expression-ari-t      { $$ = mk_app(mk_app(mk_binop(PLUS), $1), $3);  }
@@ -156,9 +166,9 @@ expression-ari-e : expression-ari-e '+' expression-ari-t      { $$ = mk_app(mk_a
                  ;
 
 
-expression-ari-t : expression-ari-t '*' expression            { $$ = mk_app(mk_app(mk_binop(MULT), $1), $3); }
-                 | expression-ari-t '/' expression            { $$ = mk_app(mk_app(mk_binop(DIV), $1), $3);  }
-                 | expression                                 { $$ = $1; }
+expression-ari-t : expression-ari-t '*' expression-partielle  { $$ = mk_app(mk_app(mk_binop(MULT), $1), $3); }
+                 | expression-ari-t '/' expression-partielle  { $$ = mk_app(mk_app(mk_binop(DIV), $1), $3);  }
+                 | expression-partielle                       { $$ = $1; }
                  ;
 
 

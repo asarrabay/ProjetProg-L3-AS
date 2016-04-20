@@ -53,14 +53,13 @@ void yyerror (struct ast **, char const *);
 %type <a> attributes attribute-list attribute
 %type <ast> root let-global let-var set block label body value word-list empt-list
 %type <ast> expression expression-partielle expression-booleenne-e expression-booleenne-t expression-ari-e expression-ari-t
-%type <ast> let-fun application lambda-function parametres arguments def-function
+%type <ast> let-fun application lambda-function parametres arguments
 
 %start start
 
 %%
 
 start : root   { *root = $1; }
-      | %empty { *root = NULL; }
       ;
 
 
@@ -100,39 +99,34 @@ let-var : LET symbol '=' expression IN expression           { $$ = mk_app(mk_fun
 
 
 /* Les fonctions à revoir */
-let-fun : LET def-function ';'           { $$ = $2; }             
-        | LET RECURSIVE def-function ';' { $$ = $3; }
+let-fun : LET symbol parametres '=' expression ';'               { $$ = mk_app(mk_fun($2, $5), $3); }             
+        | LET RECURSIVE symbol parametres '=' expression ';'     { $$ = mk_app(mk_fun($3, $6), $4); }
         ;
 
 
 lambda-function : FUNCTION parametres ASSOC expression     { $$ = mk_app(mk_fun(NULL, $4), $2); }
                 ;
 
-
-def-function : lambda-function                          { $$ = $1; }
-             | symbol parametres '=' expression         { $$ = mk_app(mk_fun($1, $4), $2); }
-             ;  
-
      
-application : lambda-function arguments { $$ = mk_app($1, $2); }
-            | symbol arguments          { $$ = mk_app(mk_var($1), $2); }
+application : lambda-function SPACES arguments { $$ = mk_app($1, $3); }
+            | symbol SPACES arguments          { $$ = mk_app(mk_var($1), $3); }
             ;
 
 
-arguments : expression arguments { $$ = mk_forest(true, $1, $2); }
+arguments : expression SPACES arguments { $$ = mk_forest(true, $1, $3); }
           | %empty               { $$ = NULL; }
           ;
 
    
-parametres : symbol parametres     { $$ = mk_forest(true, mk_var($1), $2); }
-           | symbol                { $$ = mk_var($1); }
+parametres : symbol SPACES parametres     { $$ = mk_forest(true, mk_var($1), $3); }
+           | %empty                { $$ = NULL; }
            ;
 /* End à revoir*/ 
 
 expression : expression-booleenne-e   { $$ = $1; }
            | let-var                  { $$ = $1; }
            | let-fun                  { $$ = $1; }
-           | def-function             { $$ = $1; }
+           | lambda-function          { $$ = $1; }
            ;
 
 

@@ -88,7 +88,7 @@ body : set body          { $$ = mk_forest(true, $1, $2); }
 
 let-global : LET symbol '=' expression ';' let-global { $$ = mk_app(mk_fun($2, $6), $4); }
            | %empty                                   { $$ = *root; }
-	   ;
+	         ;
 
 
 let-var : LET symbol '=' expression IN expression           { $$ = mk_app(mk_fun($2, $6), $4); }

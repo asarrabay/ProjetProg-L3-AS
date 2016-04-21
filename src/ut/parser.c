@@ -10,7 +10,7 @@
 #include <parser.h>
 
 ut_status_t ut_run (ut_t ut) {
-    struct ast *document;
+    struct ast *document = NULL;
     yyin = ut->p_input;
     int status = yyparse(&document);
     free(document);

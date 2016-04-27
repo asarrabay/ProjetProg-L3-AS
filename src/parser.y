@@ -33,7 +33,7 @@ void yyerror (struct ast **, char const *);
 %token WHERE
 %token RECURSIVE
 %token FUNCTION
-%token ASSOC
+%token ARROW
 %token IF
 %token THEN
 %token ELSE
@@ -51,11 +51,12 @@ void yyerror (struct ast **, char const *);
 %type <s> LABEL LABEL_XML symbol
 %type <w> word
 %type <a> attributes attribute-list attribute
-%type <ast> root let-global let-var set block label body value word-list empt-list
-%type <ast> expression expression-partielle expression-booleenne-e expression-booleenne-t expression-ari-e expression-ari-t
-%type <ast> let-fun application lambda-function parametres arguments
+%type <ast> root let-global let set block label body value word-list empt-list
+%type <ast> lambda-function affect expression
 
 %start start
+
+%left WHERE
 
 %%
 
@@ -79,90 +80,47 @@ block : '{' body '}' { $$ = $2; }
 
 body : set body          { $$ = mk_forest(true, $1, $2); }
      | value spaces body { $$ = mk_forest(true, $1, $3); }
-     | application body  { $$ = mk_forest(false, $1, $2); }
+//     | application body  { $$ = mk_forest(false, $1, $2); }
      | symbol ',' body   { $$ = mk_forest(false, mk_var($1), $3); }
      | symbol            { $$ = mk_forest(false, mk_var($1), NULL); }
      | %empty            { $$ = NULL; }
      ;
 
 
-let-global : LET symbol '=' expression ';' let-global { $$ = mk_app(mk_fun($2, $6), $4); }
-           | %empty                                   { $$ = *root; }
-	         ;
+let-global : LET symbol affect ';' let-global { $$ = mk_app(mk_fun($2, $5), $3); }
+           | %empty                           { $$ = *root; }
+           ;
 
 
-let-var : LET symbol '=' expression IN expression           { $$ = mk_app(mk_fun($2, $6), $4); }
-        | expression WHERE symbol '=' expression            { $$ = mk_app(mk_fun($3, $1), $5); }
-        | LET RECURSIVE symbol '=' expression IN expression { $$ = mk_app(mk_fun($3, $7), mk_declrec($3, $5)); }
-        | expression WHERE RECURSIVE symbol '=' expression  { $$ = mk_app(mk_fun($4, $1), mk_declrec($4, $6)); }
-        ;
+let : LET symbol affect IN expression           { $$ = mk_app(mk_fun($2, $5), $3); }
+    | '(' expression WHERE symbol affect ')'            { $$ = mk_app(mk_fun($4, $2), $5); }
+    | LET RECURSIVE symbol affect IN expression { $$ = mk_app(mk_fun($3, $6), mk_declrec($3, $4)); }
+    | '(' expression WHERE RECURSIVE symbol affect ')'  { $$ = mk_app(mk_fun($5, $2), mk_declrec($5, $6)); }
+    ;
 
 
-/* Les fonctions à revoir */
-let-fun : LET symbol parametres '=' expression ';'               { $$ = mk_app(mk_fun($2, $5), $3); }             
-        | LET RECURSIVE symbol parametres '=' expression ';'     { $$ = mk_app(mk_fun($3, $6), $4); }
-        ;
+affect : symbol affect    { $$ = mk_fun($1, $2); }
+       | '=' expression   { $$ = $2; }
+       | ARROW expression { $$ = $2; }
+       ;
 
 
-lambda-function : FUNCTION parametres ASSOC expression     { $$ = mk_app(mk_fun(NULL, $4), $2); }
+lambda-function : FUNCTION affect { $$ = $2; }
                 ;
 
      
-application : lambda-function SPACES arguments { $$ = mk_app($1, $3); }
-            | symbol SPACES arguments          { $$ = mk_app(mk_var($1), $3); }
-            ;
+/*application : lambda-function SPACES symbol-list { $$ = mk_app($1, $3);         }
+            | symbol SPACES symbol-list          { $$ = mk_app(mk_var($1), $3); }
+            ;*/
 
 
-arguments : expression SPACES arguments { $$ = mk_forest(true, $1, $3); }
-          | %empty               { $$ = NULL; }
-          ;
-
-   
-parametres : symbol SPACES parametres     { $$ = mk_forest(true, mk_var($1), $3); }
-           | %empty                { $$ = NULL; }
-           ;
-/* End à revoir*/ 
-
-expression : expression-booleenne-e   { $$ = $1; }
-           | let-var                  { $$ = $1; }
-           | let-fun                  { $$ = $1; }
+expression : '(' expression ')'       { $$ = $2; }
+           | let                      { $$ = $1; }
            | lambda-function          { $$ = $1; }
+           | set                      { $$ = $1; }
+           | value                    { $$ = $1; }
+//                     | application                                               { $$ = $1; }
            ;
-
-
-expression-partielle : '(' expression ')'                                        { $$ = $2; }
-                     | IF expression-booleenne-e THEN expression ELSE expression { $$ = mk_cond($2, $4, $6); }
-                     | application                                               { $$ = $1; }
-                     | set                                                       { $$ = $1; }
-                     | value                                                     { $$ = $1; }
-                     ;
-
-
-expression-booleenne-e : expression-booleenne-e OU expression-booleenne-t         { $$ = mk_app(mk_app(mk_binop(OR), $1), $3);  } 
-                       | expression-booleenne-e ET expression-booleenne-t         { $$ = mk_app(mk_app(mk_binop(AND), $1), $3); } 
-                       | expression-booleenne-t                                   { $$ = $1; }
-                       ;
-
-
-expression-booleenne-t : expression-booleenne-t INFEQ expression-ari-e      { $$ = mk_app(mk_app(mk_binop(LEQ), $1), $3); } 
-                       | expression-booleenne-t INF expression-ari-e        { $$ = mk_app(mk_app(mk_binop(LE), $1), $3);  } 
-                       | expression-booleenne-t SUPEQ expression-ari-e      { $$ = mk_app(mk_app(mk_binop(GEQ), $1), $3); } 
-                       | expression-booleenne-t SUP expression-ari-e        { $$ = mk_app(mk_app(mk_binop(GE), $1), $3);  } 
-                       | expression-booleenne-t EGAL expression-ari-e       { $$ = mk_app(mk_app(mk_binop(EQ), $1), $3);  } 
-                       | expression-ari-e                                   { $$ = $1; }
-                       ;
-
-
-expression-ari-e : expression-ari-e '+' expression-ari-t      { $$ = mk_app(mk_app(mk_binop(PLUS), $1), $3);  }
-                 | expression-ari-e '-' expression-ari-t      { $$ = mk_app(mk_app(mk_binop(MINUS), $1), $3); }
-                 | expression-ari-t                           { $$ = $1; }
-                 ;
-
-
-expression-ari-t : expression-ari-t '*' expression-partielle  { $$ = mk_app(mk_app(mk_binop(MULT), $1), $3); }
-                 | expression-ari-t '/' expression-partielle  { $$ = mk_app(mk_app(mk_binop(DIV), $1), $3);  }
-                 | expression-partielle                       { $$ = $1; }
-                 ;
 
 
 symbol : LABEL     { $$ = $1; }

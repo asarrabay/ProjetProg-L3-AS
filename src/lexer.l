@@ -32,7 +32,7 @@ in           {   return IN;          }
 where        {   return WHERE;       }
 rec          {   return RECURSIVE;   }
 fun          {   return FUNCTION;    }
-->           {   return ASSOC;       }
+->           {   return ARROW;       }
 if           {   return IF;          }
 then         {   return THEN;        }
 else         {   return ELSE;        }

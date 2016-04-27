@@ -52,7 +52,7 @@ void yyerror (struct ast **, char const *);
 %type <w> word
 %type <a> attributes attribute-list attribute
 %type <ast> root let-global let set block label body value word-list empt-list
-%type <ast> lambda-function affect expression
+%type <ast> lambda-function affect expression application
 
 %start start
 
@@ -78,12 +78,13 @@ block : '{' body '}' { $$ = $2; }
       ;
 
 
-body : set body          { $$ = mk_forest(true, $1, $2); }
-     | value spaces body { $$ = mk_forest(true, $1, $3); }
-//     | application body  { $$ = mk_forest(false, $1, $2); }
-     | symbol ',' body   { $$ = mk_forest(false, mk_var($1), $3); }
-     | symbol            { $$ = mk_forest(false, mk_var($1), NULL); }
-     | %empty            { $$ = NULL; }
+body : set body              { $$ = mk_forest(true, $1, $2); }
+     | value spaces body     { $$ = mk_forest(true, $1, $3); }
+     | application ',' body  { $$ = mk_forest(false, $1, $3); }
+     | application           { $$ = mk_forest(false, $1, NULL); }
+     | symbol ',' body       { $$ = mk_forest(false, mk_var($1), $3); }
+     | symbol                { $$ = mk_forest(false, mk_var($1), NULL); }
+     | %empty                { $$ = NULL; }
      ;
 
 
@@ -109,9 +110,9 @@ lambda-function : FUNCTION affect { $$ = $2; }
                 ;
 
      
-/*application : lambda-function SPACES symbol-list { $$ = mk_app($1, $3);         }
-            | symbol SPACES symbol-list          { $$ = mk_app(mk_var($1), $3); }
-            ;*/
+application : application expression { $$ = mk_app($1, $2); }
+            | symbol                 { $$ = mk_var($1); }
+            ;
 
 
 expression : '(' expression ')'       { $$ = $2; }
@@ -119,7 +120,7 @@ expression : '(' expression ')'       { $$ = $2; }
            | lambda-function          { $$ = $1; }
            | set                      { $$ = $1; }
            | value                    { $$ = $1; }
-//                     | application                                               { $$ = $1; }
+           | application              { $$ = $1; }
            ;
 
 

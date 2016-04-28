@@ -34,6 +34,7 @@ endmacro()
 add_ut(lexer label "${PROJECT_BINARY_DIR}/src/lexer.c" "${FLEX_LIBRARIES}" DEFAULT)
 add_ut(lexer string "${PROJECT_BINARY_DIR}/src/lexer.c" "${FLEX_LIBRARIES}" DEFAULT)
 add_ut(lexer import "${PROJECT_BINARY_DIR}/src/lexer.c" "${FLEX_LIBRARIES}" DEFAULT)
+add_ut(lexer number "${PROJECT_BINARY_DIR}/src/lexer.c" "${FLEX_LIBRARIES}" DEFAULT)
 
 add_ut(parser grammar 
   "${PROJECT_SOURCE_DIR}/src/ast.c

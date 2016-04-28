@@ -56,8 +56,6 @@ void yyerror (struct ast **, char const *);
 
 %start start
 
-%left WHERE
-
 %%
 
 start : root   { *root = $1; }
@@ -82,8 +80,6 @@ body : set body              { $$ = mk_forest(true, $1, $2); }
      | value spaces body     { $$ = mk_forest(true, $1, $3); }
      | application ',' body  { $$ = mk_forest(false, $1, $3); }
      | application           { $$ = mk_forest(false, $1, NULL); }
-     | symbol ',' body       { $$ = mk_forest(false, mk_var($1), $3); }
-     | symbol                { $$ = mk_forest(false, mk_var($1), NULL); }
      | %empty                { $$ = NULL; }
      ;
 
@@ -134,6 +130,7 @@ label : LABEL attributes spaces block { $$ = mk_tree($1, true, false, false, $2,
       | LABEL attributes '/'          { $$ = mk_tree($1, true, true, false, $2, NULL);   }
       | LABEL '/'                     { $$ = mk_tree($1, true, true, false, NULL, NULL); }
       ;
+
 
 
 attributes : '[' attribute-list ']' { $$ = $2; }

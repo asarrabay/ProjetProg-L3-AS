@@ -34,7 +34,7 @@ endmacro()
 add_ut(lexer label "${PROJECT_BINARY_DIR}/src/lexer.c" "${FLEX_LIBRARIES}" DEFAULT)
 add_ut(lexer string "${PROJECT_BINARY_DIR}/src/lexer.c" "${FLEX_LIBRARIES}" DEFAULT)
 
-add_ut(parser grammar "${PROJECT_SOURCE_DIR}/src/ast.c ${PROJECT_BINARY_DIR}/src/parser.c ${PROJECT_BINARY_DIR}/src/lexer.c ${PROJECT_SOURCE_DIR}/src/word.c" "${FLEX_LIBRARIES}"
+add_ut(parser grammar "${PROJECT_SOURCE_DIR}/src/ast.c ${PROJECT_BINARY_DIR}/src/parser.c ${PROJECT_BINARY_DIR}/src/lexer.c ${PROJECT_SOURCE_DIR}/src/word.c ${PROJECT_SOURCE_DIR}/src/pattern.c" "${FLEX_LIBRARIES}"
   "none              [${CMAKE_CURRENT_SOURCE_DIR}/parser/none.tohtml]                      |
    spaces            [${CMAKE_CURRENT_SOURCE_DIR}/parser/spaces.tohtml]                    |
    set               [${CMAKE_CURRENT_SOURCE_DIR}/parser/set.tohtml]                       |

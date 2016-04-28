@@ -132,8 +132,8 @@ expression-conditionnelle : IF expression-booleenne-e THEN expression ELSE expre
                           ;
 
 
-expression-booleenne-e : expression-booleenne-e OU expression-booleenne-t   { $$ = mk_app(mk_app(mk_binop(OR), $1), $3);  } 
-                       | expression-booleenne-e ET expression-booleenne-t   { $$ = mk_app(mk_app(mk_binop(AND), $1), $3); } 
+expression-booleenne-e : expression-booleenne-e OU expression-booleenne-t   { $$ = mk_app(mk_app(mk_binop(OR), $1), $3);  }
+                       | expression-booleenne-e ET expression-booleenne-t   { $$ = mk_app(mk_app(mk_binop(AND), $1), $3); }
                        | expression-booleenne-t                             { $$ = $1; }
                        ;
 
@@ -249,7 +249,7 @@ patterns : '|' pforest ARROW expression patterns   { $$ = mk_patterns($2, $4, $5
 
 
 pforest : pattern pforest                          { $$ = mk_pforest($1, $2); }
-        | pattern                                  { $$ = $1; }
+        | %empty                                   { $$ = NULL; }
         ;
 
 

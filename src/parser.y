@@ -84,21 +84,21 @@ body : set body              { $$ = mk_forest(true, $1, $2); }
      ;
 
 
-let-global : LET symbol affect ';' let-global { $$ = mk_app(mk_fun($2, $5), $3); }
+let-global : LET symbol spaces affect ';' let-global { $$ = mk_app(mk_fun($2, $6), $4); }
            | %empty                           { $$ = *root; }
            ;
 
 
-let : LET symbol affect IN expression           { $$ = mk_app(mk_fun($2, $5), $3); }
-    | '(' expression WHERE symbol affect ')'            { $$ = mk_app(mk_fun($4, $2), $5); }
-    | LET RECURSIVE symbol affect IN expression { $$ = mk_app(mk_fun($3, $6), mk_declrec($3, $4)); }
-    | '(' expression WHERE RECURSIVE symbol affect ')'  { $$ = mk_app(mk_fun($5, $2), mk_declrec($5, $6)); }
+let : LET symbol spaces affect IN expression                   { $$ = mk_app(mk_fun($2, $6), $4); }
+    | '(' expression WHERE symbol spaces affect ')'            { $$ = mk_app(mk_fun($4, $2), $6); }
+    | LET RECURSIVE symbol spaces affect IN expression         { $$ = mk_app(mk_fun($3, $7), mk_declrec($3, $5)); }
+    | '(' expression WHERE RECURSIVE symbol spaces affect ')'  { $$ = mk_app(mk_fun($5, $2), mk_declrec($5, $7)); }
     ;
 
 
-affect : symbol affect    { $$ = mk_fun($1, $2); }
-       | '=' expression   { $$ = $2; }
-       | ARROW expression { $$ = $2; }
+affect : symbol spaces affect    { $$ = mk_fun($1, $3); }
+       | '=' expression          { $$ = $2; }
+       | ARROW expression        { $$ = $2; }
        ;
 
 
@@ -106,7 +106,7 @@ lambda-function : FUNCTION affect { $$ = $2; }
                 ;
 
      
-application : application expression { $$ = mk_app($1, $2); }
+application : application SPACES expression { $$ = mk_app($1, $3); }
             | symbol                 { $$ = mk_var($1); }
             ;
 
@@ -116,7 +116,7 @@ expression : '(' expression ')'       { $$ = $2; }
            | lambda-function          { $$ = $1; }
            | set                      { $$ = $1; }
            | value                    { $$ = $1; }
-           | application              { $$ = $1; }
+           | '(' application ')'      { $$ = $2; }
            ;
 
 

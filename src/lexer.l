@@ -74,6 +74,15 @@ LABELSET ([[:alnum:]'._])
 <RETSPACES>[[:space:]]+ { BEGIN INITIAL; return SPACES; }
 <RETSPACES>.            { BEGIN INITIAL; yyless(0); }
 
+(?i:xml){LABELSET}*                 { return LABEL_XML; }
+[[:alpha:]]{LABELSET}*|_{LABELSET}+ {
+                                      #ifndef UT_LEXER
+                                          BEGIN RETSPACES;
+                                          yylval.s = strdup(yytext);
+                                      #endif
+                                      return LABEL;
+                                    }
+
 in           { return IN; }
 if           { return IF; }
 let          { return LET; }
@@ -93,18 +102,15 @@ rec          { return RECURSIVE; }
 ">="         { return SUPEQ; }
 "//"         { return DIVIDE; }
 
-(?i:xml){LABELSET}*                 { return LABEL_XML; }
-[[:alpha:]]{LABELSET}*|_{LABELSET}+ {
-                                      #ifndef UT_LEXER
-                                          BEGIN RETSPACES;
-                                          yylval.s = strdup(yytext);
-                                      #endif
-                                      return LABEL;
-                                    }
-
 \"           { BEGIN STRING; return '"'; }
 \]           { BEGIN RETSPACES; return ']'; }
 \$           { BEGIN IMPORT; return '$'; }
+[[:digit:]]+ {
+               #ifndef UT_LEXER
+                   yylval.n = atoi(yytext);
+               #endif
+               return NUMBER;
+             }
 [[:space:]]+ { }
 .            { return yytext[0]; }
 

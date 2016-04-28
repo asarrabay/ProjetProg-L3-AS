@@ -18,6 +18,7 @@ typedef enum { LABEL = 256,
 	       LABEL_XML,
                SPACES,
                CHARACTER,
+               NUMBER,
                LET,
                IN,
                WHERE,
@@ -37,9 +38,9 @@ typedef enum { LABEL = 256,
 	       EGAL,
 	       OU,
 	       ET,
-                    TMATCH,
-                    WITH,
-                    END
+               TMATCH,
+               WITH,
+               END
              } tokens_t;
 
 #endif

@@ -42,7 +42,7 @@ void yyerror (struct ast **, char const *);
 %token THEN
 %token ELSE
 %token TMATCH WITH END
-%token DIVIDE INFEQ INF SUPEQ SUP EGAL OU ET
+%token DIVIDE INFEQ INF SUPEQ SUP EGAL NEGAL OU ET
 
 
 %union {
@@ -165,7 +165,7 @@ expression-ari-f : expression-partielle spaces                              { $$
                  | NUMBER                                                   { $$ = mk_integer($1); }
                  | '!' expression-partielle                                 { $$ = mk_app(mk_unaryop(NOT), $2); }
 		 | '!' application                                          { $$ = mk_app(mk_unaryop(NOT), $2); }
-                 ! '!' NUMBER                                               { $$ = mk_app(mk_unaryop(NEG), mk_integer($2)); }
+                 | '!' NUMBER                                               { $$ = mk_app(mk_unaryop(NEG), mk_integer($2)); }
                  ;
 
 

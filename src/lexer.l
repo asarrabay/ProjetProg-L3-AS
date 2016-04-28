@@ -74,15 +74,6 @@ LABELSET ([[:alnum:]'._])
 <RETSPACES>[[:space:]]+ { BEGIN INITIAL; return SPACES; }
 <RETSPACES>.            { BEGIN INITIAL; yyless(0); }
 
-(?i:xml){LABELSET}*                 { return LABEL_XML; }
-[[:alpha:]]{LABELSET}*|_{LABELSET}+ {
-                                      #ifndef UT_LEXER
-                                          BEGIN RETSPACES;
-                                          yylval.s = strdup(yytext);
-                                      #endif
-                                      return LABEL;
-                                    }
-
 in           { return IN; }
 if           { return IF; }
 let          { return LET; }
@@ -92,25 +83,41 @@ where        { return WHERE; }
 -\>          { return ARROW; }
 fun          { return FUNCTION; }
 rec          { return RECURSIVE; }
+match        { return TMATCH; }
+with         { return WITH; }
+end          { return END; }
 
 "||"         { return OU; }
 "&&"         { return ET; }
 "<"          { return INF; }
 ">"          { return SUP; }
 "=="         { return EGAL; }
+"!="         { return NEGAL; }
 "<="         { return INFEQ; }
 ">="         { return SUPEQ; }
 "//"         { return DIVIDE; }
 
+
+(?i:xml){LABELSET}*                 { return LABEL_XML; }
+[[:alpha:]]{LABELSET}*|_{LABELSET}+ {
+                                      #ifndef UT_LEXER
+                                          BEGIN RETSPACES;
+                                          yylval.s = strdup(yytext);
+                                      #endif
+                                      return LABEL;
+                                    }
+
 \"           { BEGIN STRING; return '"'; }
 \]           { BEGIN RETSPACES; return ']'; }
 \$           { BEGIN IMPORT; return '$'; }
+
 [[:digit:]]+ {
                #ifndef UT_LEXER
                    yylval.n = atoi(yytext);
                #endif
                return NUMBER;
              }
+
 [[:space:]]+ { }
 .            { return yytext[0]; }
 

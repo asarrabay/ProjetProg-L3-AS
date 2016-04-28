@@ -51,8 +51,9 @@ void yyerror (struct ast **, char const *);
 %type <s> LABEL LABEL_XML symbol
 %type <w> word
 %type <a> attributes attribute-list attribute
-%type <ast> root let-global let set block label body content word-list empt-list expression
-%type <ast> expression-partielle expression-booleenne-e expression-booleenne-t expression-ari-e expression-ari-t expression-ari-f
+%type <ast> root let-global let set block label body content word-list empt-list
+%type <ast> expression expression-partielle expression-conditionnelle
+%type <ast> expression-booleenne-e expression-booleenne-t expression-ari-e expression-ari-t expression-ari-f
 %type <ast> lambda-function affect application
 
 %start start
@@ -90,16 +91,21 @@ symbol : LABEL               { $$ = $1; }
        ;
 
 
-expression : expression-booleenne-e
-           | let                                { $$ = $1; }
-           | lambda-function
+expression : expression-booleenne-e              { $$ = $1; }
+           | expression-conditionnelle           { $$ = $1; }
+           | let                                 { $$ = $1; }
+           | lambda-function                     { $$ = $1; }
            ;
 
 
-expression-partielle : '(' expression ')'       { $$ = $2; }
-                     | set                      { $$ = $1; }
-                     | content                  { $$ = $1; }
+expression-partielle : '(' expression ')'        { $$ = $2; }
+                     | set                       { $$ = $1; }
+                     | content                   { $$ = $1; }
                      ;
+
+
+expression-conditionnelle : IF expression-booleenne-e THEN expression ELSE expression { $$ = mk_cond($2, $4, $6); }
+                          ;
 
 
 expression-booleenne-e : expression-booleenne-e OU expression-booleenne-t   { $$ = mk_app(mk_app(mk_binop(OR), $1), $3);  } 

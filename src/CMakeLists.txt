@@ -9,7 +9,7 @@ else(${CMAKE_BUILD_TYPE} STREQUAL "DEBUG")
 endif(${CMAKE_BUILD_TYPE} STREQUAL "DEBUG")
 
 add_flex_bison_dependency(LEXER PARSER)
-add_executable(main main.c ast.c ${CMAKE_CURRENT_BINARY_DIR}/parser.c ${CMAKE_CURRENT_BINARY_DIR}/lexer.c word.c)
+add_executable(main main.c ast.c pattern.c ${CMAKE_CURRENT_BINARY_DIR}/parser.c ${CMAKE_CURRENT_BINARY_DIR}/lexer.c word.c)
 target_link_libraries(main ${FLEX_LIBRARIES} ${BISON_LIBRARIES})
 install(TARGETS main RUNTIME DESTINATION ${PROJECT_BINARY_DIR}/bin)
 

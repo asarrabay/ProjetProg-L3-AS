@@ -38,6 +38,7 @@ void yyerror (struct ast **, char const *);
 %token THEN
 %token ELSE
 %token INFEQ INF SUPEQ SUP EGAL OU ET
+%token TMATCH WITH END
 
 %union {
     char c;
@@ -45,6 +46,8 @@ void yyerror (struct ast **, char const *);
     word_t w;
     struct attributes *a;
     struct ast *ast;
+    struct patterns *patterns;
+    struct pattern *pattern;
 }
 
 %type <c> CHARACTER
@@ -52,7 +55,10 @@ void yyerror (struct ast **, char const *);
 %type <w> word
 %type <a> attributes attribute-list attribute
 %type <ast> root let-global let set block label body value word-list empt-list
-%type <ast> lambda-function affect expression application
+%type <ast> lambda-function affect expression application match
+%type <patterns> patterns
+%type <pattern> pattern
+%type <pattern> pforest
 
 %start start
 
@@ -105,7 +111,7 @@ affect : symbol spaces affect    { $$ = mk_fun($1, $3); }
 lambda-function : FUNCTION affect { $$ = $2; }
                 ;
 
-     
+
 application : application SPACES expression { $$ = mk_app($1, $3); }
             | symbol                 { $$ = mk_var($1); }
             ;
@@ -117,6 +123,7 @@ expression : '(' expression ')'       { $$ = $2; }
            | set                      { $$ = $1; }
            | value                    { $$ = $1; }
            | '(' application ')'      { $$ = $2; }
+           | match
            ;
 
 
@@ -172,6 +179,31 @@ spaces : SPACES
        | %empty
        ;
 
+
+match   : TMATCH expression WITH patterns END    {$$ = mk_match($2, $4);}
+        ;
+
+patterns    :   '|' pforest ARROW expression patterns   {$$ = mk_patterns($2, $4, $5);}
+            |   '|' pforest ARROW expression            {$$ = mk_patterns($2, $4, NULL);}
+            ;
+
+pforest     :   pattern pforest         {$$ = mk_pforest($1, $2);}
+            |   pattern                 {$$ = $1;}
+            ;
+
+pattern     :   '_'                     {$$ = mk_wildcard(ANY);}
+            |   LABEL '{' pattern '}'   {$$ = mk_ptree($1, false, $3);}
+            |   LABEL '{' '}'           {$$ = mk_ptree($1, true, NULL);}
+            |   '_' '{' pattern '}'     {$$ = mk_anytree(false, $3);}
+            |   '_' '{' '}'             {$$ = mk_anytree(true, NULL);}
+            |   '*' '_' '*'             {$$ = mk_wildcard(ANYSTRING);}
+            |   '/' '_' '/'             {$$ = mk_wildcard(ANYFOREST);}
+            |   '-' '_' '-'             {$$ = mk_wildcard(ANYSEQ);}
+            |   symbol                  {$$ = mk_pattern_var($1, TREEVAR);}
+            |   '*' symbol '*'          {$$ = mk_pattern_var($2, STRINGVAR);}
+            |   '/' symbol '/'          {$$ = mk_pattern_var($2, FORESTVAR);}
+            |   '-' symbol '-'          {$$ = mk_pattern_var($2, ANYVAR);}
+            ;
 %%
 
 void yyerror (struct ast **root, char const *s) {

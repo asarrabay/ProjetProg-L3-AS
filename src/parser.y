@@ -209,7 +209,7 @@ attribute-list : attribute SPACES attribute-list { $$ = $1; $1->next = $3; }
                ;
 
 
-attribute : LABEL spaces '=' content { $$ = mk_attributes(mk_word($1), $4, NULL); }
+attribute : LABEL spaces '=' content { $$ = mk_attributes(false, mk_word($1), $4, NULL); }
           ;
 
 
@@ -268,7 +268,9 @@ pattern : '_'                                      { $$ = mk_wildcard(ANY);     
         ;
 
 
-import : '$' path DOCUMENT ARROW symbol { PATH_SET_FILENAME($2, $3); PATH_SET_DECLNAME($2, $5); $$ = mk_import($2); }
+import : '$' path DOCUMENT ARROW symbol { PATH_SET_FILENAME($2, $3);
+                                          PATH_SET_DECLNAME($2, $5);
+					  $$ = mk_import($2);       }
        ;
 
 

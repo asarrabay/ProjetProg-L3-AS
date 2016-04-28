@@ -119,14 +119,14 @@ struct ast * mk_declrec(char * id, struct ast * body){
     return e;
 }
 
-struct attributes * mk_attributes(struct ast * key, struct ast * value, struct attributes * next) {
+struct attributes * mk_attributes(bool is_value, struct ast * key, struct ast * value, struct attributes * next) {
     struct attributes *a = malloc(sizeof (struct attributes));
+    a->is_value = is_value;
     a->key = key;
     a->value = value;
     a->next = next;
     return a;
 }
-
 
 struct patterns * mk_patterns(struct pattern * pattern, struct ast * exp_res, struct patterns * next){
     struct patterns *p = malloc(sizeof(struct patterns));

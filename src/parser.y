@@ -37,7 +37,7 @@ void yyerror (struct ast **, char const *);
 %token IF
 %token THEN
 %token ELSE
-%token INFEQ INF SUPEQ SUP EGAL OU ET
+%token DIVIDE INFEQ INF SUPEQ SUP EGAL OU ET
 
 %union {
     char c;
@@ -51,8 +51,8 @@ void yyerror (struct ast **, char const *);
 %type <s> LABEL LABEL_XML symbol
 %type <w> word
 %type <a> attributes attribute-list attribute
-%type <ast> root let-global let set block label body content word-list empt-list
-%type <ast> expression expression-partielle expression-booleenne-e expression-booleenne-t expression-ari-e expression-ari-t
+%type <ast> root let-global let set block label body content word-list empt-list expression
+%type <ast> expression-partielle expression-booleenne-e expression-booleenne-t expression-ari-e expression-ari-t expression-ari-f
 %type <ast> lambda-function affect application
 
 %start start
@@ -97,7 +97,6 @@ expression : expression-booleenne-e
 
 
 expression-partielle : '(' expression ')'       { $$ = $2; }
-                     | '(' application ')'      { $$ = $2; }
                      | set                      { $$ = $1; }
                      | content                  { $$ = $1; }
                      ;
@@ -124,9 +123,14 @@ expression-ari-e : expression-ari-e '+' expression-ari-t                    { $$
                  ;
 
 
-expression-ari-t : expression-ari-t '*' expression-partielle                { $$ = mk_app(mk_app(mk_binop(MULT), $1), $3); }
-                 | expression-ari-t '/' expression-partielle                { $$ = mk_app(mk_app(mk_binop(DIV), $1), $3);  }
-                 | expression-partielle                                     { $$ = $1; }
+expression-ari-t : expression-ari-t '*' expression-ari-f                    { $$ = mk_app(mk_app(mk_binop(MULT), $1), $3); }
+                 | expression-ari-t DIVIDE expression-ari-f                 { $$ = mk_app(mk_app(mk_binop(DIV), $1), $3);  }
+                 | expression-ari-f                                         { $$ = $1; }
+                 ;
+
+
+expression-ari-f : expression-partielle spaces
+                 | application spaces
                  ;
 
 
@@ -152,8 +156,8 @@ lambda-function : FUNCTION affect { $$ = $2; }
                 ;
 
      
-application : application SPACES expression { $$ = mk_app($1, $3); }
-            | symbol                        { $$ = mk_var($1); }
+application : application SPACES expression-partielle { $$ = mk_app($1, $3); }
+            | symbol                                  { $$ = mk_var($1); }
             ;
 
 

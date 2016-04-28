@@ -40,6 +40,7 @@ void yyerror (struct ast **, char const *);
 %token TMATCH WITH END
 %token DIVIDE INFEQ INF SUPEQ SUP EGAL OU ET
 
+
 %union {
     char c;
     char *s;
@@ -49,6 +50,7 @@ void yyerror (struct ast **, char const *);
     struct patterns *patterns;
     struct pattern *pattern;
 }
+
 
 %type <c> CHARACTER
 %type <s> LABEL LABEL_XML symbol
@@ -63,7 +65,9 @@ void yyerror (struct ast **, char const *);
 
 %start start
 
+
 %%
+
 
 start : root   { *root = $1; }
       ;
@@ -72,6 +76,11 @@ start : root   { *root = $1; }
 root : root set   { $$ = mk_forest(true, $1, $2); }
      | let-global { $$ = $1; }
      ;
+
+
+let-global : LET symbol spaces affect ';' let-global                        { $$ = mk_app(mk_fun($2, $6), $4); }
+           | %empty                                                         { $$ = *root; }
+           ;
 
 
 set : block      { $$ = $1; }
@@ -84,7 +93,7 @@ block : '{' body '}' { $$ = $2; }
 
 
 body : set body              { $$ = mk_forest(false, $1, $2); }
-     | content spaces body     { $$ = mk_forest(false, $1, $3); }
+     | content spaces body   { $$ = mk_forest(false, $1, $3); }
      | application ',' body  { $$ = mk_forest(false, $1, $3); }
      | application           { $$ = mk_forest(false, $1, NULL); }
      | %empty                { $$ = NULL; }
@@ -141,35 +150,30 @@ expression-ari-t : expression-ari-t '*' expression-ari-f                    { $$
                  ;
 
 
-expression-ari-f : expression-partielle spaces
-                 | application spaces
+expression-ari-f : expression-partielle spaces                              { $$ = $1; }
+                 | application spaces                                       { $$ = $1; }
                  ;
 
 
-let-global : LET symbol spaces affect ';' let-global { $$ = mk_app(mk_fun($2, $6), $4); }
-           | %empty                                  { $$ = *root; }
-           ;
-
-
-let : LET symbol spaces affect IN expression                   { $$ = mk_app(mk_fun($2, $6), $4); }
-    | '(' expression WHERE symbol spaces affect ')'            { $$ = mk_app(mk_fun($4, $2), $6); }
-    | LET RECURSIVE symbol spaces affect IN expression         { $$ = mk_app(mk_fun($3, $7), mk_declrec($3, $5)); }
-    | '(' expression WHERE RECURSIVE symbol spaces affect ')'  { $$ = mk_app(mk_fun($5, $2), mk_declrec($5, $7)); }
+let : LET symbol spaces affect IN expression                                { $$ = mk_app(mk_fun($2, $6), $4); }
+    | '(' expression WHERE symbol spaces affect ')'                         { $$ = mk_app(mk_fun($4, $2), $6); }
+    | LET RECURSIVE symbol spaces affect IN expression                      { $$ = mk_app(mk_fun($3, $7), mk_declrec($3, $5)); }
+    | '(' expression WHERE RECURSIVE symbol spaces affect ')'               { $$ = mk_app(mk_fun($5, $2), mk_declrec($5, $7)); }
     ;
 
 
-affect : symbol spaces affect    { $$ = mk_fun($1, $3); }
-       | '=' expression          { $$ = $2; }
-       | ARROW expression        { $$ = $2; }
+affect : symbol spaces affect                                               { $$ = mk_fun($1, $3); }
+       | '=' expression                                                     { $$ = $2; }
+       | ARROW expression                                                   { $$ = $2; }
        ;
 
 
-lambda-function : FUNCTION affect { $$ = $2; }
+lambda-function : FUNCTION affect                                           { $$ = $2; }
                 ;
 
 
-application : application SPACES expression-partielle { $$ = mk_app($1, $3); }
-            | symbol                                  { $$ = mk_var($1); }
+application : application SPACES expression-partielle                       { $$ = mk_app($1, $3); }
+            | symbol                                                        { $$ = mk_var($1); }
             ;
 
 
@@ -221,7 +225,7 @@ spaces : SPACES
        ;
 
 
-match : TMATCH expression WITH patterns END    { $$ = mk_match($2, $4); }
+match : TMATCH expression WITH patterns END        { $$ = mk_match($2, $4); }
       ;
 
 
@@ -230,23 +234,23 @@ patterns : '|' pforest ARROW expression patterns   { $$ = mk_patterns($2, $4, $5
          ;
 
 
-pforest : pattern pforest         { $$ = mk_pforest($1, $2); }
-        | pattern                 { $$ = $1; }
+pforest : pattern pforest                          { $$ = mk_pforest($1, $2); }
+        | pattern                                  { $$ = $1; }
         ;
 
 
-pattern : '_'                     { $$ = mk_wildcard(ANY);              }
-        | LABEL '{' pattern '}'   { $$ = mk_ptree($1, false, $3);       }
-        | LABEL '{' '}'           { $$ = mk_ptree($1, true, NULL);      }
-        | '_' '{' pattern '}'     { $$ = mk_anytree(false, $3);         }
-        | '_' '{' '}'             { $$ = mk_anytree(true, NULL);        }
-        | '*' '_' '*'             { $$ = mk_wildcard(ANYSTRING);        }
-        | '/' '_' '/'             { $$ = mk_wildcard(ANYFOREST);        }
-        | '-' '_' '-'             { $$ = mk_wildcard(ANYSEQ);           }
-        | symbol                  { $$ = mk_pattern_var($1, TREEVAR);   }
-        | '*' symbol '*'          { $$ = mk_pattern_var($2, STRINGVAR); }
-        | '/' symbol '/'          { $$ = mk_pattern_var($2, FORESTVAR); }
-        | '-' symbol '-'          { $$ = mk_pattern_var($2, ANYVAR);    }
+pattern : '_'                                      { $$ = mk_wildcard(ANY);              }
+        | LABEL '{' pattern '}'                    { $$ = mk_ptree($1, false, $3);       }
+        | LABEL '{' '}'                            { $$ = mk_ptree($1, true, NULL);      }
+        | '_' '{' pattern '}'                      { $$ = mk_anytree(false, $3);         }
+        | '_' '{' '}'                              { $$ = mk_anytree(true, NULL);        }
+        | '*' '_' '*'                              { $$ = mk_wildcard(ANYSTRING);        }
+        | '/' '_' '/'                              { $$ = mk_wildcard(ANYFOREST);        }
+        | '-' '_' '-'                              { $$ = mk_wildcard(ANYSEQ);           }
+        | symbol                                   { $$ = mk_pattern_var($1, TREEVAR);   }
+        | '*' symbol '*'                           { $$ = mk_pattern_var($2, STRINGVAR); }
+        | '/' symbol '/'                           { $$ = mk_pattern_var($2, FORESTVAR); }
+        | '-' symbol '-'                           { $$ = mk_pattern_var($2, ANYVAR);    }
         ;
 
 %%

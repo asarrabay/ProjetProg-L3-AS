@@ -29,6 +29,7 @@ void yyerror (struct ast **, char const *);
 %token LABEL_XML
 %token SPACES
 %token CHARACTER
+%token NUMBER
 %token LET
 %token IN
 %token WHERE
@@ -41,7 +42,8 @@ void yyerror (struct ast **, char const *);
 %token THEN
 %token ELSE
 %token TMATCH WITH END
-%token DIVIDE INFEQ INF SUPEQ SUP EGAL OU ET
+%token DIVIDE INFEQ INF SUPEQ SUP EGAL NEGAL OU ET
+
 
 %union {
     int n;
@@ -55,7 +57,8 @@ void yyerror (struct ast **, char const *);
     struct pattern *pattern;
 }
 
-%type <n> top-directories
+
+%type <n> NUMBER top-directories
 %type <c> CHARACTER
 %type <s> LABEL LABEL_XML symbol DIRECTORY DOCUMENT
 %type <w> word
@@ -70,6 +73,7 @@ void yyerror (struct ast **, char const *);
 
 %start start
 
+
 %%
 
 
@@ -77,7 +81,7 @@ start : root   { *root = $1; }
       ;
 
 
-root : root set   { $$ = mk_forest(true, $1, $2); }
+root : root set   { $$ = mk_forest(false, $1, $2); }
      | let-global { $$ = $1; }
      ;
 
@@ -139,6 +143,7 @@ expression-booleenne-t : expression-booleenne-t INFEQ expression-ari-e      { $$
                        | expression-booleenne-t SUPEQ expression-ari-e      { $$ = mk_app(mk_app(mk_binop(GEQ), $1), $3); }
                        | expression-booleenne-t SUP expression-ari-e        { $$ = mk_app(mk_app(mk_binop(GE), $1), $3);  }
                        | expression-booleenne-t EGAL expression-ari-e       { $$ = mk_app(mk_app(mk_binop(EQ), $1), $3);  }
+                       | expression-booleenne-t NEGAL expression-ari-e      { $$ = mk_app(mk_app(mk_binop(NEQ), $1), $3); }
                        | expression-ari-e                                   { $$ = $1; }
                        ;
 
@@ -157,8 +162,10 @@ expression-ari-t : expression-ari-t '*' expression-ari-f                    { $$
 
 expression-ari-f : expression-partielle spaces                              { $$ = $1; }
                  | application spaces                                       { $$ = $1; }
+                 | NUMBER                                                   { $$ = mk_integer($1); }
                  | '!' expression-partielle                                 { $$ = mk_app(mk_unaryop(NOT), $2); }
 		 | '!' application                                          { $$ = mk_app(mk_unaryop(NOT), $2); }
+                 | '!' NUMBER                                               { $$ = mk_app(mk_unaryop(NEG), mk_integer($2)); }
                  ;
 
 

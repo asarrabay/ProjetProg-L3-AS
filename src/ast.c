@@ -126,3 +126,12 @@ struct attributes * mk_attributes(struct ast * key, struct ast * value, struct a
     a->next = next;
     return a;
 }
+
+
+struct patterns * mk_patterns(struct pattern * pattern, struct ast * exp_res, struct patterns * next){
+    struct patterns *p = malloc(sizeof(struct patterns));
+    p->pattern         = pattern;
+    p->res             = exp_res;
+    p->next            = next;
+    return p;
+}

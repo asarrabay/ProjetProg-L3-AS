@@ -91,6 +91,7 @@ rec          { return RECURSIVE; }
 "=="         { return EGAL; }
 "<="         { return INFEQ; }
 ">="         { return SUPEQ; }
+"//"         { return DIVIDE; }
 
 (?i:xml){LABELSET}*                 { return LABEL_XML; }
 [[:alpha:]]{LABELSET}*|_{LABELSET}+ {

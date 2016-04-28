@@ -29,13 +29,17 @@ typedef enum { LABEL = 256,
                IF,
                THEN,
                ELSE,
+	       DIVIDE,
                INFEQ,
 	       INF,
 	       SUPEQ,
 	       SUP,
 	       EGAL,
 	       OU,
-	       ET
+	       ET,
+                    TMATCH,
+                    WITH,
+                    END
              } tokens_t;
 
 #endif

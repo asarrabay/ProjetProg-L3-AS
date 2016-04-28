@@ -48,7 +48,7 @@ int is_compatible(struct ast * ast, enum pvar tp){
             (tp==STRINGVAR && ast->node->forest->head->type==WORD) ||
             (tp==FORESTVAR && ast->node->forest->head->type==TREE) ||
             tp==ANYVAR
-            )        
+            )
         ;
 }
 
@@ -273,12 +273,12 @@ bool match_null(struct pattern * pat, struct env ** e){
             case ANYFOREST:
             case ANYSEQ:
                 return true;
-                
+
             }
         }
     }
     return false;
-    
+
 }
 
 bool match_ind(struct pattern * pat, struct ast ** ast, struct env ** e){

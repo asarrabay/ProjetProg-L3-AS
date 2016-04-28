@@ -10,9 +10,9 @@
 #include <ut/lexer.h>
 
 int main (void) {
-    return ((ut_run(UT_NEW("\"string\"", 8, (tokens_t)'"', CHARACTER, CHARACTER, CHARACTER, CHARACTER, CHARACTER, CHARACTER, (tokens_t)'"')) == UT_PASSED) &&
-            (ut_run(UT_NEW("\"s s  s \"", 9, (tokens_t)'"', CHARACTER, SPACES, CHARACTER, SPACES, CHARACTER, SPACES, (tokens_t)'"'))         == UT_PASSED) &&
-	    (ut_run(UT_NEW("\"\\\"\"", 3, (tokens_t)'"', CHARACTER, (tokens_t)'"'))                                                          == UT_PASSED) &&
-            (ut_run(UT_NEW("\"\\\\\"", 3, (tokens_t)'"', CHARACTER, (tokens_t)'"'))                                                          == UT_PASSED))
+    return ((ut_run(UT_NEW("\"string\"", 8, '"', CHARACTER, CHARACTER, CHARACTER, CHARACTER, CHARACTER, CHARACTER, '"')) == UT_PASSED) &&
+            (ut_run(UT_NEW("\"s s  s \"", 9, '"', CHARACTER, SPACES, CHARACTER, SPACES, CHARACTER, SPACES, '"'))         == UT_PASSED) &&
+	    (ut_run(UT_NEW("\"\\\"\"", 3, '"', CHARACTER, '"'))                                                          == UT_PASSED) &&
+            (ut_run(UT_NEW("\"\\\\\"", 3, '"', CHARACTER, '"'))                                                          == UT_PASSED))
         ? EXIT_SUCCESS : EXIT_FAILURE ;
 }

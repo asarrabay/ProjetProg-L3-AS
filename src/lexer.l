@@ -19,7 +19,7 @@
 
 %option nounput noinput
 
-LABELSET ([[:alnum:]'\._])
+LABELSET ([[:alnum:]'._])
 
 %x STRING
 %x RETSPACES
@@ -27,38 +27,21 @@ LABELSET ([[:alnum:]'\._])
 
 %%
 
-let          { return LET; }
-in           { return IN; }
-where        { return WHERE; }
-rec          { return RECURSIVE; }
-fun          { return FUNCTION; }
-->           { return ARROW; }
-if           { return IF; }
-then         { return THEN; }
-else         { return ELSE; }
-
-"<="         { return INFEQ; }
-"<"          { return INF; }
-">="         { return SUPEQ; }
-">"          { return SUP; }
-"=="         { return EGAL; }
-"||"         { return OU; }
-"&&"         { return ET; }
-
-(?i:xml){LABELSET}*                 { return LABEL_XML; }
-[[:alpha:]]{LABELSET}*|_{LABELSET}+ {
-                                      #ifndef UT_LEXER
-                                          BEGIN RETSPACES;
-                                          yylval.s = strdup(yytext);
-                                      #endif
-                                      return LABEL;
-                                    }
-
-\"           { BEGIN STRING; return '"'; }
-\]           { BEGIN RETSPACES; return ']'; }
-\$           { BEGIN IMPORT; return '$'; }
-[[:space:]]+ { }
-.            { return yytext[0]; }
+<IMPORT>\.                      { return '.'; }
+<IMPORT>[^.][^/]*[/]([^/]+[/])* {
+                                  #ifndef UT_LEXER
+                                      yylval.s = strdup(yytext);
+                                  #endif
+                                  return DIRECTORY;
+                                }
+<IMPORT>[^./][^/]-[>]           {
+                                  BEGIN INITIAL;
+                                  yyless(yyleng - 2);
+                                  #ifndef UT_LEXER
+                                      yylval.s = strdup(yytext);
+                                  #endif
+                                  return DOCUMENT;
+                                }
 
 <STRING>[[:space:]]+ { return SPACES; }
 <STRING>\\\\         {
@@ -73,7 +56,7 @@ else         { return ELSE; }
                        #endif
                        return CHARACTER;
                      }
-<STRING>[^\"]        {
+<STRING>[^"]         {
                        #ifndef UT_LEXER
                            yylval.c = yytext[0];
                        #endif
@@ -91,18 +74,37 @@ else         { return ELSE; }
 <RETSPACES>[[:space:]]+ { BEGIN INITIAL; return SPACES; }
 <RETSPACES>.            { BEGIN INITIAL; yyless(0); }
 
-<IMPORT>([^\/]+\/)+ {
-                      #ifndef UT_LEXER
-                          yylval.s = strdup(yytext);
-                      #endif
-                      return DIRECTORY;
-                    }
-<IMPORT>[^\/]+      {
-                      BEGIN INITIAL; 
-                      #ifndef UT_LEXER
-                          yylval.s = strdup(yytext);
-                      #endif
-                      return DOCUMENT;
-                    }
+in           { return IN; }
+if           { return IF; }
+let          { return LET; }
+then         { return THEN; }
+else         { return ELSE; }
+where        { return WHERE; }
+-\>          { return ARROW; }
+fun          { return FUNCTION; }
+rec          { return RECURSIVE; }
+
+"||"         { return OU; }
+"&&"         { return ET; }
+"<"          { return INF; }
+">"          { return SUP; }
+"=="         { return EGAL; }
+"<="         { return INFEQ; }
+">="         { return SUPEQ; }
+
+(?i:xml){LABELSET}*                 { return LABEL_XML; }
+[[:alpha:]]{LABELSET}*|_{LABELSET}+ {
+                                      #ifndef UT_LEXER
+                                          BEGIN RETSPACES;
+                                          yylval.s = strdup(yytext);
+                                      #endif
+                                      return LABEL;
+                                    }
+
+\"           { BEGIN STRING; return '"'; }
+\]           { BEGIN RETSPACES; return ']'; }
+\$           { BEGIN IMPORT; return '$'; }
+[[:space:]]+ { }
+.            { return yytext[0]; }
 
 %%

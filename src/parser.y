@@ -91,31 +91,29 @@ block : '{' body '}' { $$ = $2; }
       ;
 
 
-body : set body              { $$ = mk_forest(true, $1, $2);            }
-     | value spaces body     { $$ = mk_forest(true, $1, $3);            }
-     | application ',' body  { $$ = mk_forest(false, $1, $3);           }
-     | application           { $$ = mk_forest(false, $1, NULL);         }
-     | symbol ',' body       { $$ = mk_forest(false, mk_var($1), $3);   }
-     | symbol                { $$ = mk_forest(false, mk_var($1), NULL); }
+body : set body              { $$ = mk_forest(false, $1, $2); }
+     | value spaces body     { $$ = mk_forest(false, $1, $3); }
+     | application ',' body  { $$ = mk_forest(false, $1, $3); }
+     | application           { $$ = mk_forest(false, $1, NULL); }
      | %empty                { $$ = NULL; }
      ;
 
 
-let-global : LET symbol affect ';' let-global { $$ = mk_app(mk_fun($2, $5), $3); }
-           | %empty                           { $$ = *root; }
+let-global : LET symbol spaces affect ';' let-global { $$ = mk_app(mk_fun($2, $6), $4); }
+           | %empty                                  { $$ = *root; }
            ;
 
 
-let : LET symbol affect IN expression           { $$ = mk_app(mk_fun($2, $5), $3); }
-    | '(' expression WHERE symbol affect ')'            { $$ = mk_app(mk_fun($4, $2), $5); }
-    | LET RECURSIVE symbol affect IN expression { $$ = mk_app(mk_fun($3, $6), mk_declrec($3, $4)); }
-    | '(' expression WHERE RECURSIVE symbol affect ')'  { $$ = mk_app(mk_fun($5, $2), mk_declrec($5, $6)); }
+let : LET symbol spaces affect IN expression                   { $$ = mk_app(mk_fun($2, $6), $4); }
+    | '(' expression WHERE symbol spaces affect ')'            { $$ = mk_app(mk_fun($4, $2), $6); }
+    | LET RECURSIVE symbol spaces affect IN expression         { $$ = mk_app(mk_fun($3, $7), mk_declrec($3, $5)); }
+    | '(' expression WHERE RECURSIVE symbol spaces affect ')'  { $$ = mk_app(mk_fun($5, $2), mk_declrec($5, $7)); }
     ;
 
 
-affect : symbol affect    { $$ = mk_fun($1, $2); }
-       | '=' expression   { $$ = $2; }
-       | ARROW expression { $$ = $2; }
+affect : symbol spaces affect    { $$ = mk_fun($1, $3); }
+       | '=' expression          { $$ = $2; }
+       | ARROW expression        { $$ = $2; }
        ;
 
 
@@ -123,18 +121,18 @@ lambda-function : FUNCTION affect { $$ = $2; }
                 ;
 
      
-application : application expression { $$ = mk_app($1, $2); }
-            | symbol                 { $$ = mk_var($1); }
+application : application SPACES expression { $$ = mk_app($1, $3); }
+            | symbol                        { $$ = mk_var($1); }
             ;
 
 
-expression : '(' expression ')' { $$ = $2; }
-           | let                { $$ = $1; }
-           | lambda-function    { $$ = $1; }
-           | set                { $$ = $1; }
-           | value              { $$ = $1; }
-           | application        { $$ = $1; }
-           | import             { $$ = $1; }
+expression : '(' expression ')'  { $$ = $2; }
+           | let                 { $$ = $1; }
+           | lambda-function     { $$ = $1; }
+           | set                 { $$ = $1; }
+           | value               { $$ = $1; }
+           | '(' application ')' { $$ = $2; }
+           | import              { $$ = $1; }
            ;
 
 
@@ -159,11 +157,12 @@ symbol : LABEL     { $$ = $1; }
        ;
 
 
-label : LABEL attributes spaces block { $$ = mk_tree($1, true, false, false, $2, $4);    }
-      | LABEL block                   { $$ = mk_tree($1, true, false, false, NULL, $2);  }
-      | LABEL attributes '/'          { $$ = mk_tree($1, true, true, false, $2, NULL);   }
-      | LABEL '/'                     { $$ = mk_tree($1, true, true, false, NULL, NULL); }
+label : LABEL attributes spaces block { $$ = mk_tree($1, false, false, false, $2, $4);    }
+      | LABEL block                   { $$ = mk_tree($1, false, false, false, NULL, $2);  }
+      | LABEL attributes '/'          { $$ = mk_tree($1, false, true, false, $2, NULL);   }
+      | LABEL '/'                     { $$ = mk_tree($1, false, true, false, NULL, NULL); }
       ;
+
 
 
 attributes : '[' attribute-list ']' { $$ = $2; }
@@ -185,7 +184,7 @@ value : '"' spaces word-list '"' { $$ = $3; }
       ;
 
 
-word-list : word SPACES word-list { $$ = mk_forest(true, mk_word(word_to_string($1)), $3); word_destroy($1); }
+word-list : word SPACES word-list { $$ = mk_forest(false, mk_word(word_to_string($1)), $3); word_destroy($1); }
           | word SPACES           { $$ = mk_word(word_to_string($1)); word_destroy($1); }
           | word                  { $$ = mk_word(word_to_string($1)); word_destroy($1); }
           ;

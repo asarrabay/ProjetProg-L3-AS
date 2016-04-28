@@ -23,6 +23,8 @@ typedef enum { LABEL = 256,
                WHERE,
                RECURSIVE,
                FUNCTION,
+               DIRECTORY,
+               DOCUMENT,
                ARROW,
                IF,
                THEN,
@@ -33,9 +35,7 @@ typedef enum { LABEL = 256,
 	       SUP,
 	       EGAL,
 	       OU,
-	       ET,
-               DIRECTORY,
-               DOCUMENT
+	       ET
              } tokens_t;
 
 #endif

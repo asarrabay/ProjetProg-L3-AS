@@ -2,14 +2,19 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include "machine.h"
-#include "pattern_matching.h"
+#include <machine.h>
+#include <pattern_matching.h>
 
 
-void emit( char * file, struct ast * ast){
-    assert(file!=NULL && (ast ==NULL || ast!= NULL));
-    fprintf(stderr,"Vous devez implémenter la fonction emit");
-    return;
+void emit (char *file, struct ast *ast) {
+    assert(file!=NULL && (ast == NULL || ast != NULL));
+    FILE *fdout = fopen(file, "w");
+    if (fdout == NULL) {
+        fprintf(stderr, "An error occured while creating file %s !\n", file);
+        exit(EXIT_FAILURE);
+    }
+    /* TODO */
+    fclose(fdout);
 }
 
 struct env * mk_env(char * var, struct closure * value, struct env * next){

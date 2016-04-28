@@ -16,6 +16,7 @@
 %code requires {
 #include <ast.h>
 #include <word.h>
+#include <path.h>
 }
 
 %code {
@@ -28,23 +29,28 @@ void yyerror (struct ast **, char const *);
 %token LABEL_XML
 %token SPACES
 %token CHARACTER
+%token NUMBER
 %token LET
 %token IN
 %token WHERE
 %token RECURSIVE
 %token FUNCTION
+%token DIRECTORY
+%token DOCUMENT
 %token ARROW
 %token IF
 %token THEN
 %token ELSE
 %token TMATCH WITH END
-%token DIVIDE INFEQ INF SUPEQ SUP EGAL OU ET
+%token DIVIDE INFEQ INF SUPEQ SUP EGAL NEGAL OU ET
 
 
 %union {
+    int n;
     char c;
     char *s;
     word_t w;
+    struct path *p;
     struct attributes *a;
     struct ast *ast;
     struct patterns *patterns;
@@ -52,14 +58,16 @@ void yyerror (struct ast **, char const *);
 }
 
 
+%type <n> NUMBER top-directories
 %type <c> CHARACTER
-%type <s> LABEL LABEL_XML symbol
+%type <s> LABEL LABEL_XML symbol DIRECTORY DOCUMENT
 %type <w> word
+%type <p> path
 %type <a> attributes attribute-list attribute
 %type <ast> root let-global let set block label body content word-list empt-list
 %type <ast> expression expression-partielle expression-conditionnelle
 %type <ast> expression-booleenne-e expression-booleenne-t expression-ari-e expression-ari-t expression-ari-f
-%type <ast> lambda-function affect application match
+%type <ast> lambda-function affect application match import
 %type <patterns> patterns
 %type <pattern> pattern pforest
 
@@ -73,7 +81,7 @@ start : root   { *root = $1; }
       ;
 
 
-root : root set   { $$ = mk_forest(true, $1, $2); }
+root : root set   { $$ = mk_forest(false, $1, $2); }
      | let-global { $$ = $1; }
      ;
 
@@ -110,6 +118,7 @@ expression : expression-booleenne-e              { $$ = $1; }
            | let                                 { $$ = $1; }
            | lambda-function                     { $$ = $1; }
            | match                               { $$ = $1; }
+           | import                              { $$ = $1; }
            ;
 
 
@@ -134,6 +143,7 @@ expression-booleenne-t : expression-booleenne-t INFEQ expression-ari-e      { $$
                        | expression-booleenne-t SUPEQ expression-ari-e      { $$ = mk_app(mk_app(mk_binop(GEQ), $1), $3); }
                        | expression-booleenne-t SUP expression-ari-e        { $$ = mk_app(mk_app(mk_binop(GE), $1), $3);  }
                        | expression-booleenne-t EGAL expression-ari-e       { $$ = mk_app(mk_app(mk_binop(EQ), $1), $3);  }
+                       | expression-booleenne-t NEGAL expression-ari-e      { $$ = mk_app(mk_app(mk_binop(NEQ), $1), $3); }
                        | expression-ari-e                                   { $$ = $1; }
                        ;
 
@@ -152,6 +162,10 @@ expression-ari-t : expression-ari-t '*' expression-ari-f                    { $$
 
 expression-ari-f : expression-partielle spaces                              { $$ = $1; }
                  | application spaces                                       { $$ = $1; }
+                 | NUMBER                                                   { $$ = mk_integer($1); }
+                 | '!' expression-partielle                                 { $$ = mk_app(mk_unaryop(NOT), $2); }
+		 | '!' application                                          { $$ = mk_app(mk_unaryop(NOT), $2); }
+                 | '!' NUMBER                                               { $$ = mk_app(mk_unaryop(NEG), mk_integer($2)); }
                  ;
 
 
@@ -252,6 +266,23 @@ pattern : '_'                                      { $$ = mk_wildcard(ANY);     
         | '/' symbol '/'                           { $$ = mk_pattern_var($2, FORESTVAR); }
         | '-' symbol '-'                           { $$ = mk_pattern_var($2, ANYVAR);    }
         ;
+
+
+import : '$' path DOCUMENT ARROW symbol { PATH_SET_FILENAME($2, $3); PATH_SET_DECLNAME($2, $5); $$ = mk_import($2); }
+       ;
+
+
+path : top-directories DIRECTORY { $$ = path_new($1, $2, NULL, NULL);   }
+     | top-directories           { $$ = path_new($1, NULL, NULL, NULL); }
+     | DIRECTORY                 { $$ = path_new(0, $1, NULL, NULL);    }
+     | %empty                    { $$ = path_new(0, NULL, NULL, NULL);  }
+     ;
+
+
+top-directories : top-directories '.' { $$ = ++$1; }
+                | '.'                 { $$ = 1; }
+                ;
+
 
 %%
 

@@ -37,7 +37,6 @@ void yyerror (struct ast **, char const *);
 %token IF
 %token THEN
 %token ELSE
-%token INFEQ INF SUPEQ SUP EGAL OU ET
 %token TMATCH WITH END
 %token DIVIDE INFEQ INF SUPEQ SUP EGAL OU ET
 
@@ -58,7 +57,7 @@ void yyerror (struct ast **, char const *);
 %type <ast> root let-global let set block label body content word-list empt-list expression
 %type <ast> expression-partielle expression-booleenne-e expression-booleenne-t expression-ari-e expression-ari-t expression-ari-f
 %type <ast> lambda-function affect application match
-$%type <patterns> patterns
+%type <patterns> patterns
 %type <pattern> pattern
 %type <pattern> pforest
 
@@ -100,6 +99,7 @@ symbol : LABEL               { $$ = $1; }
 expression : expression-booleenne-e
            | let                                { $$ = $1; }
            | lambda-function
+           | match                              {$$ = $1;}
            ;
 
 

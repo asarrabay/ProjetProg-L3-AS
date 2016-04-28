@@ -76,8 +76,8 @@ block : '{' body '}' { $$ = $2; }
       ;
 
 
-body : set body              { $$ = mk_forest(true, $1, $2); }
-     | value spaces body     { $$ = mk_forest(true, $1, $3); }
+body : set body              { $$ = mk_forest(false, $1, $2); }
+     | value spaces body     { $$ = mk_forest(false, $1, $3); }
      | application ',' body  { $$ = mk_forest(false, $1, $3); }
      | application           { $$ = mk_forest(false, $1, NULL); }
      | %empty                { $$ = NULL; }
@@ -125,10 +125,10 @@ symbol : LABEL     { $$ = $1; }
        ;
 
 
-label : LABEL attributes spaces block { $$ = mk_tree($1, true, false, false, $2, $4);    }
-      | LABEL block                   { $$ = mk_tree($1, true, false, false, NULL, $2);  }
-      | LABEL attributes '/'          { $$ = mk_tree($1, true, true, false, $2, NULL);   }
-      | LABEL '/'                     { $$ = mk_tree($1, true, true, false, NULL, NULL); }
+label : LABEL attributes spaces block { $$ = mk_tree($1, false, false, false, $2, $4);    }
+      | LABEL block                   { $$ = mk_tree($1, false, false, false, NULL, $2);  }
+      | LABEL attributes '/'          { $$ = mk_tree($1, false, true, false, $2, NULL);   }
+      | LABEL '/'                     { $$ = mk_tree($1, false, true, false, NULL, NULL); }
       ;
 
 
@@ -152,7 +152,7 @@ value : '"' spaces word-list '"' { $$ = $3; }
       ;
 
 
-word-list : word SPACES word-list { $$ = mk_forest(true, mk_word(word_to_string($1)), $3); word_destroy($1); }
+word-list : word SPACES word-list { $$ = mk_forest(false, mk_word(word_to_string($1)), $3); word_destroy($1); }
           | word SPACES           { $$ = mk_word(word_to_string($1)); word_destroy($1); }
           | word                  { $$ = mk_word(word_to_string($1)); word_destroy($1); }
           ;

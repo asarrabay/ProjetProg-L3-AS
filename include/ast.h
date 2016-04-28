@@ -22,7 +22,7 @@ enum ast_type {
     DECLREC   // Déclarations récursives (let rec ... where rec ...)
 };
 
-enum binop{PLUS, MINUS, MULT, DIV, LEQ, LE, GEQ, GE, EQ, NEQ,OR, AND,EMIT};
+enum binop{PLUS, MINUS, MULT, DIV, LEQ, LE, GEQ, GE, EQ, NEQ, OR, AND, EMIT};
 
 enum unaryop {NOT,NEG};
 

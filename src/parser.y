@@ -51,8 +51,9 @@ void yyerror (struct ast **, char const *);
 %type <s> LABEL LABEL_XML symbol
 %type <w> word
 %type <a> attributes attribute-list attribute
-%type <ast> root let-global let set block label body value word-list empt-list
-%type <ast> lambda-function affect expression application
+%type <ast> root let-global let set block label body content word-list empt-list
+%type <ast> expression expression-partielle expression-booleenne-e expression-booleenne-t expression-ari-e expression-ari-t
+%type <ast> lambda-function affect application
 
 %start start
 
@@ -77,15 +78,60 @@ block : '{' body '}' { $$ = $2; }
 
 
 body : set body              { $$ = mk_forest(false, $1, $2); }
-     | value spaces body     { $$ = mk_forest(false, $1, $3); }
+     | content spaces body     { $$ = mk_forest(false, $1, $3); }
      | application ',' body  { $$ = mk_forest(false, $1, $3); }
      | application           { $$ = mk_forest(false, $1, NULL); }
      | %empty                { $$ = NULL; }
      ;
 
 
+symbol : LABEL               { $$ = $1; }
+       | LABEL_XML           { $$ = $1; }
+       ;
+
+
+expression : expression-booleenne-e
+           | let                                { $$ = $1; }
+           | lambda-function
+           ;
+
+
+expression-partielle : '(' expression ')'       { $$ = $2; }
+                     | '(' application ')'      { $$ = $2; }
+                     | set                      { $$ = $1; }
+                     | content                  { $$ = $1; }
+                     ;
+
+
+expression-booleenne-e : expression-booleenne-e OU expression-booleenne-t   { $$ = mk_app(mk_app(mk_binop(OR), $1), $3);  } 
+                       | expression-booleenne-e ET expression-booleenne-t   { $$ = mk_app(mk_app(mk_binop(AND), $1), $3); } 
+                       | expression-booleenne-t                             { $$ = $1; }
+                       ;
+
+
+expression-booleenne-t : expression-booleenne-t INFEQ expression-ari-e      { $$ = mk_app(mk_app(mk_binop(LEQ), $1), $3); } 
+                       | expression-booleenne-t INF expression-ari-e        { $$ = mk_app(mk_app(mk_binop(LE), $1), $3);  } 
+                       | expression-booleenne-t SUPEQ expression-ari-e      { $$ = mk_app(mk_app(mk_binop(GEQ), $1), $3); } 
+                       | expression-booleenne-t SUP expression-ari-e        { $$ = mk_app(mk_app(mk_binop(GE), $1), $3);  } 
+                       | expression-booleenne-t EGAL expression-ari-e       { $$ = mk_app(mk_app(mk_binop(EQ), $1), $3);  } 
+                       | expression-ari-e                                   { $$ = $1; }
+                       ;
+
+
+expression-ari-e : expression-ari-e '+' expression-ari-t                    { $$ = mk_app(mk_app(mk_binop(PLUS), $1), $3);  }
+                 | expression-ari-e '-' expression-ari-t                    { $$ = mk_app(mk_app(mk_binop(MINUS), $1), $3); }
+                 | expression-ari-t                                         { $$ = $1; }
+                 ;
+
+
+expression-ari-t : expression-ari-t '*' expression-partielle                { $$ = mk_app(mk_app(mk_binop(MULT), $1), $3); }
+                 | expression-ari-t '/' expression-partielle                { $$ = mk_app(mk_app(mk_binop(DIV), $1), $3);  }
+                 | expression-partielle                                     { $$ = $1; }
+                 ;
+
+
 let-global : LET symbol spaces affect ';' let-global { $$ = mk_app(mk_fun($2, $6), $4); }
-           | %empty                           { $$ = *root; }
+           | %empty                                  { $$ = *root; }
            ;
 
 
@@ -107,22 +153,8 @@ lambda-function : FUNCTION affect { $$ = $2; }
 
      
 application : application SPACES expression { $$ = mk_app($1, $3); }
-            | symbol                 { $$ = mk_var($1); }
+            | symbol                        { $$ = mk_var($1); }
             ;
-
-
-expression : '(' expression ')'       { $$ = $2; }
-           | let                      { $$ = $1; }
-           | lambda-function          { $$ = $1; }
-           | set                      { $$ = $1; }
-           | value                    { $$ = $1; }
-           | '(' application ')'      { $$ = $2; }
-           ;
-
-
-symbol : LABEL     { $$ = $1; }
-       | LABEL_XML { $$ = $1; }
-       ;
 
 
 label : LABEL attributes spaces block { $$ = mk_tree($1, false, false, false, $2, $4);    }
@@ -143,11 +175,11 @@ attribute-list : attribute SPACES attribute-list { $$ = $1; $1->next = $3; }
                ;
 
 
-attribute : LABEL spaces '=' value { $$ = mk_attributes(mk_word($1), $4, NULL); }
+attribute : LABEL spaces '=' content { $$ = mk_attributes(mk_word($1), $4, NULL); }
           ;
 
 
-value : '"' spaces word-list '"' { $$ = $3; }
+content : '"' spaces word-list '"' { $$ = $3; }
       | '"' empt-list '"'        { $$ = $2; }
       ;
 

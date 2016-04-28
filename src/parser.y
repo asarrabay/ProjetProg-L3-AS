@@ -37,6 +37,7 @@ void yyerror (struct ast **, char const *);
 %token IF
 %token THEN
 %token ELSE
+%token TMATCH WITH END
 %token DIVIDE INFEQ INF SUPEQ SUP EGAL OU ET
 
 %union {
@@ -45,6 +46,8 @@ void yyerror (struct ast **, char const *);
     word_t w;
     struct attributes *a;
     struct ast *ast;
+    struct patterns *patterns;
+    struct pattern *pattern;
 }
 
 %type <c> CHARACTER
@@ -54,7 +57,9 @@ void yyerror (struct ast **, char const *);
 %type <ast> root let-global let set block label body content word-list empt-list
 %type <ast> expression expression-partielle expression-conditionnelle
 %type <ast> expression-booleenne-e expression-booleenne-t expression-ari-e expression-ari-t expression-ari-f
-%type <ast> lambda-function affect application
+%type <ast> lambda-function affect application match
+%type <patterns> patterns
+%type <pattern> pattern pforest
 
 %start start
 
@@ -95,6 +100,7 @@ expression : expression-booleenne-e              { $$ = $1; }
            | expression-conditionnelle           { $$ = $1; }
            | let                                 { $$ = $1; }
            | lambda-function                     { $$ = $1; }
+           | match                               { $$ = $1; }
            ;
 
 
@@ -114,11 +120,11 @@ expression-booleenne-e : expression-booleenne-e OU expression-booleenne-t   { $$
                        ;
 
 
-expression-booleenne-t : expression-booleenne-t INFEQ expression-ari-e      { $$ = mk_app(mk_app(mk_binop(LEQ), $1), $3); } 
-                       | expression-booleenne-t INF expression-ari-e        { $$ = mk_app(mk_app(mk_binop(LE), $1), $3);  } 
-                       | expression-booleenne-t SUPEQ expression-ari-e      { $$ = mk_app(mk_app(mk_binop(GEQ), $1), $3); } 
-                       | expression-booleenne-t SUP expression-ari-e        { $$ = mk_app(mk_app(mk_binop(GE), $1), $3);  } 
-                       | expression-booleenne-t EGAL expression-ari-e       { $$ = mk_app(mk_app(mk_binop(EQ), $1), $3);  } 
+expression-booleenne-t : expression-booleenne-t INFEQ expression-ari-e      { $$ = mk_app(mk_app(mk_binop(LEQ), $1), $3); }
+                       | expression-booleenne-t INF expression-ari-e        { $$ = mk_app(mk_app(mk_binop(LE), $1), $3);  }
+                       | expression-booleenne-t SUPEQ expression-ari-e      { $$ = mk_app(mk_app(mk_binop(GEQ), $1), $3); }
+                       | expression-booleenne-t SUP expression-ari-e        { $$ = mk_app(mk_app(mk_binop(GE), $1), $3);  }
+                       | expression-booleenne-t EGAL expression-ari-e       { $$ = mk_app(mk_app(mk_binop(EQ), $1), $3);  }
                        | expression-ari-e                                   { $$ = $1; }
                        ;
 
@@ -161,7 +167,7 @@ affect : symbol spaces affect    { $$ = mk_fun($1, $3); }
 lambda-function : FUNCTION affect { $$ = $2; }
                 ;
 
-     
+
 application : application SPACES expression-partielle { $$ = mk_app($1, $3); }
             | symbol                                  { $$ = mk_var($1); }
             ;
@@ -190,13 +196,13 @@ attribute : LABEL spaces '=' content { $$ = mk_attributes(mk_word($1), $4, NULL)
 
 
 content : '"' spaces word-list '"' { $$ = $3; }
-      | '"' empt-list '"'        { $$ = $2; }
-      ;
+        | '"' empt-list '"'        { $$ = $2; }
+        ;
 
 
 word-list : word SPACES word-list { $$ = mk_forest(false, mk_word(word_to_string($1)), $3); word_destroy($1); }
-          | word SPACES           { $$ = mk_word(word_to_string($1)); word_destroy($1); }
-          | word                  { $$ = mk_word(word_to_string($1)); word_destroy($1); }
+          | word SPACES           { $$ = mk_word(word_to_string($1)); word_destroy($1);                       }
+          | word                  { $$ = mk_word(word_to_string($1)); word_destroy($1);                       }
           ;
 
 
@@ -213,6 +219,35 @@ empt-list : SPACES { $$ = NULL; }
 spaces : SPACES
        | %empty
        ;
+
+
+match : TMATCH expression WITH patterns END    { $$ = mk_match($2, $4); }
+      ;
+
+
+patterns : '|' pforest ARROW expression patterns   { $$ = mk_patterns($2, $4, $5);   }
+         | '|' pforest ARROW expression            { $$ = mk_patterns($2, $4, NULL); }
+         ;
+
+
+pforest : pattern pforest         { $$ = mk_pforest($1, $2); }
+        | pattern                 { $$ = $1; }
+        ;
+
+
+pattern : '_'                     { $$ = mk_wildcard(ANY);              }
+        | LABEL '{' pattern '}'   { $$ = mk_ptree($1, false, $3);       }
+        | LABEL '{' '}'           { $$ = mk_ptree($1, true, NULL);      }
+        | '_' '{' pattern '}'     { $$ = mk_anytree(false, $3);         }
+        | '_' '{' '}'             { $$ = mk_anytree(true, NULL);        }
+        | '*' '_' '*'             { $$ = mk_wildcard(ANYSTRING);        }
+        | '/' '_' '/'             { $$ = mk_wildcard(ANYFOREST);        }
+        | '-' '_' '-'             { $$ = mk_wildcard(ANYSEQ);           }
+        | symbol                  { $$ = mk_pattern_var($1, TREEVAR);   }
+        | '*' symbol '*'          { $$ = mk_pattern_var($2, STRINGVAR); }
+        | '/' symbol '/'          { $$ = mk_pattern_var($2, FORESTVAR); }
+        | '-' symbol '-'          { $$ = mk_pattern_var($2, ANYVAR);    }
+        ;
 
 %%
 

@@ -34,7 +34,10 @@ typedef enum { LABEL = 256,
 	       SUP,
 	       EGAL,
 	       OU,
-	       ET
+	       ET,
+                    TMATCH,
+                    WITH,
+                    END
              } tokens_t;
 
 #endif

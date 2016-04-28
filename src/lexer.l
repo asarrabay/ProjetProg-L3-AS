@@ -1,4 +1,3 @@
-
 /**
  * \file lexer.l
  * \brief Fichier contenant les regles constituant l'analyseur lexical du projet.
@@ -24,76 +23,86 @@ LABELSET ([[:alnum:]'\._])
 
 %x STRING
 %x RETSPACES
+%x IMPORT
 
 %%
 
-let          {   return LET;         }
-in           {   return IN;          }
-where        {   return WHERE;       }
-rec          {   return RECURSIVE;   }
-fun          {   return FUNCTION;    }
-->           {   return ARROW;       }
-if           {   return IF;          }
-then         {   return THEN;        }
-else         {   return ELSE;        }
+let          { return LET; }
+in           { return IN; }
+where        { return WHERE; }
+rec          { return RECURSIVE; }
+fun          { return FUNCTION; }
+->           { return ARROW; }
+if           { return IF; }
+then         { return THEN; }
+else         { return ELSE; }
 
-"<="         {   return INFEQ;         }
-"<"          {   return INF;          }
-">="         {   return SUPEQ;         }
-">"          {   return SUP;          }
-"=="         {   return EGAL;          }
-"||"         {   return OU;          }
-"&&"         {   return ET;         }
+"<="         { return INFEQ; }
+"<"          { return INF; }
+">="         { return SUPEQ; }
+">"          { return SUP; }
+"=="         { return EGAL; }
+"||"         { return OU; }
+"&&"         { return ET; }
 
-(?i:xml){LABELSET}*                 {   return LABEL_XML;   }
+(?i:xml){LABELSET}*                 { return LABEL_XML; }
 [[:alpha:]]{LABELSET}*|_{LABELSET}+ {
-                                        #ifndef UT_LEXER
-                                            BEGIN RETSPACES;
-                                            yylval.s = strdup(yytext);
-                                        #endif
-                                        return LABEL;
+                                      #ifndef UT_LEXER
+                                          BEGIN RETSPACES;
+                                          yylval.s = strdup(yytext);
+                                      #endif
+                                      return LABEL;
                                     }
 
-\"           {   BEGIN STRING; return '"';      }
-\]           {   BEGIN RETSPACES; return ']';   }
-
+\"           { BEGIN STRING; return '"'; }
+\]           { BEGIN RETSPACES; return ']'; }
+\$           { BEGIN IMPORT; return '$'; }
 [[:space:]]+ { }
+.            { return yytext[0]; }
 
-. {   return yytext[0];   }
-
-<STRING>[[:space:]]+ {   return SPACES;   }
-
+<STRING>[[:space:]]+ { return SPACES; }
 <STRING>\\\\         {
-                         #ifndef UT_LEXER
-                             yylval.c = '\\';
-                         #endif
-                         return CHARACTER;
+                       #ifndef UT_LEXER
+                           yylval.c = '\\';
+                       #endif
+                       return CHARACTER;
                      }
-
 <STRING>\\\"         {
-                         #ifndef UT_LEXER
-                             yylval.c = '"';
-                         #endif
-                         return CHARACTER;
+                       #ifndef UT_LEXER
+                           yylval.c = '"';
+                       #endif
+                       return CHARACTER;
                      }
-
 <STRING>[^\"]        {
-                         #ifndef UT_LEXER
-                             yylval.c = yytext[0];
-                         #endif
-                         return CHARACTER;
+                       #ifndef UT_LEXER
+                           yylval.c = yytext[0];
+                       #endif
+                       return CHARACTER;
                      }
-
 <STRING>\"           {
-                         #ifndef UT_LEXER
-                             BEGIN RETSPACES;
-                         #else
-                             BEGIN INITIAL;
-                         #endif
-                         return '"';
+                       #ifndef UT_LEXER
+                           BEGIN RETSPACES;
+                       #else
+                           BEGIN INITIAL;
+                       #endif
+                       return '"';
                      }
 
-<RETSPACES>[[:space:]]+ {   BEGIN INITIAL; return SPACES;   }
-<RETSPACES>.            {   BEGIN INITIAL; yyless(0);       }
+<RETSPACES>[[:space:]]+ { BEGIN INITIAL; return SPACES; }
+<RETSPACES>.            { BEGIN INITIAL; yyless(0); }
+
+<IMPORT>([^\/]+\/)+ {
+                      #ifndef UT_LEXER
+                          yylval.s = strdup(yytext);
+                      #endif
+                      return DIRECTORY;
+                    }
+<IMPORT>[^\/]+      {
+                      BEGIN INITIAL; 
+                      #ifndef UT_LEXER
+                          yylval.s = strdup(yytext);
+                      #endif
+                      return DOCUMENT;
+                    }
 
 %%

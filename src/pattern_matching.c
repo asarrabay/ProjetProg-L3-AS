@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include "machine.h"
-#include "pattern_matching.h"
+#include <machine.h>
+#include <pattern_matching.h>
 
 
 void free_match_created_closure(struct closure * value){

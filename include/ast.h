@@ -1,8 +1,8 @@
 #ifndef AST
 #define AST
 #include <stdbool.h>
-#include "chemin.h"
-#include "pattern.h"
+#include <path.h>
+#include <pattern.h>
 
 enum ast_type {
     INTEGER,  // L'expression est un entier

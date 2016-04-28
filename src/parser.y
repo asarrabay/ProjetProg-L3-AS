@@ -15,6 +15,7 @@
 
 %code requires {
 #include <ast.h>
+#include <path.h>
 #include <word.h>
 }
 
@@ -37,26 +38,38 @@ void yyerror (struct ast **, char const *);
 %token IF
 %token THEN
 %token ELSE
-%token INFEQ INF SUPEQ SUP EGAL OU ET
+%token INFEQ
+%token INF
+%token SUPEQ
+%token SUP
+%token EGAL
+%token OU
+%token ET
+%token DIRECTORY
+%token DOCUMENT
 
 %union {
     char c;
     char *s;
     word_t w;
+    int n;
+    struct path *p;
     struct attributes *a;
     struct ast *ast;
 }
 
 %type <c> CHARACTER
-%type <s> LABEL LABEL_XML symbol
+%type <s> LABEL LABEL_XML symbol DIRECTORY DOCUMENT
 %type <w> word
+%type <n> top-directories
+%type <p> path
 %type <a> attributes attribute-list attribute
 %type <ast> root let-global let set block label body value word-list empt-list
-%type <ast> lambda-function affect expression application
-
-%start start
+%type <ast> lambda-function affect expression application import
 
 %left WHERE
+
+%start start
 
 %%
 
@@ -78,11 +91,11 @@ block : '{' body '}' { $$ = $2; }
       ;
 
 
-body : set body              { $$ = mk_forest(true, $1, $2); }
-     | value spaces body     { $$ = mk_forest(true, $1, $3); }
-     | application ',' body  { $$ = mk_forest(false, $1, $3); }
-     | application           { $$ = mk_forest(false, $1, NULL); }
-     | symbol ',' body       { $$ = mk_forest(false, mk_var($1), $3); }
+body : set body              { $$ = mk_forest(true, $1, $2);            }
+     | value spaces body     { $$ = mk_forest(true, $1, $3);            }
+     | application ',' body  { $$ = mk_forest(false, $1, $3);           }
+     | application           { $$ = mk_forest(false, $1, NULL);         }
+     | symbol ',' body       { $$ = mk_forest(false, mk_var($1), $3);   }
      | symbol                { $$ = mk_forest(false, mk_var($1), NULL); }
      | %empty                { $$ = NULL; }
      ;
@@ -115,13 +128,30 @@ application : application expression { $$ = mk_app($1, $2); }
             ;
 
 
-expression : '(' expression ')'       { $$ = $2; }
-           | let                      { $$ = $1; }
-           | lambda-function          { $$ = $1; }
-           | set                      { $$ = $1; }
-           | value                    { $$ = $1; }
-           | application              { $$ = $1; }
+expression : '(' expression ')' { $$ = $2; }
+           | let                { $$ = $1; }
+           | lambda-function    { $$ = $1; }
+           | set                { $$ = $1; }
+           | value              { $$ = $1; }
+           | application        { $$ = $1; }
+           | import             { $$ = $1; }
            ;
+
+
+import : '$' path DOCUMENT ARROW symbol { PATH_SET_FILENAME($2, $3); PATH_SET_DECLNAME($2, $5); $$ = mk_import($2); }
+       ;
+
+
+path : top-directories DIRECTORY { $$ = path_new($1, $2, NULL, NULL);   }
+     | top-directories           { $$ = path_new($1, NULL, NULL, NULL); }
+     | DIRECTORY                 { $$ = path_new(0, $1, NULL, NULL);    }
+     | %empty                    { $$ = path_new(0, NULL, NULL, NULL);  }
+     ;
+
+
+top-directories : top-directories '.' { $$ = ++$1; }
+                | '.'                 { $$ = 1; }
+                ;
 
 
 symbol : LABEL     { $$ = $1; }

@@ -152,6 +152,8 @@ expression-ari-t : expression-ari-t '*' expression-ari-f                    { $$
 
 expression-ari-f : expression-partielle spaces                              { $$ = $1; }
                  | application spaces                                       { $$ = $1; }
+                 | '!' expression-partielle                                 { $$ = mk_app(mk_unaryop(NOT), $2); }
+		 | '!' application                                          { $$ = mk_app(mk_unaryop(NOT), $2); }
                  ;
 
 

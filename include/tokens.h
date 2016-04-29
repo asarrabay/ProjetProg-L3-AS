@@ -15,7 +15,7 @@
  * etre confondu avec la valeur d'un caractere ASCII [0-255].
  */
 typedef enum { LABEL = 256,
-	       LABEL_XML,
+	       SYMBOL,
                SPACES,
                CHARACTER,
                NUMBER,

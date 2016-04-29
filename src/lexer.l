@@ -97,19 +97,25 @@ emit         { printf("Line :%d / text : %s\n", __LINE__, yytext);return TEMIT; 
 
 (?i:xml){LABELSET}*                 { printf("Line :%d / text : %s\n", __LINE__, yytext);
                                         #ifndef UT_LEXER
-                                            BEGIN RETSPACES;
-                                            yylval.s = strdup(yytext);
+                                             yylval.s = strdup(yytext);
                                         #endif
-                                        return LABEL_XML;
+                                        return SYMBOL;
                                     }
 
-[[:alpha:]]{LABELSET}*|_{LABELSET}+ { printf("Line :%d / text : %s\n", __LINE__, yytext);
-                                      #ifndef UT_LEXER
-                                          BEGIN RETSPACES;
-                                          yylval.s = strdup(yytext);
-                                      #endif
-                                      return LABEL;
-                                    }
+[[:alpha:]]{LABELSET}*|_{LABELSET}+/[{\[\/] { printf("Line :%d / text : %s\n", __LINE__, yytext);
+                                             #ifndef UT_LEXER
+                                                  yylval.s = strdup(yytext);
+                                             #endif
+                                             return LABEL;
+                                            }
+
+[[:alpha:]]{LABELSET}*|_{LABELSET}+        { printf("Line :%d / text : %s\n", __LINE__, yytext);
+                                             #ifndef UT_LEXER
+                                                  yylval.s = strdup(yytext);
+                                             #endif
+                                             return SYMBOL;
+                                           }
+
 
 \"           { printf("Line :%d / text : %s\n", __LINE__, yytext);BEGIN STRING; return '"'; }
 \]           { printf("Line :%d / text : %s\n", __LINE__, yytext);BEGIN RETSPACES; return ']'; }

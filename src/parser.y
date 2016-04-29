@@ -29,7 +29,7 @@ struct env *e = NULL;
 %parse-param {struct closure ** root}
 
 %token LABEL
-%token LABEL_XML
+%token SYMBOL
 %token SPACES
 %token CHARACTER
 %token NUMBER
@@ -64,7 +64,7 @@ struct env *e = NULL;
 
 %type <n> NUMBER top-directories
 %type <c> CHARACTER
-%type <s> LABEL LABEL_XML symbol DIRECTORY DOCUMENT
+%type <s> LABEL SYMBOL DIRECTORY DOCUMENT
 %type <w> word
 %type <p> path
 %type <a> attributes attribute-list attribute
@@ -90,7 +90,7 @@ root : root set        { printf("Line :%d\n", __LINE__);($1 != NULL)?($$ = mk_fo
      ;
 
 
-header : LET symbol spaces affect ';' header         { printf("Line :%d\n", __LINE__);e = process_binding_instruction($2, $4, e); }
+header : LET SYMBOL affect ';' header         { printf("Line :%d\n", __LINE__);e = process_binding_instruction($2, $3, e); }
        | emit ';' header                             { printf("Line :%d\n", __LINE__);process_instruction($1, e); }
        | %empty
        ;
@@ -106,16 +106,11 @@ block : '{' body '}' { printf("Line :%d\n", __LINE__);$$ = $2; }
 
 
 body : set body              { printf("Line :%d\n", __LINE__);$$ = mk_forest(false, $1, $2); }
-     | content spaces body   { printf("Line :%d\n", __LINE__);$$ = mk_forest(false, $1, $3); }
+     | content body   { printf("Line :%d\n", __LINE__);$$ = mk_forest(false, $1, $2); }
      | application ',' body  { printf("Line :%d\n", __LINE__);$$ = mk_forest(false, $1, $3); }
      | application           { printf("Line :%d\n", __LINE__);$$ = mk_forest(false, $1, NULL); }
      | %empty                { printf("Line :%d\n", __LINE__);$$ = NULL; }
      ;
-
-
-symbol : LABEL               { printf("Line :%d\n", __LINE__);$$ = $1; }
-       | LABEL_XML           { printf("Line :%d\n", __LINE__);$$ = $1; }
-       ;
 
 
 expression : expression-booleenne-e              { printf("Line :%d\n", __LINE__);$$ = $1; }
@@ -168,7 +163,6 @@ expression-ari-t : expression-ari-t '*' expression-ari-f                    { pr
 
 expression-ari-f : expression-partielle                                     { printf("Line :%d\n", __LINE__);$$ = $1; }
                  | application                                              { printf("Line :%d\n", __LINE__);$$ = $1; }
-                 | symbol                                                   { printf("Line :%d\n", __LINE__);mk_var($1); }
                  | NUMBER                                                   { printf("Line :%d\n", __LINE__);$$ = mk_integer($1); }
                  | '!' expression-partielle                                 { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_unaryop(NOT), $2); }
                  | '!' application                                          { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_unaryop(NOT), $2); }
@@ -176,18 +170,18 @@ expression-ari-f : expression-partielle                                     { pr
                  ;
 
 
-emit : TEMIT expression set                                   { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_app(mk_binop(EMIT), $2), $3); }
+emit : TEMIT expression-partielle expression                                { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_app(mk_binop(EMIT), $2), $3); }
      ;
 
 
-let : LET symbol spaces affect IN expression                                { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_fun($2, $6), $4); }
-    | '(' expression WHERE symbol spaces affect ')'                         { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_fun($4, $2), $6); }
-    | LET RECURSIVE symbol spaces affect IN expression                      { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_fun($3, $7), mk_declrec($3, $5)); }
-    | '(' expression WHERE RECURSIVE symbol spaces affect ')'               { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_fun($5, $2), mk_declrec($5, $7)); }
+let : LET SYMBOL affect IN expression                                { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_fun($2, $5), $3); }
+    | '(' expression WHERE SYMBOL affect ')'                         { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_fun($4, $2), $5); }
+    | LET RECURSIVE SYMBOL affect IN expression                      { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_fun($3, $6), mk_declrec($3, $6)); }
+    | '(' expression WHERE RECURSIVE SYMBOL affect ')'               { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_fun($5, $2), mk_declrec($5, $6)); }
     ;
 
 
-affect : symbol spaces affect                                               { printf("Line :%d\n", __LINE__);$$ = mk_fun($1, $3); }
+affect : SYMBOL affect                                               { printf("Line :%d\n", __LINE__);$$ = mk_fun($1, $2); }
        | '=' expression                                                     { printf("Line :%d\n", __LINE__);$$ = $2; }
        | ARROW expression                                                   { printf("Line :%d\n", __LINE__);$$ = $2; }
        ;
@@ -198,9 +192,9 @@ lambda-function : FUNC affect                                           { printf
 
 
 application : application expression-partielle                       { printf("Line :%d\n", __LINE__);$$ = mk_app($1, $2); }
-            | application symbol SPACES                                    { printf("Line :%d\n", __LINE__);$$ = mk_app($1, mk_var($2) ); }
+            | application SYMBOL                                     { printf("Line :%d\n", __LINE__);$$ = mk_app($1, mk_var($2) ); }
             | application NUMBER                                     { printf("Line :%d\n", __LINE__);$$ = mk_app($1, mk_integer($2) ); }
-            | symbol SPACES                                                       { printf("Line :%d\n", __LINE__);$$ = mk_var($1); }
+            | SYMBOL                                                 { printf("Line :%d\n", __LINE__);$$ = mk_var($1); }
             ;
 
 
@@ -222,7 +216,7 @@ attribute-list : attribute attribute-list { printf("Line :%d\n", __LINE__);$$ = 
                ;
 
 
-attribute : LABEL spaces '=' content { printf("Line :%d\n", __LINE__);$$ = mk_attributes(false, mk_word($1), $4, NULL); }
+attribute : SYMBOL '=' content { printf("Line :%d\n", __LINE__);$$ = mk_attributes(false, mk_word($1), $3, NULL); }
           ;
 
 
@@ -277,14 +271,14 @@ pattern : '_'                                      { printf("Line :%d\n", __LINE
         | '*' '_' '*'                              { printf("Line :%d\n", __LINE__);$$ = mk_wildcard(ANYSTRING);        }
         | '/' '_' '/'                              { printf("Line :%d\n", __LINE__);$$ = mk_wildcard(ANYFOREST);        }
         | '-' '_' '-'                              { printf("Line :%d\n", __LINE__);$$ = mk_wildcard(ANYSEQ);           }
-        | symbol spaces                            { printf("Line :%d\n", __LINE__);$$ = mk_pattern_var($1, TREEVAR);   }
-        | '*' symbol '*'                           { printf("Line :%d\n", __LINE__);$$ = mk_pattern_var($2, STRINGVAR); }
-        | '/' symbol '/'                           { printf("Line :%d\n", __LINE__);$$ = mk_pattern_var($2, FORESTVAR); }
-        | '-' symbol '-'                           { printf("Line :%d\n", __LINE__);$$ = mk_pattern_var($2, ANYVAR);    }
+        | SYMBOL                                   { printf("Line :%d\n", __LINE__);$$ = mk_pattern_var($1, TREEVAR);   }
+        | '*' SYMBOL '*'                           { printf("Line :%d\n", __LINE__);$$ = mk_pattern_var($2, STRINGVAR); }
+        | '/' SYMBOL '/'                           { printf("Line :%d\n", __LINE__);$$ = mk_pattern_var($2, FORESTVAR); }
+        | '-' SYMBOL '-'                           { printf("Line :%d\n", __LINE__);$$ = mk_pattern_var($2, ANYVAR);    }
         ;
 
 
-import : '$' path DOCUMENT ARROW symbol { printf("Line :%d\n", __LINE__);PATH_SET_FILENAME($2, $3);
+import : '$' path DOCUMENT ARROW SYMBOL { printf("Line :%d\n", __LINE__);PATH_SET_FILENAME($2, $3);
                                           PATH_SET_DECLNAME($2, $5);
 					  $$ = mk_import($2);       }
        ;

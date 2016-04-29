@@ -34,9 +34,10 @@ endmacro()
 add_ut(lexer label "${PROJECT_BINARY_DIR}/src/lexer.c" "${FLEX_LIBRARIES}" DEFAULT)
 add_ut(lexer string "${PROJECT_BINARY_DIR}/src/lexer.c" "${FLEX_LIBRARIES}" DEFAULT)
 add_ut(lexer import "${PROJECT_BINARY_DIR}/src/lexer.c" "${FLEX_LIBRARIES}" DEFAULT)
+add_ut(lexer match "${PROJECT_BINARY_DIR}/src/lexer.c" "${FLEX_LIBRARIES}" DEFAULT)
 add_ut(lexer number "${PROJECT_BINARY_DIR}/src/lexer.c" "${FLEX_LIBRARIES}" DEFAULT)
 
-add_ut(parser grammar 
+add_ut(parser grammar
   "${PROJECT_SOURCE_DIR}/src/ast.c
    ${PROJECT_BINARY_DIR}/src/parser.c
    ${PROJECT_BINARY_DIR}/src/lexer.c
@@ -52,6 +53,7 @@ add_ut(parser grammar
    set               [${CMAKE_CURRENT_SOURCE_DIR}/parser/set.tohtml]                       |
    let               [${CMAKE_CURRENT_SOURCE_DIR}/parser/let.tohtml]                       |
    attributes_none   [${CMAKE_CURRENT_SOURCE_DIR}/parser/attributes_none.tohtml]           |
+   films             [${CMAKE_CURRENT_SOURCE_DIR}/parser/films.tohtml]           |
    attributes        [${CMAKE_CURRENT_SOURCE_DIR}/parser/attributes.tohtml]                |
    quote_in_string   [${CMAKE_CURRENT_SOURCE_DIR}/parser/quote_in_string.tohtml]           |
    double_string     [${CMAKE_CURRENT_SOURCE_DIR}/parser/double_string.tohtml]             |

@@ -10,7 +10,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include/ ${PROJECT_BINARY_DIR}/src/)
 enable_testing()
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
-  set(CMAKE_BUILD_TYPE "RELEASE")
+  set(CMAKE_BUILD_TYPE "DEBUG")
 else("${CMAKE_BUILD_TYPE}" STREQUAL "")
   string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE)
 endif("${CMAKE_BUILD_TYPE}" STREQUAL "")

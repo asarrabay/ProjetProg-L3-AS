@@ -74,7 +74,7 @@ LABELSET ([[:alnum:]'._])
 <RETSPACES>[[:space:]]+ { BEGIN INITIAL; return SPACES; }
 <RETSPACES>.            { BEGIN INITIAL; yyless(0); }
 
-in           { return IN; }
+in           { printf("Line :%d / text : %s\n", __LINE__, yytext);return IN; }
 if           { return IF; }
 let          { return LET; }
 then         { return THEN; }
@@ -126,7 +126,7 @@ emit         { return TEMIT; }
                return NUMBER;
              }
 
-[[:space:]]+ { }
+[[:space:]]+ {}
 .            { return yytext[0]; }
 
 %%

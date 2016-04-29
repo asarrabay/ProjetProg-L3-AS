@@ -7,3 +7,7 @@ let f x1 x2 = e;
 let f = fun x1 x2 -> e;
 let f x1 = fun x2 ->e;
 let f = fun x1 -> fun x2 -> e;
+
+let x = 1 in x + 3;
+
+let rec x = 3;

@@ -27,7 +27,7 @@ LABELSET ([[:alnum:]'._])
 
 %%
 
-<IMPORT>\.                      { return '.'; }
+<IMPORT>\.                      { printf("Line :%d / text : %s\n", __LINE__, yytext);return '.'; }
 <IMPORT>[^.][^/]*[/]([^/]+[/])* {
                                   #ifndef UT_LEXER
                                       yylval.s = strdup(yytext);
@@ -43,26 +43,26 @@ LABELSET ([[:alnum:]'._])
                                   return DOCUMENT;
                                 }
 
-<STRING>[[:space:]]+ { return SPACES; }
-<STRING>\\\\         {
+<STRING>[[:space:]]+ { printf("Line :%d / text : %s\n", __LINE__, yytext);return SPACES; }
+<STRING>\\\\         { printf("Line :%d / text : %s\n", __LINE__, yytext);
                        #ifndef UT_LEXER
                            yylval.c = '\\';
                        #endif
                        return CHARACTER;
                      }
-<STRING>\\\"         {
+<STRING>\\\"         { printf("Line :%d / text : %s\n", __LINE__, yytext);
                        #ifndef UT_LEXER
                            yylval.c = '"';
                        #endif
                        return CHARACTER;
                      }
-<STRING>[^"]         {
+<STRING>[^"]         { printf("Line :%d / text : %s\n", __LINE__, yytext);
                        #ifndef UT_LEXER
                            yylval.c = yytext[0];
                        #endif
                        return CHARACTER;
                      }
-<STRING>\"           {
+<STRING>\"           { printf("Line :%d / text : %s\n", __LINE__, yytext);
                        #ifndef UT_LEXER
                            BEGIN RETSPACES;
                        #else
@@ -71,35 +71,35 @@ LABELSET ([[:alnum:]'._])
                        return '"';
                      }
 
-<RETSPACES>[[:space:]]+ { BEGIN INITIAL; return SPACES; }
-<RETSPACES>.            { BEGIN INITIAL; yyless(0); }
+<RETSPACES>[[:space:]]+ { printf("Line :%d / text : %s\n", __LINE__, yytext);BEGIN INITIAL; return SPACES; }
+<RETSPACES>.            { printf("Line :%d / text : %s\n", __LINE__, yytext);BEGIN INITIAL; yyless(0); }
 
 in           { printf("Line :%d / text : %s\n", __LINE__, yytext);return IN; }
-if           { return IF; }
-let          { return LET; }
-then         { return THEN; }
-else         { return ELSE; }
-where        { return WHERE; }
--\>          { return ARROW; }
-fun          { return FUNC; }
-rec          { return RECURSIVE; }
-match        { return TMATCH; }
-with         { return WITH; }
-end          { return END; }
-emit         { return TEMIT; }
+if           { printf("Line :%d / text : %s\n", __LINE__, yytext);return IF; }
+let          { printf("Line :%d / text : %s\n", __LINE__, yytext);return LET; }
+then         { printf("Line :%d / text : %s\n", __LINE__, yytext);return THEN; }
+else         { printf("Line :%d / text : %s\n", __LINE__, yytext);return ELSE; }
+where        { printf("Line :%d / text : %s\n", __LINE__, yytext);return WHERE; }
+-\>          { printf("Line :%d / text : %s\n", __LINE__, yytext);return ARROW; }
+fun          { printf("Line :%d / text : %s\n", __LINE__, yytext);return FUNC; }
+rec          { printf("Line :%d / text : %s\n", __LINE__, yytext);return RECURSIVE; }
+match        { printf("Line :%d / text : %s\n", __LINE__, yytext);return TMATCH; }
+with         { printf("Line :%d / text : %s\n", __LINE__, yytext);return WITH; }
+end          { printf("Line :%d / text : %s\n", __LINE__, yytext);return END; }
+emit         { printf("Line :%d / text : %s\n", __LINE__, yytext);return TEMIT; }
 
-"||"         { return OU; }
-"&&"         { return ET; }
-"<"          { return INF; }
-">"          { return SUP; }
-"=="         { return EGAL; }
-"!="         { return NEGAL; }
-"<="         { return INFEQ; }
-">="         { return SUPEQ; }
-"//"         { return DIVIDE; }
+"||"         { printf("Line :%d / text : %s\n", __LINE__, yytext);return OU; }
+"&&"         { printf("Line :%d / text : %s\n", __LINE__, yytext);return ET; }
+"<"          { printf("Line :%d / text : %s\n", __LINE__, yytext);return INF; }
+">"          { printf("Line :%d / text : %s\n", __LINE__, yytext);return SUP; }
+"=="         { printf("Line :%d / text : %s\n", __LINE__, yytext);return EGAL; }
+"!="         { printf("Line :%d / text : %s\n", __LINE__, yytext);return NEGAL; }
+"<="         { printf("Line :%d / text : %s\n", __LINE__, yytext);return INFEQ; }
+">="         { printf("Line :%d / text : %s\n", __LINE__, yytext);return SUPEQ; }
+"//"         { printf("Line :%d / text : %s\n", __LINE__, yytext);return DIVIDE; }
 
 
-(?i:xml){LABELSET}*                 {
+(?i:xml){LABELSET}*                 { printf("Line :%d / text : %s\n", __LINE__, yytext);
                                         #ifndef UT_LEXER
                                             BEGIN RETSPACES;
                                             yylval.s = strdup(yytext);
@@ -107,7 +107,7 @@ emit         { return TEMIT; }
                                         return LABEL_XML;
                                     }
 
-[[:alpha:]]{LABELSET}*|_{LABELSET}+ {
+[[:alpha:]]{LABELSET}*|_{LABELSET}+ { printf("Line :%d / text : %s\n", __LINE__, yytext);
                                       #ifndef UT_LEXER
                                           BEGIN RETSPACES;
                                           yylval.s = strdup(yytext);
@@ -115,9 +115,9 @@ emit         { return TEMIT; }
                                       return LABEL;
                                     }
 
-\"           { BEGIN STRING; return '"'; }
-\]           { BEGIN RETSPACES; return ']'; }
-\$           { BEGIN IMPORT; return '$'; }
+\"           { printf("Line :%d / text : %s\n", __LINE__, yytext);BEGIN STRING; return '"'; }
+\]           { printf("Line :%d / text : %s\n", __LINE__, yytext);BEGIN RETSPACES; return ']'; }
+\$           { printf("Line :%d / text : %s\n", __LINE__, yytext);BEGIN IMPORT; return '$'; }
 
 [[:digit:]]+ {
                #ifndef UT_LEXER
@@ -127,6 +127,6 @@ emit         { return TEMIT; }
              }
 
 [[:space:]]+ {}
-.            { return yytext[0]; }
+.            { printf("Line :%d / text : %s\n", __LINE__, yytext);return yytext[0]; }
 
 %%

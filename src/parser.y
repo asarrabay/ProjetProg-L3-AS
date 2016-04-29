@@ -77,7 +77,7 @@ void yyerror (struct ast **, char const *);
 %%
 
 
-start : root   { *root = $1; }
+start : root   { printf("Line :%d\n", __LINE__); *root = $1; }
       ;
 
 
@@ -164,7 +164,7 @@ expression-ari-f : expression-partielle spaces                              { $$
                  | application spaces                                       { $$ = $1; }
                  | NUMBER                                                   { $$ = mk_integer($1); }
                  | '!' expression-partielle                                 { $$ = mk_app(mk_unaryop(NOT), $2); }
-		 | '!' application                                          { $$ = mk_app(mk_unaryop(NOT), $2); }
+                 | '!' application                                          { $$ = mk_app(mk_unaryop(NOT), $2); }
                  | '!' NUMBER                                               { $$ = mk_app(mk_unaryop(NEG), mk_integer($2)); }
                  ;
 
@@ -187,6 +187,8 @@ lambda-function : FUNCTION affect                                           { $$
 
 
 application : application SPACES expression-partielle                       { $$ = mk_app($1, $3); }
+            | application SPACES symbol                                     { $$ = mk_app($1, mk_var($3) ); }
+            | application SPACES NUMBER                                     { $$ = mk_app($1, mk_integer($3) ); }
             | symbol                                                        { $$ = mk_var($1); }
             ;
 
@@ -245,10 +247,13 @@ match : TMATCH expression WITH patterns END        { $$ = mk_match($2, $4); }
 
 patterns : '|' pforest ARROW expression patterns   { $$ = mk_patterns($2, $4, $5);   }
          | '|' pforest ARROW expression            { $$ = mk_patterns($2, $4, NULL); }
+         | '|' '{' pforest '}' ARROW expression patterns   { $$ = mk_patterns($3, $6, $7);   }
+         | '|' '{' pforest '}' ARROW expression            { $$ = mk_patterns($3, $6, NULL); }
          ;
 
 
 pforest : pattern pforest                          { $$ = mk_pforest($1, $2); }
+    //    | '{' pforest '}'                          {$$ = $2; }
         | %empty                                   { $$ = NULL; }
         ;
 
@@ -261,7 +266,7 @@ pattern : '_'                                      { $$ = mk_wildcard(ANY);     
         | '*' '_' '*'                              { $$ = mk_wildcard(ANYSTRING);        }
         | '/' '_' '/'                              { $$ = mk_wildcard(ANYFOREST);        }
         | '-' '_' '-'                              { $$ = mk_wildcard(ANYSEQ);           }
-        | symbol                                   { $$ = mk_pattern_var($1, TREEVAR);   }
+        | symbol spaces                            { $$ = mk_pattern_var($1, TREEVAR);   }
         | '*' symbol '*'                           { $$ = mk_pattern_var($2, STRINGVAR); }
         | '/' symbol '/'                           { $$ = mk_pattern_var($2, FORESTVAR); }
         | '-' symbol '-'                           { $$ = mk_pattern_var($2, ANYVAR);    }
@@ -289,6 +294,8 @@ top-directories : top-directories '.' { $$ = ++$1; }
 %%
 
 void yyerror (struct ast **root, char const *s) {
-    free(*root);
+    printf("%p -> %p\n", (void *)root,(void *) *root );
+    printf("%d: %s at %s\n", yylineno, s, yytext);
+    //free(*root);
     fprintf(stderr, "%s\n", s);
 }

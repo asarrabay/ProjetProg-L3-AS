@@ -47,6 +47,7 @@ add_ut(parser grammar
   "none              [${CMAKE_CURRENT_SOURCE_DIR}/parser/none.tohtml]                      |
    spaces            [${CMAKE_CURRENT_SOURCE_DIR}/parser/spaces.tohtml]                    |
    set               [${CMAKE_CURRENT_SOURCE_DIR}/parser/set.tohtml]                       |
+   let               [${CMAKE_CURRENT_SOURCE_DIR}/parser/let.tohtml]                       |
    attributes_none   [${CMAKE_CURRENT_SOURCE_DIR}/parser/attributes_none.tohtml]           |
    attributes        [${CMAKE_CURRENT_SOURCE_DIR}/parser/attributes.tohtml]                |
    quote_in_string   [${CMAKE_CURRENT_SOURCE_DIR}/parser/quote_in_string.tohtml]           |

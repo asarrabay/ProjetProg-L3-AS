@@ -166,8 +166,9 @@ expression-ari-t : expression-ari-t '*' expression-ari-f                    { pr
                  ;
 
 
-expression-ari-f : expression-partielle spaces                              { printf("Line :%d\n", __LINE__);$$ = $1; }
-                 | application spaces                                       { printf("Line :%d\n", __LINE__);$$ = $1; }
+expression-ari-f : expression-partielle                                     { printf("Line :%d\n", __LINE__);$$ = $1; }
+                 | application                                              { printf("Line :%d\n", __LINE__);$$ = $1; }
+                 | symbol                                                   { printf("Line :%d\n", __LINE__);mk_var($1); }
                  | NUMBER                                                   { printf("Line :%d\n", __LINE__);$$ = mk_integer($1); }
                  | '!' expression-partielle                                 { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_unaryop(NOT), $2); }
                  | '!' application                                          { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_unaryop(NOT), $2); }
@@ -196,10 +197,10 @@ lambda-function : FUNC affect                                           { printf
                 ;
 
 
-application : application SPACES expression-partielle                       { printf("Line :%d\n", __LINE__);$$ = mk_app($1, $3); }
-            | application SPACES symbol                                     { printf("Line :%d\n", __LINE__);$$ = mk_app($1, mk_var($3) ); }
-            | application SPACES NUMBER                                     { printf("Line :%d\n", __LINE__);$$ = mk_app($1, mk_integer($3) ); }
-            | symbol                                                        { printf("Line :%d\n", __LINE__);$$ = mk_var($1); }
+application : application expression-partielle                       { printf("Line :%d\n", __LINE__);$$ = mk_app($1, $2); }
+            | application symbol SPACES                                    { printf("Line :%d\n", __LINE__);$$ = mk_app($1, mk_var($2) ); }
+            | application NUMBER                                     { printf("Line :%d\n", __LINE__);$$ = mk_app($1, mk_integer($2) ); }
+            | symbol SPACES                                                       { printf("Line :%d\n", __LINE__);$$ = mk_var($1); }
             ;
 
 
@@ -216,7 +217,7 @@ attributes : '[' attribute-list ']' { printf("Line :%d\n", __LINE__);$$ = $2; }
            ;
 
 
-attribute-list : attribute SPACES attribute-list { printf("Line :%d\n", __LINE__);$$ = $1; $1->next = $3; }
+attribute-list : attribute attribute-list { printf("Line :%d\n", __LINE__);$$ = $1; $1->next = $2; }
                | attribute                       { printf("Line :%d\n", __LINE__);$$ = $1; }
                ;
 

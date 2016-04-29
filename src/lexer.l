@@ -63,11 +63,7 @@ LABELSET ([[:alnum:]'._])
                        return CHARACTER;
                      }
 <STRING>\"           { printf("Line :%d / text : %s\n", __LINE__, yytext);
-                       #ifndef UT_LEXER
-                           BEGIN RETSPACES;
-                       #else
-                           BEGIN INITIAL;
-                       #endif
+                       BEGIN INITIAL;
                        return '"';
                      }
 

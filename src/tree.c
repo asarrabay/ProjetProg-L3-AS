@@ -54,30 +54,30 @@ tree_t tree_add_brother (tree_t t, tree_t brother) {
 
 void tree_to_xml (tree_t t, FILE *fdout) {
     switch (t->type) {
-    case TREE :
-	fprintf(fdout, "<%s", t->s_label);
-	if (!(t->a == NULL)) {
-	    attributes_to_xml(t->a, fdout);
-	}
-	if (t->nullary) {
-	    fprintf(fdout, "/>");
-	    break ;
-	}
-	fprintf(fdout, ">");
-	if (!(t->daughters == NULL)) {
-	    tree_to_xml(t->daughters, fdout);
-	}
-	fprintf(fdout, "</%s>", t->s_label);
-	break ;
+        case TREE :
+        	fprintf(fdout, "<%s", t->s_label);
+        	if (!(t->a == NULL)) {
+        	    attributes_to_xml(t->a, fdout);
+        	}
+        	if (t->nullary) {
+        	    fprintf(fdout, "/>");
+        	    break ;
+        	}
+        	fprintf(fdout, ">");
+        	if (!(t->daughters == NULL)) {
+        	    tree_to_xml(t->daughters, fdout);
+        	}
+        	fprintf(fdout, "</%s>", t->s_label);
+        	break ;
 
-    case WORD :
-	fprintf(fdout, "%s", t->s_label);
-	if (t->space) {
-	    fprintf(fdout, " ");
-	}
-	break ;
+        case WORD :
+        	fprintf(fdout, "%s", t->s_label);
+        	if (t->space) {
+        	    fprintf(fdout, " ");
+        	}
+        	break ;
 
-    default : break ;
+            default : break ;
     }
     if (!(t->right == NULL)) {
 	tree_to_xml(t->right, fdout);

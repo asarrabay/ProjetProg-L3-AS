@@ -230,8 +230,8 @@ content : '"' spaces word-list '"' { $$ = $3; }
         ;
 
 
-word-list : word SPACES word-list { $$ = mk_forest(false, mk_word(word_to_string($1)), $3); word_destroy($1); }
-          | word SPACES           { $$ = mk_word(word_to_string($1)); word_destroy($1);                       }
+word-list : word SPACES word-list { $$ = mk_forest(false, mk_word(word_to_string(word_cat($1, ' '))), $3); word_destroy($1); }
+          | word SPACES           { $$ = mk_word(word_to_string(word_cat($1, ' '))); word_destroy($1);                       }
           | word                  { $$ = mk_word(word_to_string($1)); word_destroy($1);                       }
           ;
 
@@ -306,6 +306,7 @@ top-directories : top-directories '.' { $$ = ++$1; }
 void yyerror (struct closure **root, char const *s) {
     printf("%p -> %p\n", (void *)root,(void *) *root );
     printf("%d: %s at %s\n", yylineno, s, yytext);
+    // TODO: free du root
     //free(*root);
     fprintf(stderr, "%s\n", s);
 }

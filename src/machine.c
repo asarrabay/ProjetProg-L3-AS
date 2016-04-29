@@ -6,6 +6,50 @@
 #include <pattern_matching.h>
 
 
+static void attributes_to_xml (FILE *fdout, struct attributes *a) {
+    if(a != NULL){
+        fprintf(fdout, " %s=\"%s\"", a->key->node->str, a->value->node->str);
+        attributes_to_xml(fdout, a->next);
+    }
+
+}
+
+static void ast_to_xml(FILE *fdout,struct ast *ast){
+    if(ast == NULL)
+        return;
+
+    struct tree *t;
+    switch (ast->type) {
+        case FOREST:
+            ast_to_xml(fdout, ast->node->forest->head); // fils
+            ast_to_xml(fdout, ast->node->forest->tail); // frère
+            break;
+
+        case TREE:
+            t = ast->node->tree;
+            fprintf(fdout, "<%s", t->label);
+            attributes_to_xml(fdout, t->attributes);
+            if (t->nullary) {
+                fprintf(fdout, "/>");
+                break ;
+            }
+            fprintf(fdout, ">");
+            ast_to_xml(fdout, t->daughters);
+            fprintf(fdout, "</%s>", t->label);
+            break;
+
+        case WORD:
+            fprintf(fdout, "%s", ast->node->str);
+            // Espace géré dans la grammaire
+            break ;
+
+
+        default:
+            printf("ERREUR ast de type :%d\n", ast->type);
+            break;
+    }
+}
+
 void emit (char *file, struct ast *ast) {
     assert(file!=NULL && (ast == NULL || ast != NULL));
     FILE *fdout = fopen(file, "w");
@@ -13,7 +57,9 @@ void emit (char *file, struct ast *ast) {
         fprintf(stderr, "An error occured while creating file %s !\n", file);
         exit(EXIT_FAILURE);
     }
-    /* TODO */
+
+    ast_to_xml(fdout, ast);
+
     fclose(fdout);
 }
 
@@ -68,7 +114,7 @@ struct ast * to_forest(struct ast * t){
         exit(1);
         break;
     }
-    return t;    
+    return t;
 }
 
 
@@ -170,7 +216,7 @@ void reconstruct_attributes(struct machine * m, struct attributes * tail){
         att = malloc(sizeof(struct attributes));
         att->key = m->stack->top->item->attributes_next->key;
         att->value = m->stack->top->item->attributes_next->value;
-        att->is_value = true; 
+        att->is_value = true;
         att->next =next;
         pop_stack(m);
     }
@@ -292,12 +338,12 @@ void reconstruct_forest(struct machine * m, struct ast * tail){
                 forest = next;
             }
             break;
-        }   
+        }
         default: {
             exit(1);
-        }   
         }
-        
+        }
+
         pop_stack(m);
     }
     m->closure = mk_closure(forest,NULL);
@@ -399,7 +445,7 @@ void pop_cond(struct machine * m){
             pop_stack_cond_then(m);
             break;
         }
-    }    
+    }
 }
 
 void pop_forestcomptail(struct machine * m){
@@ -414,7 +460,7 @@ void pop_forestcomptail(struct machine * m){
         forest = mk_forest(true,
                            m->closure->value,
                            NULL);
-            
+
         break;
     case INTEGER:
         forest = mk_forest(true,
@@ -443,7 +489,7 @@ void pop_treecompforest(struct machine * m){
         forest = mk_forest(true,
                            m->closure->value,
                            NULL);
-            
+
         break;
     case INTEGER:
         forest = mk_forest(true,
@@ -507,7 +553,7 @@ void on_integer(struct machine * m){
             exit(1);
             break;
         case CONDCOMP:
-            pop_cond(m);  
+            pop_cond(m);
             break;
         }
     }
@@ -632,7 +678,7 @@ void on_binop(struct machine * m){
                             pop_stack(m);
                             compute(m);
                             return;
-                        }                       
+                        }
                         else{
                             k=strcmp(m->stack->top->item->closure->value->node->str,
                                      m->stack->next->top->item->closure->value->node->str);
@@ -680,7 +726,7 @@ void on_binop(struct machine * m){
                             compute(m);
                         }
                     }
-                    else if((tp1==FOREST || tp1 == WORD || tp1 ==TREE || tp1 == INTEGER) 
+                    else if((tp1==FOREST || tp1 == WORD || tp1 ==TREE || tp1 == INTEGER)
                             &&
                             (tp2==FOREST || tp2 ==WORD || tp2 == TREE || tp2 == INTEGER)){
                         if(m->closure->value->node->binop==PLUS){
@@ -693,8 +739,8 @@ void on_binop(struct machine * m){
                             compute(m);
                         }
                         else{
-                            fprintf(stderr,"Erreur de typage, le seul opérateur possible entreforêts est +"); 
-                        }                
+                            fprintf(stderr,"Erreur de typage, le seul opérateur possible entreforêts est +");
+                        }
                     }
 
                     else{
@@ -715,7 +761,7 @@ void on_binop(struct machine * m){
                     fprintf(stderr,"Erreur de typage, les opérations binaires ne peuvent prendre en argument que des entiers des mots ou des forêts.");
                 }
             }
-            
+
         }
         else{
             fprintf(stderr,"Erreur de typage, les opérations binaires ne peuvent prendre en argument que des entiers, des mots ou des forêts.");
@@ -755,11 +801,11 @@ void on_unaryop(struct machine * m){
                 m->closure=mk_closure(mk_integer(k),NULL);
                 pop_stack(m);
                 compute(m);
-                
+
             }
         }
     }
-    
+
 }
 
 void on_var(struct machine * m){
@@ -785,7 +831,7 @@ void on_import(struct machine * m){
     assert(m!=NULL);
     fprintf(stderr,
             "Import de fichier à implémenter");
-    exit(1);    
+    exit(1);
 }
 
 void on_app(struct machine * m){
@@ -834,7 +880,7 @@ void on_word(struct machine * m){
             pop_match(m);
             break;
         case CONDCOMP:
-            pop_cond(m);  
+            pop_cond(m);
             break;
         }
     }
@@ -849,7 +895,7 @@ void on_tree(struct machine * m){
         //on a fini de calculer une valeur, il faut voir la suite
         if(m->stack==NULL){
             //si il n'y a rien sur la pile, on termine
-            return;            
+            return;
         }
         else{
             //sinon, suivant l'élément sur la pile on doit poursuivre le calcul
@@ -872,7 +918,7 @@ void on_tree(struct machine * m){
                 exit(1);
                 break;
             }
-        
+
         }
     }
     else if(m->closure->value->node->tree->attributes==NULL ||
@@ -920,13 +966,13 @@ void on_tree(struct machine * m){
                                 m->closure->env);
         compute(m);
     }
-    
+
 }
 
 void on_forest(struct machine * m){
     struct closure * cl;
     union item * it;
-    
+
     if(m->closure->value==NULL ||
             m->closure->value->node->forest->is_value){
         //une valeur vient d'être produite, mais il faut poursuivre le calcul
@@ -971,7 +1017,7 @@ void on_forest(struct machine * m){
         m->closure = mk_closure(m->closure->value->node->forest->head,
                                 m->closure->env);
         compute(m);
-        
+
     }
 }
 
@@ -1027,13 +1073,13 @@ void on_cond(struct machine * m){
 void on_decl_rec(struct machine * m){
     struct closure * cl = mk_closure(m->closure->value->node->fun->body,
                                      m->closure->env);
-    struct env * e = 
+    struct env * e =
         mk_env(m->closure->value->node->fun->id,
                cl,
                cl->env);
     cl->env = e;
     m->closure = cl;
-    compute(m);    
+    compute(m);
 }
 
 void compute(struct machine * m){
@@ -1083,4 +1129,3 @@ void compute(struct machine * m){
     }
     return;
 }
-

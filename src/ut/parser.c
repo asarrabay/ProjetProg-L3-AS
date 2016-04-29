@@ -10,9 +10,9 @@
 #include <parser.h>
 
 ut_status_t ut_run (ut_t ut) {
-    struct ast *document = NULL;
+    struct closure *cl = NULL;
     yyin = ut->p_input;
-    int status = yyparse(&document);
-    free(document);
+    int status = yyparse(&cl);
+    free(cl);
     return (status == 0) ? UT_PASSED : UT_FAILED ;
 }

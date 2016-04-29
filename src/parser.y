@@ -15,15 +15,18 @@
 
 %code requires {
 #include <ast.h>
+#include <machine.h>
+#include <import.h>
 #include <word.h>
 #include <path.h>
 }
 
 %code {
-void yyerror (struct ast **, char const *);
+void yyerror (struct closure **, char const *);
+struct env *e = NULL;
 }
 
-%parse-param {struct ast **root}
+%parse-param {struct closure ** root}
 
 %token LABEL
 %token LABEL_XML
@@ -34,7 +37,7 @@ void yyerror (struct ast **, char const *);
 %token IN
 %token WHERE
 %token RECURSIVE
-%token FUNCTION
+%token FUNC
 %token DIRECTORY
 %token DOCUMENT
 %token ARROW
@@ -43,6 +46,7 @@ void yyerror (struct ast **, char const *);
 %token ELSE
 %token TMATCH WITH END
 %token DIVIDE INFEQ INF SUPEQ SUP EGAL NEGAL OU ET
+%token TEMIT
 
 
 %union {
@@ -64,10 +68,10 @@ void yyerror (struct ast **, char const *);
 %type <w> word
 %type <p> path
 %type <a> attributes attribute-list attribute
-%type <ast> root let-global let set block label body content word-list empt-list
+%type <ast> root let set block label body content word-list empt-list
 %type <ast> expression expression-partielle expression-conditionnelle
 %type <ast> expression-booleenne-e expression-booleenne-t expression-ari-e expression-ari-t expression-ari-f
-%type <ast> lambda-function affect application match import
+%type <ast> lambda-function affect application match import emit
 %type <patterns> patterns
 %type <pattern> pattern pforest
 
@@ -77,18 +81,19 @@ void yyerror (struct ast **, char const *);
 %%
 
 
-start : root   { *root = $1; }
+start : root   { *root = process_content($1, e); }
       ;
 
 
-root : root set   { $$ = mk_forest(false, $1, $2); }
-     | let-global { $$ = $1; }
+root : root set        { ($1 != NULL)?($$ = mk_forest(false, $1, $2)):($$ = $2); }
+     | header          { $$ = NULL; }
      ;
 
 
-let-global : LET symbol spaces affect ';' let-global                        { $$ = mk_app(mk_fun($2, $6), $4); }
-           | %empty                                                         { $$ = *root; }
-           ;
+header : LET symbol spaces affect ';' header         { e = process_binding_instruction($2, $4, e); }
+       | emit ';' header                             { process_instruction($1, e); }
+       | %empty                        
+       ;
 
 
 set : block      { $$ = $1; }
@@ -117,6 +122,7 @@ expression : expression-booleenne-e              { $$ = $1; }
            | expression-conditionnelle           { $$ = $1; }
            | let                                 { $$ = $1; }
            | lambda-function                     { $$ = $1; }
+           | emit                                { $$ = $1; }
            | match                               { $$ = $1; }
            | import                              { $$ = $1; }
            ;
@@ -169,6 +175,10 @@ expression-ari-f : expression-partielle spaces                              { $$
                  ;
 
 
+emit : TEMIT content expression-partielle                                   { $$ = mk_app(mk_app(mk_binop(EMIT), $2), $3); }
+     ;
+
+   
 let : LET symbol spaces affect IN expression                                { $$ = mk_app(mk_fun($2, $6), $4); }
     | '(' expression WHERE symbol spaces affect ')'                         { $$ = mk_app(mk_fun($4, $2), $6); }
     | LET RECURSIVE symbol spaces affect IN expression                      { $$ = mk_app(mk_fun($3, $7), mk_declrec($3, $5)); }
@@ -182,7 +192,7 @@ affect : symbol spaces affect                                               { $$
        ;
 
 
-lambda-function : FUNCTION affect                                           { $$ = $2; }
+lambda-function : FUNC affect                                           { $$ = $2; }
                 ;
 
 
@@ -288,7 +298,7 @@ top-directories : top-directories '.' { $$ = ++$1; }
 
 %%
 
-void yyerror (struct ast **root, char const *s) {
+void yyerror (struct closure **root, char const *s) {
     free(*root);
     fprintf(stderr, "%s\n", s);
 }

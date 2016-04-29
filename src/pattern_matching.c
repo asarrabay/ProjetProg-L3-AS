@@ -231,6 +231,7 @@ bool match_forest(struct pforest *  pforest, struct ast ** ast, struct env ** e)
             }
         }
     }
+    return false;
 }
 
 

@@ -81,11 +81,12 @@ then         { return THEN; }
 else         { return ELSE; }
 where        { return WHERE; }
 -\>          { return ARROW; }
-fun          { return FUNCTION; }
+fun          { return FUNC; }
 rec          { return RECURSIVE; }
 match        { return TMATCH; }
 with         { return WITH; }
 end          { return END; }
+emit         { return TEMIT; }
 
 "||"         { return OU; }
 "&&"         { return ET; }

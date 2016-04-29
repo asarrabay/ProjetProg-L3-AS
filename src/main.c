@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <machine.h>
 #include <lexer.h>
 #include <parser.h>
 
@@ -51,9 +52,10 @@ int main (int argc, char *argv[]) {
 	default : break ;
 	}
     }
-    struct ast *document;
+    
+    struct closure *cl;
     yyin = fdin;
-    int status = yyparse(&document);
+    int status = yyparse(&cl);
     fclose(fdin);
     fclose(fdout);
 

@@ -42,7 +42,10 @@ add_ut(parser grammar
    ${PROJECT_BINARY_DIR}/src/lexer.c
    ${PROJECT_SOURCE_DIR}/src/word.c
    ${PROJECT_SOURCE_DIR}/src/path.c
-   ${PROJECT_SOURCE_DIR}/src/pattern.c"
+   ${PROJECT_SOURCE_DIR}/src/pattern.c
+   ${PROJECT_SOURCE_DIR}/src/import.c
+   ${PROJECT_SOURCE_DIR}/src/machine.c
+   ${PROJECT_SOURCE_DIR}/src/pattern_matching.c"
   "${FLEX_LIBRARIES}"
   "none              [${CMAKE_CURRENT_SOURCE_DIR}/parser/none.tohtml]                      |
    spaces            [${CMAKE_CURRENT_SOURCE_DIR}/parser/spaces.tohtml]                    |

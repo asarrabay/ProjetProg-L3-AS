@@ -4,9 +4,10 @@
 #include "import.h"
 
 char * from_path_to_name(struct path * chemin){
-    fprintf(stderr,"Fonction à implémenter");
-    exit(1);
-    return "";
+  (void) chemin;
+  fprintf(stderr,"Fonction à implémenter");
+  exit(1);
+  return "";
 }
 
 struct closure * retreive_tree(struct path * chemin,struct files * f){

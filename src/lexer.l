@@ -98,7 +98,14 @@ end          { return END; }
 "//"         { return DIVIDE; }
 
 
-(?i:xml){LABELSET}*                 { return LABEL_XML; }
+(?i:xml){LABELSET}*                 {
+                                        #ifndef UT_LEXER
+                                            BEGIN RETSPACES;
+                                            yylval.s = strdup(yytext);
+                                        #endif
+                                        return LABEL_XML;
+                                    }
+
 [[:alpha:]]{LABELSET}*|_{LABELSET}+ {
                                       #ifndef UT_LEXER
                                           BEGIN RETSPACES;

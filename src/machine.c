@@ -110,7 +110,7 @@ struct ast * to_forest(struct ast * t){
         break;
     }
     default:
-        fprintf(stderr,"Erreur de typage, seul les mots, arbres, entiers ou forêts peuvent être convertis en forêt.");
+      fprintf(stderr,"AST TYPE : %d, Erreur de typage, seul les mots, arbres, entiers ou forêts peuvent être convertis en forêt.", tp);
         exit(1);
         break;
     }
@@ -1015,7 +1015,7 @@ void on_forest(struct machine * m){
                 pop_function(m);
                 break;
             default:
-                fprintf(stderr,"Erreur de typage, une forêt peut être utilisée dans la construction d'une autre forêt ou alors dans celle d'un arbre, ou encore comme argument de fonction.");
+	      fprintf(stderr,"AST TYPE : %d, Erreur de typage, une forêt peut être utilisée dans la construction d'une autre forêt ou alors dans celle d'un arbre, ou encore comme argument de fonction.", m->stack->top->type);
                 exit(1);
                 break;
             }

@@ -808,13 +808,31 @@ void on_unaryop(struct machine * m){
 
 }
 
+/* à supprimer */
+
+static void print_env(struct env *e) {
+  while (e!= NULL) {
+    printf("%s ->", e->var);
+    fflush(stdout);
+
+    if (e->value != NULL)
+      printf("%d\n", e->value->value->node->num);
+    else
+      printf("NULL\n");
+    e = e->next;
+  }
+}
+
 void on_var(struct machine * m){
+  printf("ON VAR\n");
     char * c = m->closure->value->node->str;
     struct env * e = m->closure->env;
+    print_env(e);
     while(e!=NULL){
         if(!strcmp(c,e->var)){
             m->closure = e->value;
             compute(m);
+	        printf("AFTER VAR\n");
             return;
         }
         else{

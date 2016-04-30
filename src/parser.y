@@ -23,6 +23,7 @@
 
 %code {
 void yyerror (struct closure **, char const *);
+static void print_env(struct env *);
 struct env *e = NULL;
 }
 
@@ -88,11 +89,12 @@ start : root    {   printf("Line :%d\n", __LINE__);
                     else
                         (*root)->env = e;
                 }
+
       ;
 
 
-root : root set        { printf("Line :%d\n", __LINE__);($1 != NULL)?($$ = mk_forest(false, $1, $2)):($$ = $2); }
-     | header          { printf("Line :%d\n", __LINE__);$$ = NULL; }
+root : root expression-partielle            { printf("Line :%d\n", __LINE__);($1 != NULL)?($$ = mk_forest(false, $1, $2)):($$ = $2); }
+     | header                               { printf("Line :%d\n", __LINE__);$$ = NULL; }
      ;
 
 
@@ -100,7 +102,7 @@ header : LET SYMBOL affect ';' header         { printf("Line :%d\n", __LINE__);e
        | LET RECURSIVE SYMBOL affect ';' header         { printf("Line :%d\n", __LINE__);e = process_binding_instruction($3, $4, e); }
        | let ';' header                       { }
        | emit ';' header                             { printf("Line :%d\n", __LINE__);process_instruction($1, e); }
-       | %empty
+       | expression-partielle
        ;
 
 
@@ -110,14 +112,13 @@ set : block      { printf("Line :%d\n", __LINE__);$$ = $1; }
 
 
 block : '{' body '}' { printf("Line :%d\n", __LINE__);$$ = $2; }
+      | '{' '}'      { $$ = NULL; }
       ;
 
 
-body : set body              { printf("Line :%d\n", __LINE__);$$ = mk_forest(false, $1, $2); }
-     | content body   { printf("Line :%d\n", __LINE__);$$ = mk_forest(false, $1, $2); }
-     | application ',' body  { printf("Line :%d\n", __LINE__);$$ = mk_forest(false, $1, $3); }
-     | application           { printf("Line :%d\n", __LINE__);$$ = mk_forest(false, $1, NULL); }
-     | %empty                { printf("Line :%d\n", __LINE__);$$ = NULL; }
+body : expression-partielle body { printf("Line :%d\n", __LINE__);$$ = mk_forest(false, $1, $2); }
+     | expression ',' body       { printf("Line :%d\n", __LINE__);$$ = mk_forest(false, $1, $3); }
+     | expression                { printf("Line :%d\n", __LINE__);$$ = mk_forest(false, $1, NULL); }
      ;
 
 
@@ -312,4 +313,18 @@ void yyerror (struct closure **root, char const *s) {
     // TODO: free du root
     //free(*root);
     fprintf(stderr, "%s\n", s);
+}
+
+
+static void print_env(struct env *envi) {
+  while (envi!= NULL) {
+    printf("%s ->", envi->var);
+    fflush(stdout);
+
+    if (envi->value != NULL)
+      printf("%d\n", envi->value->value->node->num);
+    else
+      printf("NULL\n");
+    envi = envi->next;
+  }
 }

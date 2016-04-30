@@ -85,8 +85,6 @@ struct env *e = NULL;
 start : root    {   printf("Line :%d\n", __LINE__); print_env(e);
                     if($1 != NULL)
                         *root = process_content($1, e);
-                    else
-                        (*root)->env = e;
                 }
 
       ;
@@ -99,7 +97,7 @@ root : root expression-partielle            { printf("Line :%d\n", __LINE__);($1
 
 header : LET SYMBOL affect ';' header                   { printf("Line :%d\n", __LINE__);e = process_binding_instruction($2, $3, e); }
        | LET RECURSIVE SYMBOL affect ';' header         { printf("Line :%d\n", __LINE__);e = process_binding_instruction($3, $4, e); }
-       | emit ';' header                                { printf("Line :%d\n", __LINE__);process_instruction($1, e); }
+| emit ';' header                                { printf("Line :%d\n", __LINE__); print_env(e); process_instruction($1, e); }
        | %empty
        ;
 
@@ -110,7 +108,7 @@ set : block      { printf("Line :%d\n", __LINE__);$$ = $1; }
 
 
 block : '{' body '}' { printf("Line :%d\n", __LINE__);$$ = $2; }
-      | '{' '}'      { $$ = NULL; }
+      | '{' '}'      { $$ = mk_forest(false, mk_node(), NULL); }
       ;
 
 

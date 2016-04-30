@@ -221,7 +221,7 @@ attribute-list : attribute attribute-list { printf("Line :%d\n", __LINE__);$$ = 
                ;
 
 
-attribute : SYMBOL '=' content { printf("Line :%d\n", __LINE__);$$ = mk_attributes(false, mk_word($1), $3, NULL); }
+attribute : SYMBOL '=' content { printf("Line :%d\n", __LINE__);$$ = mk_attributes(true, mk_word($1), $3, NULL); }
           ;
 
 

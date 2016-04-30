@@ -78,6 +78,7 @@ struct env *e = NULL;
 
 %start start
 
+%debug
 
 %%
 
@@ -91,8 +92,10 @@ root : root expression-partielle              { printf("Line :%d\n", __LINE__);(
      ;
 
 
-header : LET SYMBOL affect ';' header         { printf("Line :%d\n", __LINE__);printf("AFFECT : %s, %p\n", $2, (void *) $3); e = process_binding_instruction($2, $3, e); print_env(e); }
-       | emit ';' header                      { printf("Line :%d\n", __LINE__);process_instruction($1, e); }
+header : LET SYMBOL affect ';' header         { printf("Line :%d\n", __LINE__);e = process_binding_instruction($2, $3, e); }
+       | LET RECURSIVE SYMBOL affect ';' header         { printf("Line :%d\n", __LINE__);e = process_binding_instruction($3, $4, e); }
+       | let ';' header                       { }
+       | emit ';' header                             { printf("Line :%d\n", __LINE__);process_instruction($1, e); }
        | %empty
        ;
 

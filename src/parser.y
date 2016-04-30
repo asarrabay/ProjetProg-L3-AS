@@ -87,7 +87,7 @@ start : root   { printf("Line :%d\n", __LINE__); print_env(e); *root = process_c
       ;
 
 
-root : root expression-partielle              { printf("Line :%d\n", __LINE__);($1 != NULL)?($$ = mk_forest(false, $1, $2)):($$ = $2); }
+root : root expression-partielle            { printf("Line :%d\n", __LINE__);($1 != NULL)?($$ = mk_forest(false, $1, $2)):($$ = $2); }
      | header                               { printf("Line :%d\n", __LINE__);$$ = NULL; }
      ;
 
@@ -96,7 +96,7 @@ header : LET SYMBOL affect ';' header         { printf("Line :%d\n", __LINE__);e
        | LET RECURSIVE SYMBOL affect ';' header         { printf("Line :%d\n", __LINE__);e = process_binding_instruction($3, $4, e); }
        | let ';' header                       { }
        | emit ';' header                             { printf("Line :%d\n", __LINE__);process_instruction($1, e); }
-       | %empty
+       | expression-partielle
        ;
 
 

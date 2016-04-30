@@ -81,10 +81,7 @@ struct env *e = NULL;
 %%
 
 
-start : root    {    print_env(e);
-                    if($1 != NULL)
-                        *root = process_content($1, e);
-                }
+start : root    { if($1 != NULL) *root = process_content($1, e); }
 
       ;
 
@@ -304,6 +301,6 @@ top-directories : top-directories '.' { $$ = ++$1; }
 
 void yyerror (struct closure **root, char const *s) {
     // TODO: free du root
-    //free(*root);
+    free(*root);
     fprintf(stderr, "%s\n", s);
 }

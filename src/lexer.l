@@ -34,7 +34,7 @@ LABELSET ([[:alnum:]'._])
                                   #endif
                                   return DIRECTORY;
                                 }
-<IMPORT>[^./][^/]-[>]           {
+<IMPORT>[^./][^/]*-[>]          {
                                   BEGIN INITIAL;
                                   yyless(yyleng - 2);
                                   #ifndef UT_LEXER
@@ -129,6 +129,6 @@ emit         { printf("Line :%d / text : %s\n", __LINE__, yytext);return TEMIT; 
              }
 
 [[:space:]]+ {}
-.            { printf("Line :%d / text : %s\n", __LINE__, yytext);return yytext[0]; }
+<INITIAL,IMPORT>. { printf("Line :%d / text : %s\n", __LINE__, yytext);return yytext[0]; }
 
 %%

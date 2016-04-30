@@ -53,7 +53,7 @@ struct env * process_binding_instruction(char * name, struct ast * a, struct env
     //should free stack...
     return mk_env(name,tmp_closure,e);
 }
-    
+
 
 void process_instruction(struct ast * a, struct env * e){
     struct machine * m = malloc(sizeof(struct machine));
@@ -65,14 +65,9 @@ void process_instruction(struct ast * a, struct env * e){
 
 struct closure * process_content(struct ast * a, struct env * e){
     struct machine * m = malloc(sizeof(struct machine));
-    printf("AST : %p\n", (void *) a);
     m->closure = mk_closure(a,e);
     m->stack=NULL;
-    printf("MACHINE : %p\n", (void *) m);
-    printf("MACHINE->closure : %p\n", (void *) m->closure);
-    printf("MACHINE->closure->value : %p\n", (void *) m->closure->value);
     compute(m);
-    printf("TYPE DE MACHINE : %d\n", m->closure->value->type);
     if(m->closure->value->type==TREE || m->closure->value->type==FOREST){
         struct closure *tmp_closure = m->closure;
         free(m);

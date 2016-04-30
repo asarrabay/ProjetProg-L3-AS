@@ -26,21 +26,43 @@ void word_destroy (word_t word) {
 }
 
 word_t word_cat (word_t word, char c) {
+    if ((word->length + 1) == word->size) {
+        word->size   *= 2;
+        word->s_word  = realloc(word->s_word, word->size * sizeof (char));
+    }
+    word->s_word = strcat(word->s_word, &c);
+    word->length ++;
+    return word;
+}
+
+static word_t word_convert_cat (word_t word, char c) {
     char a_buff[7] = { 0 };
     int size = 1;
     if (!isalnum(c)) {
-	size = 6;
-	sprintf(a_buff, "&#%03d;", c);
+        size = 6;
+        sprintf(a_buff, "&#%03d;", c);
     } else {
-	a_buff[0] = c;
+        a_buff[0] = c;
     }
+    a_buff[0] = c;
     if ((word->length + size) == word->size) {
-	word->size   *= 2;
-	word->s_word  = realloc(word->s_word, word->size * sizeof (char));
+        word->size   *= 2;
+        word->s_word  = realloc(word->s_word, word->size * sizeof (char));
     }
     word->s_word = strcat(word->s_word, a_buff);
     word->length += size;
     return word;
+}
+
+char * word_convert(char * word){
+    word_t tmp = word_create();
+    while (*word != '\0') {
+        tmp = word_convert_cat(tmp, *word);
+        word++;
+    }
+    char * res = word_to_string(tmp);
+    word_destroy(tmp);
+    return res;
 }
 
 char *word_to_string (word_t word) {

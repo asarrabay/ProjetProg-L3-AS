@@ -52,6 +52,7 @@ add_ut(parser grammar
    spaces            [${CMAKE_CURRENT_SOURCE_DIR}/parser/spaces.tohtml]                    |
    set               [${CMAKE_CURRENT_SOURCE_DIR}/parser/set.tohtml]                       |
    let               [${CMAKE_CURRENT_SOURCE_DIR}/parser/let.tohtml]                       |
+   emit              [${CMAKE_CURRENT_SOURCE_DIR}/parser/emit.tohtml]                      |
    attributes_none   [${CMAKE_CURRENT_SOURCE_DIR}/parser/attributes_none.tohtml]           |
    condition         [${CMAKE_CURRENT_SOURCE_DIR}/parser/condition.tohtml]                 |
    films             [${CMAKE_CURRENT_SOURCE_DIR}/parser/films.tohtml]                     |

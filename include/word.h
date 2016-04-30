@@ -7,6 +7,6 @@ extern word_t  word_create (void);
 extern void    word_destroy (word_t);
 extern word_t  word_cat (word_t, char);
 extern char   *word_to_string (word_t);
+extern char * word_convert(char * word);
 
 #endif
-

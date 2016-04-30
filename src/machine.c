@@ -4,7 +4,14 @@
 #include <assert.h>
 #include <machine.h>
 #include <pattern_matching.h>
+#include <word.h>
 
+
+static void indent(FILE *fdout, int depth) {
+    for (int i = 0; i < depth; i++) {
+        fprintf(fdout, "\t");
+    }
+}
 
 static void attributes_to_xml (FILE *fdout, struct attributes *a) {
     if(a != NULL){
@@ -14,32 +21,35 @@ static void attributes_to_xml (FILE *fdout, struct attributes *a) {
 
 }
 
-static void ast_to_xml(FILE *fdout,struct ast *ast){
+static void ast_to_xml(FILE *fdout,struct ast *ast, int depth){
     if(ast == NULL)
         return;
 
     struct tree *t;
     switch (ast->type) {
         case FOREST:
-            ast_to_xml(fdout, ast->node->forest->head); // fils
-            ast_to_xml(fdout, ast->node->forest->tail); // frère
+            ast_to_xml(fdout, ast->node->forest->head, depth); // fils
+            ast_to_xml(fdout, ast->node->forest->tail, depth); // frère
             break;
 
         case TREE:
             t = ast->node->tree;
+            indent(fdout, depth);
             fprintf(fdout, "<%s", t->label);
             attributes_to_xml(fdout, t->attributes);
             if (t->nullary) {
-                fprintf(fdout, "/>");
+                fprintf(fdout, "/>\n");
                 break ;
             }
-            fprintf(fdout, ">");
-            ast_to_xml(fdout, t->daughters);
-            fprintf(fdout, "</%s>", t->label);
+            fprintf(fdout, ">\n");
+            ast_to_xml(fdout, t->daughters, depth + 1); // fils
+            fprintf(fdout, "\n");
+            indent(fdout, depth);
+            fprintf(fdout, "</%s>\n", t->label);
             break;
 
         case WORD:
-            fprintf(fdout, "%s", ast->node->str);
+            fprintf(fdout, "%s", word_convert(ast->node->str));
             // Espace géré dans la grammaire
             break ;
 
@@ -58,7 +68,7 @@ void emit (char *file, struct ast *ast) {
         exit(EXIT_FAILURE);
     }
 
-    ast_to_xml(fdout, ast);
+    ast_to_xml(fdout, ast, 0);
 
     fclose(fdout);
 }
@@ -824,7 +834,6 @@ static void print_env(struct env *e) {
 }
 
 void on_var(struct machine * m){
-  printf("ON VAR\n");
     char * c = m->closure->value->node->str;
     struct env * e = m->closure->env;
     print_env(e);
@@ -832,7 +841,6 @@ void on_var(struct machine * m){
         if(!strcmp(c,e->var)){
             m->closure = e->value;
             compute(m);
-	        printf("AFTER VAR\n");
             return;
         }
         else{

@@ -231,8 +231,8 @@ content : '"' spaces word-list '"' { printf("Line :%d\n", __LINE__);$$ = $3; }
 
 
 word-list : word SPACES word-list { printf("Line :%d\n", __LINE__);$$ = mk_forest(false, mk_word(word_to_string(word_cat($1, ' '))), $3); word_destroy($1); }
-          | word SPACES           { printf("Line :%d\n", __LINE__);$$ = mk_word(word_to_string(word_cat($1, ' '))); word_destroy($1);                       }
-          | word                  { printf("Line :%d\n", __LINE__);$$ = mk_word(word_to_string($1)); word_destroy($1);                       }
+          | word SPACES           { printf("Line :%d\n", __LINE__);$$ = mk_forest(false, mk_word(word_to_string(word_cat($1, ' '))), NULL); word_destroy($1);                       }
+          | word                  { printf("Line :%d\n", __LINE__);$$ = mk_forest(false, mk_word(word_to_string($1)), NULL); word_destroy($1);                       }
           ;
 
 
@@ -278,7 +278,7 @@ pattern : '_'                                      { printf("Line :%d\n", __LINE
         | '-' '_' '-'                              { printf("Line :%d\n", __LINE__);$$ = mk_wildcard(ANYSEQ);           }
         | SYMBOL                                   { printf("Line :%d\n", __LINE__);$$ = mk_pattern_var($1, TREEVAR);   }
         | '*' SYMBOL '*'                           { printf("Line :%d\n", __LINE__);$$ = mk_pattern_var($2, STRINGVAR); }
-        | '/' SYMBOL '/'                           { printf("Line :%d\n", __LINE__);$$ = mk_pattern_var($2, FORESTVAR); }
+        | '/' LABEL '/'                           { printf("Line :%d\n", __LINE__);$$ = mk_pattern_var($2, FORESTVAR); }
         | '-' SYMBOL '-'                           { printf("Line :%d\n", __LINE__);$$ = mk_pattern_var($2, ANYVAR);    }
         ;
 

@@ -82,7 +82,12 @@ struct env *e = NULL;
 %%
 
 
-start : root   { printf("Line :%d\n", __LINE__);*root = process_content($1, e); printf("Line :%d\n", __LINE__); }
+start : root    {   printf("Line :%d\n", __LINE__);
+                    if($1 != NULL)
+                        *root = process_content($1, e);
+                    else
+                        (*root)->env = e;
+                }
       ;
 
 

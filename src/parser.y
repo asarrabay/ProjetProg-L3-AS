@@ -97,7 +97,7 @@ root : root expression-partielle            { printf("Line :%d\n", __LINE__);($1
 
 header : LET SYMBOL affect ';' header                   { printf("Line :%d\n", __LINE__);e = process_binding_instruction($2, $3, e); }
        | LET RECURSIVE SYMBOL affect ';' header         { printf("Line :%d\n", __LINE__);e = process_binding_instruction($3, $4, e); }
-| emit ';' header                                { printf("Line :%d\n", __LINE__); print_env(e); process_instruction($1, e); }
+       | emit ';' header                                { printf("Line :%d\n", __LINE__); print_env(e); process_instruction($1, e); }
        | %empty
        ;
 
@@ -230,9 +230,9 @@ content : '"' spaces word-list '"' { printf("Line :%d\n", __LINE__);$$ = $3; }
         ;
 
 
-word-list : word SPACES word-list { printf("Line :%d\n", __LINE__);$$ = mk_forest(false, mk_word(word_to_string(word_cat($1, ' '))), $3); word_destroy($1); }
-| word SPACES           { printf("Line :%d\n", __LINE__);$$ = mk_forest(false, mk_word(word_to_string(word_cat($1, ' '))), NULL); word_destroy($1);                       }
-          | word                  { printf("Line :%d\n", __LINE__);$$ = mk_forest(false, mk_word(word_to_string($1)), NULL); word_destroy($1);                       }
+word-list : word SPACES word-list { printf("Line :%d\n", __LINE__);$$ = mk_forest(true, mk_word(word_to_string(word_cat($1, ' '))), $3); word_destroy($1); }
+          | word SPACES           { printf("Line :%d\n", __LINE__);$$ = mk_forest(true, mk_word(word_to_string(word_cat($1, ' '))), NULL); word_destroy($1);                       }
+          | word                  { printf("Line :%d\n", __LINE__);$$ = mk_forest(true, mk_word(word_to_string($1)), NULL); word_destroy($1);                       }
           ;
 
 

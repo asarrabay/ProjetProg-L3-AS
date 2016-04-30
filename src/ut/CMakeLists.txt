@@ -53,7 +53,8 @@ add_ut(parser grammar
    set               [${CMAKE_CURRENT_SOURCE_DIR}/parser/set.tohtml]                       |
    let               [${CMAKE_CURRENT_SOURCE_DIR}/parser/let.tohtml]                       |
    attributes_none   [${CMAKE_CURRENT_SOURCE_DIR}/parser/attributes_none.tohtml]           |
-   films             [${CMAKE_CURRENT_SOURCE_DIR}/parser/films.tohtml]           |
+   condition         [${CMAKE_CURRENT_SOURCE_DIR}/parser/condition.tohtml]                 |
+   films             [${CMAKE_CURRENT_SOURCE_DIR}/parser/films.tohtml]                     |
    attributes        [${CMAKE_CURRENT_SOURCE_DIR}/parser/attributes.tohtml]                |
    quote_in_string   [${CMAKE_CURRENT_SOURCE_DIR}/parser/quote_in_string.tohtml]           |
    double_string     [${CMAKE_CURRENT_SOURCE_DIR}/parser/double_string.tohtml]             |

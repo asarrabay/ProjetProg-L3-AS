@@ -23,7 +23,6 @@
 
 %code {
 void yyerror (struct closure **, char const *);
-static void print_env(struct env *);
 struct env *e = NULL;
 }
 
@@ -82,7 +81,7 @@ struct env *e = NULL;
 %%
 
 
-start : root    {   printf("Line :%d\n", __LINE__); print_env(e);
+start : root    {    print_env(e);
                     if($1 != NULL)
                         *root = process_content($1, e);
                 }
@@ -90,159 +89,159 @@ start : root    {   printf("Line :%d\n", __LINE__); print_env(e);
       ;
 
 
-root : root expression-partielle            { printf("Line :%d\n", __LINE__);($1 != NULL)?($$ = mk_forest(false, $1, $2)):($$ = $2); }
-     | header                               { printf("Line :%d\n", __LINE__);$$ = NULL; }
+root : root expression-partielle            { ($1 != NULL)?($$ = mk_forest(false, $1, $2)):($$ = $2); }
+     | header                               { $$ = NULL; }
      ;
 
 
-header : LET SYMBOL affect ';' header                   { printf("Line :%d\n", __LINE__);e = process_binding_instruction($2, $3, e); }
-       | LET RECURSIVE SYMBOL affect ';' header         { printf("Line :%d\n", __LINE__);e = process_binding_instruction($3, $4, e); }
-       | emit ';' header                                { printf("Line :%d\n", __LINE__); print_env(e); process_instruction($1, e); }
+header : LET SYMBOL affect ';' header                   { e = process_binding_instruction($2, $3, e); }
+       | LET RECURSIVE SYMBOL affect ';' header         { e = process_binding_instruction($3, $4, e); }
+       | emit ';' header                                { process_instruction($1, e); }
        | %empty
        ;
 
 
-set : block      { printf("Line :%d\n", __LINE__);$$ = $1; }
-    | label      { printf("Line :%d\n", __LINE__);$$ = $1; }
+set : block      { $$ = $1; }
+    | label      { $$ = $1; }
     ;
 
 
-block : '{' body '}' { printf("Line :%d\n", __LINE__);$$ = $2; }
+block : '{' body '}' { $$ = $2; }
       | '{' '}'      { $$ = mk_forest(false, mk_node(), NULL); }
       ;
 
 
-body : expression-partielle body { printf("Line :%d\n", __LINE__);$$ = mk_forest(false, $1, $2); }
-     | expression ',' body       { printf("Line :%d\n", __LINE__);$$ = mk_forest(false, $1, $3); }
-     | expression                { printf("Line :%d\n", __LINE__);$$ = mk_forest(false, $1, NULL); }
+body : expression-partielle body { $$ = mk_forest(false, $1, $2); }
+     | expression ',' body       { $$ = mk_forest(false, $1, $3); }
+     | expression                { $$ = mk_forest(false, $1, NULL); }
      ;
 
 
-expression : expression-booleenne-e              { printf("Line :%d\n", __LINE__);$$ = $1; }
-           | expression-conditionnelle           { printf("Line :%d\n", __LINE__);$$ = $1; }
-           | let                                 { printf("Line :%d\n", __LINE__);$$ = $1; }
-           | lambda-function                     { printf("Line :%d\n", __LINE__);$$ = $1; }
-           | emit                                { printf("Line :%d\n", __LINE__);$$ = $1; }
-           | match                               { printf("Line :%d\n", __LINE__);$$ = $1; }
-           | import                              { printf("Line :%d\n", __LINE__);$$ = $1; }
+expression : expression-booleenne-e              { $$ = $1; }
+           | expression-conditionnelle           { $$ = $1; }
+           | let                                 { $$ = $1; }
+           | lambda-function                     { $$ = $1; }
+           | emit                                { $$ = $1; }
+           | match                               { $$ = $1; }
+           | import                              { $$ = $1; }
            ;
 
 
-expression-partielle : '(' expression ')'        { printf("Line :%d\n", __LINE__);$$ = $2; }
-                     | set                       { printf("Line :%d\n", __LINE__);$$ = $1; }
-                     | content                   { printf("Line :%d\n", __LINE__);$$ = $1; }
+expression-partielle : '(' expression ')'        { $$ = $2; }
+                     | set                       { $$ = $1; }
+                     | content                   { $$ = $1; }
                      ;
 
 
-expression-conditionnelle : IF expression-booleenne-e THEN expression ELSE expression { printf("Line :%d\n", __LINE__);$$ = mk_cond($2, $4, $6); }
+expression-conditionnelle : IF expression-booleenne-e THEN expression ELSE expression { $$ = mk_cond($2, $4, $6); }
                           ;
 
 
-expression-booleenne-e : expression-booleenne-e OU expression-booleenne-t   { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_app(mk_binop(OR), $1), $3);  }
-                       | expression-booleenne-e ET expression-booleenne-t   { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_app(mk_binop(AND), $1), $3); }
-                       | expression-booleenne-t                             { printf("Line :%d\n", __LINE__);$$ = $1; }
+expression-booleenne-e : expression-booleenne-e OU expression-booleenne-t   { $$ = mk_app(mk_app(mk_binop(OR), $1), $3);  }
+                       | expression-booleenne-e ET expression-booleenne-t   { $$ = mk_app(mk_app(mk_binop(AND), $1), $3); }
+                       | expression-booleenne-t                             { $$ = $1; }
                        ;
 
 
-expression-booleenne-t : expression-booleenne-t INFEQ expression-ari-e      { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_app(mk_binop(LEQ), $1), $3); }
-                       | expression-booleenne-t INF expression-ari-e        { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_app(mk_binop(LE), $1), $3);  }
-                       | expression-booleenne-t SUPEQ expression-ari-e      { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_app(mk_binop(GEQ), $1), $3); }
-                       | expression-booleenne-t SUP expression-ari-e        { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_app(mk_binop(GE), $1), $3);  }
-                       | expression-booleenne-t EGAL expression-ari-e       { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_app(mk_binop(EQ), $1), $3);  }
-                       | expression-booleenne-t NEGAL expression-ari-e      { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_app(mk_binop(NEQ), $1), $3); }
-                       | expression-ari-e                                   { printf("Line :%d\n", __LINE__);$$ = $1; }
+expression-booleenne-t : expression-booleenne-t INFEQ expression-ari-e      { $$ = mk_app(mk_app(mk_binop(LEQ), $1), $3); }
+                       | expression-booleenne-t INF expression-ari-e        { $$ = mk_app(mk_app(mk_binop(LE), $1), $3);  }
+                       | expression-booleenne-t SUPEQ expression-ari-e      { $$ = mk_app(mk_app(mk_binop(GEQ), $1), $3); }
+                       | expression-booleenne-t SUP expression-ari-e        { $$ = mk_app(mk_app(mk_binop(GE), $1), $3);  }
+                       | expression-booleenne-t EGAL expression-ari-e       { $$ = mk_app(mk_app(mk_binop(EQ), $1), $3);  }
+                       | expression-booleenne-t NEGAL expression-ari-e      { $$ = mk_app(mk_app(mk_binop(NEQ), $1), $3); }
+                       | expression-ari-e                                   { $$ = $1; }
                        ;
 
 
-expression-ari-e : expression-ari-e '+' expression-ari-t                    { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_app(mk_binop(PLUS), $1), $3);  }
-                 | expression-ari-e '-' expression-ari-t                    { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_app(mk_binop(MINUS), $1), $3); }
-                 | expression-ari-t                                         { printf("Line :%d\n", __LINE__);$$ = $1; }
+expression-ari-e : expression-ari-e '+' expression-ari-t                    { $$ = mk_app(mk_app(mk_binop(PLUS), $1), $3);  }
+                 | expression-ari-e '-' expression-ari-t                    { $$ = mk_app(mk_app(mk_binop(MINUS), $1), $3); }
+                 | expression-ari-t                                         { $$ = $1; }
                  ;
 
 
-expression-ari-t : expression-ari-t '*' expression-ari-f                    { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_app(mk_binop(MULT), $1), $3); }
-                 | expression-ari-t DIVIDE expression-ari-f                 { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_app(mk_binop(DIV), $1), $3);  }
-                 | expression-ari-f                                         { printf("Line :%d\n", __LINE__);$$ = $1; }
+expression-ari-t : expression-ari-t '*' expression-ari-f                    { $$ = mk_app(mk_app(mk_binop(MULT), $1), $3); }
+                 | expression-ari-t DIVIDE expression-ari-f                 { $$ = mk_app(mk_app(mk_binop(DIV), $1), $3);  }
+                 | expression-ari-f                                         { $$ = $1; }
                  ;
 
 
-expression-ari-f : expression-partielle                                     { printf("Line :%d\n", __LINE__);$$ = $1; }
-                 | application                                              { printf("Line :%d\n", __LINE__);$$ = $1; }
-                 | NUMBER                                                   { printf("Line :%d\n", __LINE__);$$ = mk_integer($1); }
-                 | '!' expression-partielle                                 { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_unaryop(NOT), $2); }
-                 | '!' application                                          { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_unaryop(NOT), $2); }
-                 | '!' NUMBER                                               { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_unaryop(NEG), mk_integer($2)); }
+expression-ari-f : expression-partielle                                     { $$ = $1; }
+                 | application                                              { $$ = $1; }
+                 | NUMBER                                                   { $$ = mk_integer($1); }
+                 | '!' expression-partielle                                 { $$ = mk_app(mk_unaryop(NOT), $2); }
+                 | '!' application                                          { $$ = mk_app(mk_unaryop(NOT), $2); }
+                 | '!' NUMBER                                               { $$ = mk_app(mk_unaryop(NEG), mk_integer($2)); }
                  ;
 
 
-emit : TEMIT expression-partielle expression                                { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_app(mk_binop(EMIT), $2), $3); }
+emit : TEMIT expression-partielle expression                                { $$ = mk_app(mk_app(mk_binop(EMIT), $2), $3); }
      ;
 
 
-let : LET SYMBOL affect IN expression                                { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_fun($2, $5), $3); }
-    | '(' expression WHERE SYMBOL affect ')'                         { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_fun($4, $2), $5); }
-    | LET RECURSIVE SYMBOL affect IN expression                      { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_fun($3, $6), mk_declrec($3, $6)); }
-    | '(' expression WHERE RECURSIVE SYMBOL affect ')'               { printf("Line :%d\n", __LINE__);$$ = mk_app(mk_fun($5, $2), mk_declrec($5, $6)); }
+let : LET SYMBOL affect IN expression                                { $$ = mk_app(mk_fun($2, $5), $3); }
+    | '(' expression WHERE SYMBOL affect ')'                         { $$ = mk_app(mk_fun($4, $2), $5); }
+    | LET RECURSIVE SYMBOL affect IN expression                      { $$ = mk_app(mk_fun($3, $6), mk_declrec($3, $6)); }
+    | '(' expression WHERE RECURSIVE SYMBOL affect ')'               { $$ = mk_app(mk_fun($5, $2), mk_declrec($5, $6)); }
     ;
 
 
-affect : SYMBOL affect                                               { printf("Line :%d\n", __LINE__);$$ = mk_fun($1, $2); }
-       | '=' expression                                                     { printf("Line :%d\n", __LINE__);$$ = $2; }
-       | ARROW expression                                                   { printf("Line :%d\n", __LINE__);$$ = $2; }
+affect : SYMBOL affect                                               { $$ = mk_fun($1, $2); }
+       | '=' expression                                                     { $$ = $2; }
+       | ARROW expression                                                   { $$ = $2; }
        ;
 
 
-lambda-function : FUNC affect                                           { printf("Line :%d\n", __LINE__);$$ = $2; }
+lambda-function : FUNC affect                                           { $$ = $2; }
                 ;
 
 
-application : application expression-partielle                       { printf("Line :%d\n", __LINE__);$$ = mk_app($1, $2); }
-            | application SYMBOL                                     { printf("Line :%d\n", __LINE__);$$ = mk_app($1, mk_var($2) ); }
-            | application NUMBER                                     { printf("Line :%d\n", __LINE__);$$ = mk_app($1, mk_integer($2) ); }
-            | SYMBOL                                                 { printf("Line :%d\n", __LINE__);$$ = mk_var($1); }
+application : application expression-partielle                       { $$ = mk_app($1, $2); }
+            | application SYMBOL                                     { $$ = mk_app($1, mk_var($2) ); }
+            | application NUMBER                                     { $$ = mk_app($1, mk_integer($2) ); }
+            | SYMBOL                                                 { $$ = mk_var($1); }
             ;
 
 
-label : LABEL attributes block { printf("Line :%d\n", __LINE__);$$ = mk_tree($1, false, false, false, $2, $3);    }
-      | LABEL block                   { printf("Line :%d\n", __LINE__);$$ = mk_tree($1, false, false, false, NULL, $2);  }
-      | LABEL attributes '/'          { printf("Line :%d\n", __LINE__);$$ = mk_tree($1, false, true, false, $2, NULL);   }
-      | LABEL '/'                     { printf("Line :%d\n", __LINE__);$$ = mk_tree($1, false, true, false, NULL, NULL); }
+label : LABEL attributes block { $$ = mk_tree($1, false, false, false, $2, $3);    }
+      | LABEL block                   { $$ = mk_tree($1, false, false, false, NULL, $2);  }
+      | LABEL attributes '/'          { $$ = mk_tree($1, false, true, false, $2, NULL);   }
+      | LABEL '/'                     { $$ = mk_tree($1, false, true, false, NULL, NULL); }
       ;
 
 
 
-attributes : '[' attribute-list ']' { printf("Line :%d\n", __LINE__);$$ = $2; }
-           | '[' empt-list ']'      { printf("Line :%d\n", __LINE__);$$ = (struct attributes *)$2; }
+attributes : '[' attribute-list ']' { $$ = $2; }
+           | '[' empt-list ']'      { $$ = (struct attributes *)$2; }
            ;
 
 
-attribute-list : attribute attribute-list { printf("Line :%d\n", __LINE__);$$ = $1; $1->next = $2; }
-               | attribute                       { printf("Line :%d\n", __LINE__);$$ = $1; }
+attribute-list : attribute attribute-list { $$ = $1; $1->next = $2; }
+               | attribute                       { $$ = $1; }
                ;
 
 
-attribute : SYMBOL '=' content { printf("Line :%d\n", __LINE__);$$ = mk_attributes(true, mk_word($1), $3, NULL); }
+attribute : SYMBOL '=' content { $$ = mk_attributes(true, mk_word($1), $3, NULL); }
           ;
 
 
-content : '"' spaces word-list '"' { printf("Line :%d\n", __LINE__);$$ = $3; }
-        | '"' empt-list '"'        { printf("Line :%d\n", __LINE__);$$ = $2; }
+content : '"' spaces word-list '"' { $$ = $3; }
+        | '"' empt-list '"'        { $$ = $2; }
         ;
 
 
-word-list : word SPACES word-list { printf("Line :%d\n", __LINE__);$$ = mk_forest(true, mk_word(word_to_string(word_cat($1, ' '))), $3); word_destroy($1); }
-          | word SPACES           { printf("Line :%d\n", __LINE__);$$ = mk_forest(true, mk_word(word_to_string(word_cat($1, ' '))), NULL); word_destroy($1);                       }
-          | word                  { printf("Line :%d\n", __LINE__);$$ = mk_forest(true, mk_word(word_to_string($1)), NULL); word_destroy($1);                       }
+word-list : word SPACES word-list { $$ = mk_forest(true, mk_word(word_to_string(word_cat($1, ' '))), $3); word_destroy($1); }
+          | word SPACES           { $$ = mk_forest(true, mk_word(word_to_string(word_cat($1, ' '))), NULL); word_destroy($1);                       }
+          | word                  { $$ = mk_forest(true, mk_word(word_to_string($1)), NULL); word_destroy($1);                       }
           ;
 
 
-word : word CHARACTER { printf("Line :%d\n", __LINE__);$$ = word_cat($1, $2); }
-     | CHARACTER      { printf("Line :%d\n", __LINE__);$$ = word_cat(word_create(), $1); }
+word : word CHARACTER { $$ = word_cat($1, $2); }
+     | CHARACTER      { $$ = word_cat(word_create(), $1); }
      ;
 
 
-empt-list : SPACES { printf("Line :%d\n", __LINE__);$$ = NULL; }
-          | %empty { printf("Line :%d\n", __LINE__);$$ = NULL; }
+empt-list : SPACES { $$ = NULL; }
+          | %empty { $$ = NULL; }
           ;
 
 
@@ -251,76 +250,60 @@ spaces : SPACES
        ;
 
 
-match : TMATCH expression WITH patterns END        { printf("Line :%d\n", __LINE__);$$ = mk_match($2, $4); }
+match : TMATCH expression WITH patterns END        { $$ = mk_match($2, $4); }
       ;
 
 
-patterns : '|' pforest ARROW expression patterns   { printf("Line :%d\n", __LINE__);$$ = mk_patterns($2, $4, $5);   }
-         | '|' pforest ARROW expression            { printf("Line :%d\n", __LINE__);$$ = mk_patterns($2, $4, NULL); }
-         | '|' '{' pforest '}' ARROW expression patterns   { printf("Line :%d\n", __LINE__);$$ = mk_patterns($3, $6, $7);   }
-         | '|' '{' pforest '}' ARROW expression            { printf("Line :%d\n", __LINE__);$$ = mk_patterns($3, $6, NULL); }
+patterns : '|' pforest ARROW expression patterns   { $$ = mk_patterns($2, $4, $5);   }
+         | '|' pforest ARROW expression            { $$ = mk_patterns($2, $4, NULL); }
+         | '|' '{' pforest '}' ARROW expression patterns   { $$ = mk_patterns($3, $6, $7);   }
+         | '|' '{' pforest '}' ARROW expression            { $$ = mk_patterns($3, $6, NULL); }
          ;
 
 
-pforest : pattern pforest                          { printf("Line :%d\n", __LINE__);$$ = mk_pforest($1, $2); }
+pforest : pattern pforest                          { $$ = mk_pforest($1, $2); }
     //    | '{' pforest '}'                          {$$ = $2; }
-        | %empty                                   { printf("Line :%d\n", __LINE__);$$ = NULL; }
+        | %empty                                   { $$ = NULL; }
         ;
 
 
-pattern : '_'                                      { printf("Line :%d\n", __LINE__);$$ = mk_wildcard(ANY);              }
-        | LABEL '{' pattern '}'                    { printf("Line :%d\n", __LINE__);$$ = mk_ptree($1, false, $3);       }
-        | LABEL '{' '}'                            { printf("Line :%d\n", __LINE__);$$ = mk_ptree($1, true, NULL);      }
-        | '_' '{' pattern '}'                      { printf("Line :%d\n", __LINE__);$$ = mk_anytree(false, $3);         }
-        | '_' '{' '}'                              { printf("Line :%d\n", __LINE__);$$ = mk_anytree(true, NULL);        }
-        | '*' '_' '*'                              { printf("Line :%d\n", __LINE__);$$ = mk_wildcard(ANYSTRING);        }
-        | '/' '_' '/'                              { printf("Line :%d\n", __LINE__);$$ = mk_wildcard(ANYFOREST);        }
-        | '-' '_' '-'                              { printf("Line :%d\n", __LINE__);$$ = mk_wildcard(ANYSEQ);           }
-        | SYMBOL                                   { printf("Line :%d\n", __LINE__);$$ = mk_pattern_var($1, TREEVAR);   }
-        | '*' SYMBOL '*'                           { printf("Line :%d\n", __LINE__);$$ = mk_pattern_var($2, STRINGVAR); }
-        | '/' LABEL '/'                           { printf("Line :%d\n", __LINE__);$$ = mk_pattern_var($2, FORESTVAR); }
-        | '-' SYMBOL '-'                           { printf("Line :%d\n", __LINE__);$$ = mk_pattern_var($2, ANYVAR);    }
+pattern : '_'                                      { $$ = mk_wildcard(ANY);              }
+        | LABEL '{' pattern '}'                    { $$ = mk_ptree($1, false, $3);       }
+        | LABEL '{' '}'                            { $$ = mk_ptree($1, true, NULL);      }
+        | '_' '{' pattern '}'                      { $$ = mk_anytree(false, $3);         }
+        | '_' '{' '}'                              { $$ = mk_anytree(true, NULL);        }
+        | '*' '_' '*'                              { $$ = mk_wildcard(ANYSTRING);        }
+        | '/' '_' '/'                              { $$ = mk_wildcard(ANYFOREST);        }
+        | '-' '_' '-'                              { $$ = mk_wildcard(ANYSEQ);           }
+        | SYMBOL                                   { $$ = mk_pattern_var($1, TREEVAR);   }
+        | '*' SYMBOL '*'                           { $$ = mk_pattern_var($2, STRINGVAR); }
+        | '/' LABEL '/'                           { $$ = mk_pattern_var($2, FORESTVAR); }
+        | '-' SYMBOL '-'                           { $$ = mk_pattern_var($2, ANYVAR);    }
         ;
 
 
-import : '$' path DOCUMENT ARROW SYMBOL { printf("Line :%d\n", __LINE__);PATH_SET_FILENAME($2, $3);
+import : '$' path DOCUMENT ARROW SYMBOL { PATH_SET_FILENAME($2, $3);
                                           PATH_SET_DECLNAME($2, $5);
 					  $$ = mk_import($2);       }
        ;
 
 
-path : top-directories DIRECTORY { printf("Line :%d\n", __LINE__);$$ = path_new($1, $2, NULL, NULL);   }
-     | top-directories           { printf("Line :%d\n", __LINE__);$$ = path_new($1, NULL, NULL, NULL); }
-     | DIRECTORY                 { printf("Line :%d\n", __LINE__);$$ = path_new(0, $1, NULL, NULL);    }
-     | %empty                    { printf("Line :%d\n", __LINE__);$$ = path_new(0, NULL, NULL, NULL);  }
+path : top-directories DIRECTORY { $$ = path_new($1, $2, NULL, NULL);   }
+     | top-directories           { $$ = path_new($1, NULL, NULL, NULL); }
+     | DIRECTORY                 { $$ = path_new(0, $1, NULL, NULL);    }
+     | %empty                    { $$ = path_new(0, NULL, NULL, NULL);  }
      ;
 
 
-top-directories : top-directories '.' { printf("Line :%d\n", __LINE__);$$ = ++$1; }
-                | '.'                 { printf("Line :%d\n", __LINE__);$$ = 1; }
+top-directories : top-directories '.' { $$ = ++$1; }
+                | '.'                 { $$ = 1; }
                 ;
 
 
 %%
 
 void yyerror (struct closure **root, char const *s) {
-    printf("%p -> %p\n", (void *)root,(void *) *root );
-    printf("%d: %s at %s\n", yylineno, s, yytext);
     // TODO: free du root
     //free(*root);
     fprintf(stderr, "%s\n", s);
-}
-
-
-static void print_env(struct env *envi) {
-  while (envi!= NULL) {
-    printf("%s ->", envi->var);
-    fflush(stdout);
-
-    if (envi->value != NULL)
-      printf("%d\n", envi->value->value->node->num);
-    else
-      printf("NULL\n");
-    envi = envi->next;
-  }
 }

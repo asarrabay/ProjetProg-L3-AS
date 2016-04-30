@@ -19,7 +19,6 @@ static void usage (const char const *s_program) {
 }
 
 int main (int argc, char *argv[]) {
-	yydebug = 1;
     FILE *fdout = stdout;
     FILE *fdin  = stdin;
     int c;

@@ -31,6 +31,7 @@ struct env *e = NULL;
 
 %token LABEL
 %token SYMBOL
+%token ILLEGAL
 %token SPACES
 %token CHARACTER
 %token NUMBER
@@ -78,12 +79,10 @@ struct env *e = NULL;
 
 %start start
 
-%debug
-
 %%
 
 
-start : root    {   printf("Line :%d\n", __LINE__);
+start : root    {   printf("Line :%d\n", __LINE__); print_env(e);
                     if($1 != NULL)
                         *root = process_content($1, e);
                     else
@@ -98,11 +97,10 @@ root : root expression-partielle            { printf("Line :%d\n", __LINE__);($1
      ;
 
 
-header : LET SYMBOL affect ';' header         { printf("Line :%d\n", __LINE__);e = process_binding_instruction($2, $3, e); }
+header : LET SYMBOL affect ';' header                   { printf("Line :%d\n", __LINE__);e = process_binding_instruction($2, $3, e); }
        | LET RECURSIVE SYMBOL affect ';' header         { printf("Line :%d\n", __LINE__);e = process_binding_instruction($3, $4, e); }
-       | let ';' header                       { }
-       | emit ';' header                             { printf("Line :%d\n", __LINE__);process_instruction($1, e); }
-       | expression-partielle
+       | emit ';' header                                { printf("Line :%d\n", __LINE__);process_instruction($1, e); }
+       | %empty
        ;
 
 
@@ -207,7 +205,7 @@ application : application expression-partielle                       { printf("L
             ;
 
 
-label : LABEL attributes spaces block { printf("Line :%d\n", __LINE__);$$ = mk_tree($1, false, false, false, $2, $4);    }
+label : LABEL attributes block { printf("Line :%d\n", __LINE__);$$ = mk_tree($1, false, false, false, $2, $3);    }
       | LABEL block                   { printf("Line :%d\n", __LINE__);$$ = mk_tree($1, false, false, false, NULL, $2);  }
       | LABEL attributes '/'          { printf("Line :%d\n", __LINE__);$$ = mk_tree($1, false, true, false, $2, NULL);   }
       | LABEL '/'                     { printf("Line :%d\n", __LINE__);$$ = mk_tree($1, false, true, false, NULL, NULL); }

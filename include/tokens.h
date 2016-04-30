@@ -16,6 +16,7 @@
  */
 typedef enum { LABEL = 256,
 	       SYMBOL,
+	       ILLEGAL,
                SPACES,
                CHARACTER,
                NUMBER,

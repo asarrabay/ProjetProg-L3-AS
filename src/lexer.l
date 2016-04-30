@@ -22,7 +22,6 @@
 LABELSET ([[:alnum:]'._])
 
 %x STRING
-%x RETSPACES
 %x IMPORT
 
 %%
@@ -67,8 +66,6 @@ LABELSET ([[:alnum:]'._])
                        return '"';
                      }
 
-<RETSPACES>[[:space:]]+ { printf("Line :%d / text : %s\n", __LINE__, yytext);BEGIN INITIAL; return SPACES; }
-<RETSPACES>.            { printf("Line :%d / text : %s\n", __LINE__, yytext);BEGIN INITIAL; yyless(0); }
 
 in           { printf("Line :%d / text : %s\n", __LINE__, yytext);return IN; }
 if           { printf("Line :%d / text : %s\n", __LINE__, yytext);return IF; }
@@ -117,9 +114,9 @@ emit         { printf("Line :%d / text : %s\n", __LINE__, yytext);return TEMIT; 
                                            }
 
 
-\"           { printf("Line :%d / text : %s\n", __LINE__, yytext);BEGIN STRING; return '"'; }
-\]           { printf("Line :%d / text : %s\n", __LINE__, yytext);BEGIN RETSPACES; return ']'; }
-\$           { printf("Line :%d / text : %s\n", __LINE__, yytext);BEGIN IMPORT; return '$'; }
+\"                         { printf("Line :%d / text : %s\n", __LINE__, yytext); BEGIN STRING; return '"'; }
+\]/[[:space:]]+\/                      { printf("Line :%d / text : %s\n", __LINE__, yytext); return ILLEGAL; }
+\$                         { printf("Line :%d / text : %s\n", __LINE__, yytext); BEGIN IMPORT; return '$'; }
 
 [[:digit:]]+ {
                #ifndef UT_LEXER
